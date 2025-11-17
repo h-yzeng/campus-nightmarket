@@ -136,7 +136,6 @@ const Signup = ({
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-2xl">
-          {/* Header */}
           <div className="text-center mb-10">
             <h2 className="text-4xl font-bold mb-3 text-[#CC0000]">
               Welcome to Night Market!
@@ -146,9 +145,7 @@ const Signup = ({
             </p>
           </div>
 
-          {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-8">
-            {/* Photo Upload */}
             <div className="flex justify-center mb-8">
               <div className="relative">
                 <div 
@@ -187,8 +184,40 @@ const Signup = ({
               </div>
             </div>
 
-            {/* Form Fields */}
-            {/* Email and Password Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  First Name <span className="text-[#CC0000]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={profileData.firstName}
+                  onChange={handleFirstNameChange}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getNameBorderColor(profileData.firstName)}`}
+                  placeholder="John"
+                />
+                {profileData.firstName && !isValidName(profileData.firstName) && (
+                  <p className="text-xs text-[#CC0000] mt-1">Only letters are allowed</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  Last Name <span className="text-[#CC0000]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={profileData.lastName}
+                  onChange={handleLastNameChange}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getNameBorderColor(profileData.lastName)}`}
+                  placeholder="Doe"
+                />
+                {profileData.lastName && !isValidName(profileData.lastName) && (
+                  <p className="text-xs text-[#CC0000] mt-1">Only letters are allowed</p>
+                )}
+              </div>
+            </div>
+
             <div className="mb-6">
               <label className="block text-sm font-semibold mb-2 text-gray-900">
                 Email Address <span className="text-[#CC0000]">*</span>
@@ -205,6 +234,22 @@ const Signup = ({
               </div>
               {profileData.email && !isValidEmail(profileData.email) && (
                 <p className="text-xs text-[#CC0000] mt-1">Please enter a valid email address</p>
+              )}
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-2 text-gray-900">
+                Student ID Number <span className="text-[#CC0000]">*</span>
+              </label>
+              <input
+                type="text"
+                value={profileData.studentId}
+                onChange={handleStudentIdChange}
+                className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all font-mono bg-[#FAFAFA] ${getStudentIdBorderColor(profileData.studentId)}`}
+                placeholder="A20123456"
+              />
+              {profileData.studentId && (!isValidStudentId(profileData.studentId) || profileData.studentId.length <= 1) && (
+                <p className="text-xs text-[#CC0000] mt-1">Must start with 'A' followed by numbers</p>
               )}
             </div>
 
@@ -248,57 +293,6 @@ const Signup = ({
               </div>
             </div>
 
-            {/* Name Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-900">
-                  First Name <span className="text-[#CC0000]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={profileData.firstName}
-                  onChange={handleFirstNameChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getNameBorderColor(profileData.firstName)}`}
-                  placeholder="John"
-                />
-                {profileData.firstName && !isValidName(profileData.firstName) && (
-                  <p className="text-xs text-[#CC0000] mt-1">Only letters are allowed</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-900">
-                  Last Name <span className="text-[#CC0000]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={profileData.lastName}
-                  onChange={handleLastNameChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getNameBorderColor(profileData.lastName)}`}
-                  placeholder="Doe"
-                />
-                {profileData.lastName && !isValidName(profileData.lastName) && (
-                  <p className="text-xs text-[#CC0000] mt-1">Only letters are allowed</p>
-                )}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2 text-gray-900">
-                Student ID Number <span className="text-[#CC0000]">*</span>
-              </label>
-              <input
-                type="text"
-                value={profileData.studentId}
-                onChange={handleStudentIdChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all font-mono bg-[#FAFAFA] ${getStudentIdBorderColor(profileData.studentId)}`}
-                placeholder="A20123456"
-              />
-              {profileData.studentId && (!isValidStudentId(profileData.studentId) || profileData.studentId.length <= 1) && (
-                <p className="text-xs text-[#CC0000] mt-1">Must start with 'A' followed by numbers</p>
-              )}
-            </div>
-
             <div className="mb-6">
               <label className="block text-sm font-semibold mb-2 text-gray-900">
                 Tell us something about yourself
@@ -311,7 +305,6 @@ const Signup = ({
               />
             </div>
 
-            {/* Info Box */}
             <div className="flex gap-3 p-4 rounded-xl mb-6 bg-[#FFF5F5] border-2 border-[#FFDDDD]">
               <AlertCircle size={20} className="text-[#CC0000] shrink-0 mt-0.5" />
               <p className="text-sm text-gray-900">
@@ -319,7 +312,6 @@ const Signup = ({
               </p>
             </div>
 
-            {/* Submit Button */}
             <button
               onClick={onCreateProfile}
               disabled={!isFormValid}
