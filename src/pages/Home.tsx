@@ -1,28 +1,20 @@
-import Footer from '../components/Footer';
-
 interface HomeProps {
   onGetStarted: () => void;
 }
 
 const Home = ({ onGetStarted }: HomeProps) => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-gray-50">
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-white to-gray-50">
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center">
         <div className="text-center px-6 py-16 max-w-4xl mx-auto">
-          {/* Hero Icon */}
           <div className="text-9xl mb-8 animate-bounce-slow">🌙</div>
-          
-          {/* Main Heading */}
           <h1 className="text-7xl font-bold mb-4 text-[#CC0000] tracking-tight">
             Night Market
           </h1>
-          
-          {/* Subheading */}
           <p className="text-2xl font-semibold text-gray-900 mb-3">
             Campus Late-Night Food Exchange
           </p>
-          
           <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
             Buy, sell, and trade food with verified IIT students. 
             Never go hungry during those late-night study sessions again.
@@ -64,9 +56,6 @@ const Home = ({ onGetStarted }: HomeProps) => {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };
