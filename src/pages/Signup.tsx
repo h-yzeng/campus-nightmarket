@@ -14,7 +14,35 @@ const Signup = ({
   onCreateProfile 
 }: SignupProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isFormValid = profileData.firstName && profileData.lastName && profileData.studentId;
+  
+  const isValidName = (name: string): boolean => {
+    return /^[A-Za-z\s]*$/.test(name);
+  };
+  
+  const isValidStudentId = (id: string): boolean => {
+    return /^A\d*$/.test(id);
+  };
+  
+  const getNameBorderColor = (value: string): string => {
+    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200'; 
+    if (isValidName(value)) return 'border-[#000000] focus:ring-gray-200';
+    return 'border-[#CC0000] focus:ring-red-200';
+  };
+  
+  const getStudentIdBorderColor = (value: string): string => {
+    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200'; 
+    if (isValidStudentId(value) && value.length > 1) return 'border-[#000000] focus:ring-gray-200'; 
+    return 'border-[#CC0000] focus:ring-red-200'; 
+  };
+  
+  const isFormValid = 
+    profileData.firstName && 
+    isValidName(profileData.firstName) &&
+    profileData.lastName && 
+    isValidName(profileData.lastName) &&
+    profileData.studentId && 
+    isValidStudentId(profileData.studentId) &&
+    profileData.studentId.length > 1; 
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -28,6 +56,39 @@ const Signup = ({
         setProfileData({ ...profileData, photo: reader.result as string });
       };
       reader.readAsDataURL(file);
+    }
+  };
+  
+  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || isValidName(value)) {
+      setProfileData({ ...profileData, firstName: value });
+    }
+  };
+  
+  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || isValidName(value)) {
+      setProfileData({ ...profileData, lastName: value });
+    }
+  };
+  
+  const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase(); 
+    if (value === '') {
+      setProfileData({ ...profileData, studentId: '' });
+      return;
+    }
+    
+    if (!value.startsWith('A')) {
+      if (value.length === 1 && /\d/.test(value)) {
+        setProfileData({ ...profileData, studentId: 'A' + value });
+      }
+      return;
+    }
+    
+    if (isValidStudentId(value)) {
+      setProfileData({ ...profileData, studentId: value });
     }
   };
 
@@ -95,14 +156,13 @@ const Signup = ({
                 <input
                   type="text"
                   value={profileData.firstName}
-                  onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${
-                    profileData.firstName 
-                      ? 'border-[#000000] focus:ring-gray-200' 
-                      : 'border-[#CC0000] focus:ring-red-200'
-                  }`}
+                  onChange={handleFirstNameChange}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getNameBorderColor(profileData.firstName)}`}
                   placeholder="John"
                 />
+                {profileData.firstName && !isValidName(profileData.firstName) && (
+                  <p className="text-xs text-[#CC0000] mt-1">Only letters are allowed</p>
+                )}
               </div>
 
               <div>
@@ -112,14 +172,13 @@ const Signup = ({
                 <input
                   type="text"
                   value={profileData.lastName}
-                  onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${
-                    profileData.lastName 
-                      ? 'border-[#000000] focus:ring-gray-200' 
-                      : 'border-[#CC0000] focus:ring-red-200'
-                  }`}
+                  onChange={handleLastNameChange}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getNameBorderColor(profileData.lastName)}`}
                   placeholder="Doe"
                 />
+                {profileData.lastName && !isValidName(profileData.lastName) && (
+                  <p className="text-xs text-[#CC0000] mt-1">Only letters are allowed</p>
+                )}
               </div>
             </div>
 
@@ -130,14 +189,13 @@ const Signup = ({
               <input
                 type="text"
                 value={profileData.studentId}
-                onChange={(e) => setProfileData({ ...profileData, studentId: e.target.value })}
-                className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all font-mono bg-[#FAFAFA] ${
-                  profileData.studentId 
-                    ? 'border-[#000000] focus:ring-gray-200' 
-                    : 'border-[#CC0000] focus:ring-red-200'
-                }`}
+                onChange={handleStudentIdChange}
+                className={`w-full px-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all font-mono bg-[#FAFAFA] ${getStudentIdBorderColor(profileData.studentId)}`}
                 placeholder="A20123456"
               />
+              {profileData.studentId && (!isValidStudentId(profileData.studentId) || profileData.studentId.length <= 1) && (
+                <p className="text-xs text-[#CC0000] mt-1">Must start with 'A' followed by numbers</p>
+              )}
             </div>
 
             <div className="mb-6">
