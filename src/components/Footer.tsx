@@ -1,3 +1,5 @@
+import { Mail } from 'lucide-react';
+
 const Footer = () => {
   return (
     <footer className="border-t-2 border-[#E5E5E5] bg-[#FAFAFA] mt-auto">
@@ -33,9 +35,10 @@ const Footer = () => {
               Contact
             </h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>📧 support@nightmarket.iit.edu</li>
-              <li>📱 Campus Safety: (312) 808-6363</li>
-              <li>🏫 Illinois Institute of Technology</li>
+              <li className="flex items-center gap-2">
+                <Mail size={16} className="text-[#CC0000]" />
+                marketsupport@iit.edu
+              </li>
             </ul>
           </div>
         </div>
@@ -43,7 +46,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-gray-300 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-500">
-            © 2024 Night Market. All rights reserved. | For verified IIT students only.
+            © 2025 Night Market. All rights reserved. | For verified IIT students only.
           </p>
           <div className="flex gap-4 text-xs text-gray-500">
             <a href="#" className="hover:text-gray-900 transition-colors">Privacy Policy</a>
