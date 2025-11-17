@@ -1,4 +1,4 @@
-import { Camera, AlertCircle } from 'lucide-react';
+import { Camera, AlertCircle, Mail, Lock } from 'lucide-react';
 import { useRef } from 'react';
 import type { ProfileData } from '../types';
 
@@ -23,26 +23,65 @@ const Signup = ({
     return /^A\d*$/.test(id);
   };
   
+  const isValidEmail = (email: string): boolean => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+  
+  const isValidPassword = (password: string): boolean => {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && 
+           /[a-z]/.test(password) && 
+           /\d/.test(password);
+  };
+  
+  const passwordsMatch = (): boolean => {
+    return profileData.password === profileData.confirmPassword && profileData.password.length > 0;
+  };
+  
   const getNameBorderColor = (value: string): string => {
-    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200'; 
+    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
     if (isValidName(value)) return 'border-[#000000] focus:ring-gray-200';
     return 'border-[#CC0000] focus:ring-red-200';
   };
   
   const getStudentIdBorderColor = (value: string): string => {
-    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200'; 
-    if (isValidStudentId(value) && value.length > 1) return 'border-[#000000] focus:ring-gray-200'; 
-    return 'border-[#CC0000] focus:ring-red-200'; 
+    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
+    if (isValidStudentId(value) && value.length > 1) return 'border-[#000000] focus:ring-gray-200';
+    return 'border-[#CC0000] focus:ring-red-200';
+  };
+  
+  const getEmailBorderColor = (value: string): string => {
+    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
+    if (isValidEmail(value)) return 'border-[#000000] focus:ring-gray-200';
+    return 'border-[#CC0000] focus:ring-red-200';
+  };
+  
+  const getPasswordBorderColor = (value: string): string => {
+    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
+    if (isValidPassword(value)) return 'border-[#000000] focus:ring-gray-200';
+    return 'border-[#CC0000] focus:ring-red-200';
+  };
+  
+  const getConfirmPasswordBorderColor = (): string => {
+    if (!profileData.confirmPassword) return 'border-[#D0D0D0] focus:ring-gray-200';
+    if (passwordsMatch()) return 'border-[#000000] focus:ring-gray-200';
+    return 'border-[#CC0000] focus:ring-red-200';
   };
   
   const isFormValid = 
+    profileData.email &&
+    isValidEmail(profileData.email) &&
+    profileData.password &&
+    isValidPassword(profileData.password) &&
+    profileData.confirmPassword &&
+    passwordsMatch() &&
     profileData.firstName && 
     isValidName(profileData.firstName) &&
     profileData.lastName && 
     isValidName(profileData.lastName) &&
     profileData.studentId && 
     isValidStudentId(profileData.studentId) &&
-    profileData.studentId.length > 1; 
+    profileData.studentId.length > 1;
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -74,7 +113,8 @@ const Signup = ({
   };
   
   const handleStudentIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase(); 
+    const value = e.target.value.toUpperCase();
+    
     if (value === '') {
       setProfileData({ ...profileData, studentId: '' });
       return;
@@ -148,6 +188,67 @@ const Signup = ({
             </div>
 
             {/* Form Fields */}
+            {/* Email and Password Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold mb-2 text-gray-900">
+                Email Address <span className="text-[#CC0000]">*</span>
+              </label>
+              <div className="relative">
+                <Mail size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getEmailBorderColor(profileData.email)}`}
+                  placeholder="youremail@hawk.illinoistech.edu"
+                />
+              </div>
+              {profileData.email && !isValidEmail(profileData.email) && (
+                <p className="text-xs text-[#CC0000] mt-1">Please enter a valid email address</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  Password <span className="text-[#CC0000]">*</span>
+                </label>
+                <div className="relative">
+                  <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                  <input
+                    type="password"
+                    value={profileData.password}
+                    onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
+                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getPasswordBorderColor(profileData.password)}`}
+                    placeholder="••••••••"
+                  />
+                </div>
+                {profileData.password && !isValidPassword(profileData.password) && (
+                  <p className="text-xs text-[#CC0000] mt-1">8+ chars, uppercase, lowercase, number</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  Confirm Password <span className="text-[#CC0000]">*</span>
+                </label>
+                <div className="relative">
+                  <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                  <input
+                    type="password"
+                    value={profileData.confirmPassword}
+                    onChange={(e) => setProfileData({ ...profileData, confirmPassword: e.target.value })}
+                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base focus:outline-none focus:ring-2 transition-all bg-[#FAFAFA] ${getConfirmPasswordBorderColor()}`}
+                    placeholder="••••••••"
+                  />
+                </div>
+                {profileData.confirmPassword && !passwordsMatch() && (
+                  <p className="text-xs text-[#CC0000] mt-1">Passwords do not match</p>
+                )}
+              </div>
+            </div>
+
+            {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-semibold mb-2 text-gray-900">

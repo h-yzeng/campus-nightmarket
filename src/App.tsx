@@ -8,6 +8,9 @@ type PageType = 'home' | 'signup' | 'browse' | 'cart' | 'checkout';
 function App() {
   const [currentPage, setCurrentPage] = useState<PageType>('home');
   const [profileData, setProfileData] = useState<ProfileData>({
+    email: '',
+    password: '', 
+    confirmPassword: '',
     firstName: '',
     lastName: '',
     studentId: '',
