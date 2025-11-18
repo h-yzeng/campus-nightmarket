@@ -14,6 +14,8 @@ interface BrowseProps {
   profileData: ProfileData;
   onCartClick: () => void;
   onSignOut: () => void;
+  onProfileClick: () => void;
+  onViewProfile: (sellerName: string) => void;
 }
 
 const Browse = ({
@@ -26,7 +28,9 @@ const Browse = ({
   addToCart,
   profileData,
   onCartClick,
-  onSignOut
+  onSignOut,
+  onProfileClick,
+  onViewProfile
 }: BrowseProps) => {
   const filteredItems = foodItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -42,6 +46,7 @@ const Browse = ({
         profileData={profileData} 
         onCartClick={onCartClick}
         onSignOut={onSignOut}
+        onProfileClick={onProfileClick}
         showCart={true}
       />
 
@@ -99,9 +104,9 @@ const Browse = ({
               >
                 <div className="relative p-6 pb-4 bg-[#FAFAFA]">
                   <div className="text-7xl text-center mb-2">{item.image}</div>
-                  {parseFloat(item.rating) >= 4.9 && (
+                  {parseFloat(item.rating) >= 4.8 && (
                     <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full text-white font-bold shadow-md bg-[#FF9900]">
-                      HOT
+                      POPULAR
                     </span>
                   )}
                 </div>
@@ -113,9 +118,12 @@ const Browse = ({
                   <p className="text-sm mb-1 text-gray-600">
                     {item.description}
                   </p>
-                  <p className="text-sm mb-3 font-medium text-gray-700">
+                  <button
+                    onClick={() => onViewProfile(item.seller)}
+                    className="text-sm mb-3 font-medium text-[#CC0000] hover:underline"
+                  >
                     by {item.seller.split(' ')[0]}
-                  </p>
+                  </button>
                   
                   <div className="flex items-center gap-2 mb-4">
                     <MapPin size={14} className="text-[#76777B]" />

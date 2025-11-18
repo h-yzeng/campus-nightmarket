@@ -24,6 +24,16 @@ export interface ProfileData {
   photo: string | null;
 }
 
+export interface Transaction {
+  id: number;
+  buyerName: string;
+  itemName: string;
+  price: number;
+  date: string;
+  rating: number;
+  review?: string;
+}
+
 export type OrderType = 'purchase' | 'pickup' | '';
 
 export type PageType = 'welcome' | 'signup' | 'browse' | 'cart' | 'checkout';

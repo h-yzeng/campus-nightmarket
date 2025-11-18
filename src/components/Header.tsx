@@ -7,6 +7,7 @@ interface HeaderProps {
   profileData: ProfileData;
   onCartClick: () => void;
   onSignOut: () => void;
+  onProfileClick?: () => void;
   showCart?: boolean;
 }
 
@@ -15,6 +16,7 @@ const Header = ({
   profileData, 
   onCartClick, 
   onSignOut,
+  onProfileClick,
   showCart = false 
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -102,6 +104,19 @@ const Header = ({
                     <p className="text-sm text-gray-600">{profileData.email}</p>
                     <p className="text-xs text-gray-500 mt-1">{profileData.studentId}</p>
                   </div>
+                  
+                  {onProfileClick && (
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        onProfileClick();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-900 font-medium border-b border-gray-100"
+                    >
+                      <User size={18} />
+                      <span>View Profile</span>
+                    </button>
+                  )}
                   
                   <button
                     onClick={() => {
