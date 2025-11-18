@@ -1,11 +1,11 @@
 interface HomeProps {
   onGetStarted: () => void;
+  onLogin: () => void;
 }
 
-const Home = ({ onGetStarted }: HomeProps) => {
+const Home = ({ onGetStarted, onLogin }: HomeProps) => {
   return (
     <div className="min-h-screen flex flex-col bg-linear-to-br from-white to-gray-50">
-      {/* Main Content */}
       <main className="flex-1 flex items-center justify-center">
         <div className="text-center px-6 py-16 max-w-4xl mx-auto">
           <div className="text-9xl mb-8 animate-bounce-slow">🌙</div>
@@ -20,15 +20,25 @@ const Home = ({ onGetStarted }: HomeProps) => {
             Never go hungry during those late-night study sessions again.
           </p>
           
-          {/* CTA Button */}
-          <button
-            onClick={onGetStarted}
-            className="px-12 py-5 text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 active:scale-95 bg-[#CC0000]"
-          >
-            Create Account →
-          </button>
+          <div className="flex flex-col items-center gap-4">
+            <button
+              onClick={onGetStarted}
+              className="px-12 py-5 text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 active:scale-95 bg-[#CC0000]"
+            >
+              Create Account →
+            </button>
+            
+            <p className="text-base text-gray-600">
+              Already have an account?{' '}
+              <button
+                onClick={onLogin}
+                className="text-[#CC0000] font-bold hover:underline"
+              >
+                Sign In
+              </button>
+            </p>
+          </div>
 
-          {/* Features */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="p-6 bg-white rounded-xl shadow-md border-2 border-gray-100">
               <div className="text-4xl mb-3">🔒</div>

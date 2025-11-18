@@ -6,12 +6,14 @@ interface SignupProps {
   profileData: ProfileData;
   setProfileData: (data: ProfileData) => void;
   onCreateProfile: () => void;
+  onGoToLogin?: () => void;
 }
 
 const Signup = ({ 
   profileData, 
   setProfileData, 
-  onCreateProfile 
+  onCreateProfile,
+  onGoToLogin
 }: SignupProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -321,6 +323,20 @@ const Signup = ({
             >
               {isFormValid ? 'Create Profile →' : 'Fill Required Fields'}
             </button>
+
+            {onGoToLogin && (
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{' '}
+                  <button
+                    onClick={onGoToLogin}
+                    className="text-[#CC0000] font-semibold hover:underline"
+                  >
+                    Sign In
+                  </button>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -94,7 +94,7 @@ const Header = ({
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border-2 border-gray-100 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-65 bg-white rounded-xl shadow-xl border-2 border-gray-100 overflow-hidden">
                   <div className="p-4 border-b border-gray-100">
                     <p className="font-semibold text-gray-900">
                       {profileData.firstName} {profileData.lastName}

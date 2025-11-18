@@ -1,27 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ProfileData, FoodItem, CartItem } from './types';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
+import Login from './pages/Login';
 import Browse from './pages/Browse';
 
-type PageType = 'home' | 'signup' | 'browse' | 'cart' | 'checkout';
+type PageType = 'home' | 'login' | 'signup' | 'browse' | 'cart' | 'checkout';
+
+interface StoredAccount {
+  email: string;
+  password: string;
+  profileData: ProfileData;
+}
+
+const STORAGE_KEY_ACCOUNTS = 'nightmarket_accounts';
+const STORAGE_KEY_CURRENT_USER = 'nightmarket_current_user';
+
+const getInitialAccounts = (): StoredAccount[] => {
+  const savedAccounts = localStorage.getItem(STORAGE_KEY_ACCOUNTS);
+  return savedAccounts ? JSON.parse(savedAccounts) : [];
+};
+
+const getInitialUser = (): { profile: ProfileData; page: PageType } => {
+  const savedUser = localStorage.getItem(STORAGE_KEY_CURRENT_USER);
+  if (savedUser) {
+    return {
+      profile: JSON.parse(savedUser),
+      page: 'browse'
+    };
+  }
+  return {
+    profile: {
+      email: '',
+      password: '', 
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
+      studentId: '',
+      bio: '',
+      photo: null
+    },
+    page: 'home'
+  };
+};
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>('home');
-  const [profileData, setProfileData] = useState<ProfileData>({
-    email: '',
-    password: '', 
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    studentId: '',
-    bio: '',
-    photo: null
-  });
+  const initialUser = getInitialUser();
+  const [currentPage, setCurrentPage] = useState<PageType>(initialUser.page);
+  const [accounts, setAccounts] = useState<StoredAccount[]>(getInitialAccounts());
+  const [profileData, setProfileData] = useState<ProfileData>(initialUser.profile);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('All Dorms');
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    if (accounts.length > 0) {
+      localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(accounts));
+    }
+  }, [accounts]);
 
   const mockFoodItems: FoodItem[] = [
     {
@@ -110,8 +147,38 @@ function App() {
     setCurrentPage('signup');
   };
 
+  const handleGoToLogin = () => {
+    setCurrentPage('login');
+  };
+
+  const handleGoToSignup = () => {
+    setCurrentPage('signup');
+  };
+
   const handleCreateProfile = () => {
+    const newAccount: StoredAccount = {
+      email: profileData.email,
+      password: profileData.password,
+      profileData: { ...profileData }
+    };
+    setAccounts(prev => [...prev, newAccount]);
+    localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(profileData));
     setCurrentPage('browse');
+  };
+
+  const handleLogin = (email: string, password: string): boolean => {
+    const account = accounts.find(
+      acc => acc.email === email && acc.password === password
+    );
+
+    if (account) {
+      setProfileData(account.profileData);
+      localStorage.setItem(STORAGE_KEY_CURRENT_USER, JSON.stringify(account.profileData));
+      setCurrentPage('browse');
+      return true;
+    }
+
+    return false;
   };
 
   const handleCartClick = () => {
@@ -132,6 +199,7 @@ function App() {
     setCart([]);
     setSearchQuery('');
     setSelectedLocation('All Dorms');
+    localStorage.removeItem(STORAGE_KEY_CURRENT_USER);
     setCurrentPage('home');
   };
 
@@ -154,7 +222,17 @@ function App() {
   return (
     <div className="app">
       {currentPage === 'home' && (
-        <Home onGetStarted={handleGetStarted} />
+        <Home 
+          onGetStarted={handleGetStarted}
+          onLogin={handleGoToLogin}
+        />
+      )}
+
+      {currentPage === 'login' && (
+        <Login
+          onLogin={handleLogin}
+          onGoToSignup={handleGoToSignup}
+        />
       )}
 
       {currentPage === 'signup' && (
@@ -162,6 +240,7 @@ function App() {
           profileData={profileData}
           setProfileData={setProfileData}
           onCreateProfile={handleCreateProfile}
+          onGoToLogin={handleGoToLogin}
         />
       )}
 
