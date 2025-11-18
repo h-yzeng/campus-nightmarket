@@ -1,87 +1,121 @@
-import { ShoppingCart, User } from 'lucide-react';
+import { ShoppingCart, User, ChevronDown, LogOut } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import type { CartItem, ProfileData } from '../types';
 
 interface HeaderProps {
   cartItems: CartItem[];
   profileData: ProfileData;
   onCartClick: () => void;
+  onSignOut: () => void;
   showCart?: boolean;
 }
 
 const Header = ({ 
   cartItems, 
   profileData, 
-  onCartClick,
+  onCartClick, 
+  onSignOut,
   showCart = false 
 }: HeaderProps) => {
-  const cartCount = cartItems.length;
-  const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b-2 border-gray-200 shadow-sm">
+    <header className="bg-white border-b-2 border-gray-200 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo and Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-[#CC0000]">
-              🌙
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#CC0000]">
+              <span className="text-2xl">🌙</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold leading-tight text-[#CC0000]">
-                Night Market
-              </h1>
-              <p className="text-xs text-gray-500">
-                Campus Late-Night Food Exchange
-              </p>
+              <h1 className="text-xl font-bold text-[#CC0000]">Night Market</h1>
+              <p className="text-xs text-gray-600">Campus Late-Night Food Exchange</p>
             </div>
           </div>
 
-          {/* User Info and Cart */}
-          <div className="flex items-center gap-6">
-            {profileData.firstName && (
-              <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {showCart && (
+              <button
+                onClick={onCartClick}
+                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Shopping Cart"
+              >
+                <ShoppingCart size={24} className="text-gray-700" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white rounded-full bg-[#CC0000]">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            )}
+
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-900">
                     {profileData.firstName} {profileData.lastName}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {profileData.studentId}
-                  </p>
+                  <p className="text-xs text-gray-600">{profileData.studentId}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#F5F5F5]">
-                  <User size={20} className="text-[#CC0000]" />
-                </div>
-              </div>
-            )}
-
-            {showCart && (
-              <button
-                onClick={onCartClick}
-                className={`relative flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all hover:shadow-md ${
-                  cartCount > 0 
-                    ? 'border-[#CC0000] bg-[#FFF5F5]' 
-                    : 'border-[#E0E0E0] bg-white'
-                }`}
-              >
-                <ShoppingCart 
-                  size={24} 
-                  className={cartCount > 0 ? 'text-[#CC0000]' : 'text-[#76777B]'}
-                />
-                {cartCount > 0 && (
-                  <>
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs text-gray-600">Cart</span>
-                      <span className="text-sm font-bold text-[#CC0000]">
-                        {cartCount} items • ${totalPrice}
-                      </span>
-                    </div>
-                    <span className="absolute -top-2 -right-2 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md bg-[#FF9900]">
-                      {cartCount}
-                    </span>
-                  </>
+                
+                {profileData.photo ? (
+                  <img 
+                    src={profileData.photo} 
+                    alt="Profile" 
+                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-200" 
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-gray-200 bg-gray-100">
+                    <User size={20} className="text-gray-600" />
+                  </div>
                 )}
+                
+                <ChevronDown 
+                  size={18} 
+                  className={`text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                />
               </button>
-            )}
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border-2 border-gray-100 overflow-hidden">
+                  <div className="p-4 border-b border-gray-100">
+                    <p className="font-semibold text-gray-900">
+                      {profileData.firstName} {profileData.lastName}
+                    </p>
+                    <p className="text-sm text-gray-600">{profileData.email}</p>
+                    <p className="text-xs text-gray-500 mt-1">{profileData.studentId}</p>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      onSignOut();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-50 transition-colors text-[#CC0000] font-medium"
+                  >
+                    <LogOut size={18} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
