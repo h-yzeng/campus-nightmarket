@@ -258,47 +258,47 @@ export const mockSellersData: Record<string, SellerData> = {
 export const mockFoodItems: FoodItem[] = [
   {
     id: 1,
-    name: "Spicy Miso Ramen",
+    name: "Homemade Ramen",
     seller: "Suki Sakamoto",
     price: 9,
     image: "🍜",
     location: "Cunningham Hall",
     rating: "5.0",
-    description: "Rich miso broth with perfect spice"
+    description: "Rich and creamy broth with perfect spice"
   },
   {
     id: 2,
-    name: "Classic Cheese Pizza",
+    name: "Classic Pizzas",
     seller: "Marco Marino",
     price: 5,
     image: "🍕",
     location: "Kacek Hall",
     rating: "4.7",
-    description: "NY-style with fresh mozzarella"
+    description: "No matter the style I got you with fresh mozzarella cheese!"
   },
   {
     id: 3,
-    name: "Chicken Tacos",
+    name: "Special Tacos",
     seller: "Carlos Rodriguez",
     price: 6,
     image: "🌮",
     location: "Carmen Hall",
     rating: "5.0",
-    description: "Grilled chicken with homemade salsa"
+    description: "Grilled meat with homemade salsa"
   },
   {
     id: 4,
-    name: "Beyond Burger Deluxe",
+    name: "Vegan Deluxe",
     seller: "Lily Aspen",
     price: 8,
-    image: "🍔",
+    image: "🌿",
     location: "MSV",
     rating: "5.0",
     description: "Plant-based perfection with all toppings"
   },
   {
     id: 5,
-    name: "Chocolate Chip Cookies",
+    name: "Custom Cookies",
     seller: "Emma Baker",
     price: 3,
     image: "🍪",
@@ -308,32 +308,32 @@ export const mockFoodItems: FoodItem[] = [
   },
   {
     id: 6,
-    name: "Pad Thai",
+    name: "Thai Curry and Noodles",
     seller: "May Nok",
     price: 9,
-    image: "🍝",
+    image: "🍲",
     location: "Rowe South",
     rating: "5.0",
-    description: "Authentic Thai noodles from Bangkok"
+    description: "Authentic Thai Cuisine from Bangkok"
   },
   {
     id: 7,
-    name: "California Roll",
+    name: "Sushi",
     seller: "Mina Minato",
     price: 8,
     image: "🍣",
     location: "Rowe Middle",
     rating: "5.0",
-    description: "Fresh sushi with crab and avocado"
+    description: "Fresh sushi with fresh ingredients"
   },
   {
     id: 8,
-    name: "Berry Blast Smoothie",
+    name: "Fruit Smoothies",
     seller: "Chris Green",
     price: 6,
-    image: "🥤",
+    image: "🍹",
     location: "The Quad",
     rating: "4.5",
-    description: "Mixed berry smoothie, no added sugar"
+    description: "Fruit smoothies with no added sugar"
   }
 ];
