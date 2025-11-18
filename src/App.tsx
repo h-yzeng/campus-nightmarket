@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { CartItem, FoodItem } from './types';
 import { useAuth } from './hooks/userAuth';
-import { mockFoodItems, mockSellersData } from './data/MockData';
+import { mockFoodItems, mockSellersData } from './data/mockData';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
