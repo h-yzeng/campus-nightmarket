@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import type { CartItem, FoodItem } from './types';
-import { useAuth } from './hooks/userAuth';
-import { mockFoodItems, mockSellersData } from './data/mockData';
-import Home from './pages/Home';
-import Signup from './pages/Signup';
-import Login from './pages/Login';
-import Browse from './pages/Browse';
-import UserProfile from './pages/UserProfile';
-import ViewProfile from './pages/ViewProfile';
+import type { CartItem, FoodItem } from '../src/types';
+import { useAuth } from '../src/hooks/userAuth';
+import { mockFoodItems, mockSellersData } from '../src/data/mockData';
+import Home from '../src/pages/Home';
+import Signup from '../src/pages/Signup';
+import Login from '../src/pages/Login';
+import Browse from '../src/pages/Browse';
+import UserProfile from '../src/pages/UserProfile';
+import ViewProfile from '../src/pages/ViewProfile';
+import Cart from '../src/pages/Cart';
+import Checkout from '../src/pages/Checkout';
 
 function App() {
   const {
@@ -32,10 +34,21 @@ function App() {
   const handleGoToProfile = () => setCurrentPage('profile');
   const handleBackToBrowse = () => setCurrentPage('browse');
   const handleCartClick = () => setCurrentPage('cart');
+  const handleBackToCart = () => setCurrentPage('cart');
 
   const handleViewProfile = (sellerName: string) => {
     setSelectedSeller(sellerName);
     setCurrentPage('viewProfile');
+  };
+
+  const handleCheckout = () => {
+    setCurrentPage('checkout');
+  };
+
+  const handlePlaceOrder = () => {
+    setCart([]);
+    setCurrentPage('browse');
+    alert('Order placed successfully! The seller will contact you with pickup details.');
   };
 
   const handleSignOutWithReset = () => {
@@ -59,6 +72,20 @@ function App() {
       
       return [...prevCart, { ...item, quantity: 1 }];
     });
+  };
+
+  const updateCartQuantity = (itemId: number, newQuantity: number) => {
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.id === itemId
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
+  };
+
+  const removeFromCart = (itemId: number) => {
+    setCart(prevCart => prevCart.filter(item => item.id !== itemId));
   };
 
   const currentSellerData = mockSellersData[selectedSeller];
@@ -133,21 +160,27 @@ function App() {
       )}
 
       {currentPage === 'cart' && (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-[#CC0000]">Cart Page</h1>
-            <p className="text-gray-600 mt-2">Coming soon...</p>
-          </div>
-        </div>
+        <Cart
+          cart={cart}
+          profileData={profileData}
+          onUpdateQuantity={updateCartQuantity}
+          onRemoveItem={removeFromCart}
+          onCheckout={handleCheckout}
+          onContinueShopping={handleBackToBrowse}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+        />
       )}
 
       {currentPage === 'checkout' && (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-[#CC0000]">Checkout Page</h1>
-            <p className="text-gray-600 mt-2">Coming soon...</p>
-          </div>
-        </div>
+        <Checkout
+          cart={cart}
+          profileData={profileData}
+          onBackToCart={handleBackToCart}
+          onPlaceOrder={handlePlaceOrder}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+        />
       )}
     </div>
   );
