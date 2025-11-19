@@ -7,6 +7,11 @@ export interface SellerData {
   bio: string;
   location: string;
   transactions: Transaction[];
+  phone?: string;
+  email?: string;
+  cashApp?: string;
+  venmo?: string;
+  zelle?: string;
 }
 
 export const mockSellersData: Record<string, SellerData> = {
@@ -16,6 +21,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Japanese cuisine enthusiast! Specializing in authentic ramen bowls with homemade broth. My grandmother's recipes passed down through generations.",
     location: "Cunningham Hall",
+    phone: "(312) 555-0101",
+    email: "ssakamoto@hawk.illinoistech.edu",
+    cashApp: "$sukisakamoto",
+    venmo: "@suki-sakamoto",
+    zelle: "ssakamoto@hawk.illinoistech.edu",
     transactions: [
       {
         id: 1,
@@ -52,6 +62,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Italian-American pizza maker. Family recipes from Naples! Making authentic NY-style pizza right here on campus.",
     location: "Kacek Hall",
+    phone: "(312) 555-0102",
+    email: "mmarino@hawk.illinoistech.edu",
+    cashApp: "$marcomarino",
+    venmo: "@marco-marino",
+    zelle: "mmarino@hawk.illinoistech.edu",
     transactions: [
       {
         id: 4,
@@ -88,6 +103,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Authentic Mexican street tacos! Recipes from my abuela in Guadalajara. Fresh ingredients and homemade salsa daily.",
     location: "Carmen Hall",
+    phone: "(312) 555-0103",
+    email: "crodriguez@hawk.illinoistech.edu",
+    cashApp: "$carlosrodriguez",
+    venmo: "@carlos-rodriguez",
+    zelle: "crodriguez@hawk.illinoistech.edu",
     transactions: [
       {
         id: 7,
@@ -115,6 +135,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Plant-based food lover and nutrition major. Making vegan food that even meat-eaters love! Healthy, delicious, and sustainable.",
     location: "MSV",
+    phone: "(312) 555-0104",
+    email: "laspen@hawk.illinoistech.edu",
+    cashApp: "$lilyaspen",
+    venmo: "@lily-aspen",
+    zelle: "laspen@hawk.illinoistech.edu",
     transactions: [
       {
         id: 9,
@@ -142,6 +167,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Baking is my passion! Homemade cookies, brownies, and treats made with love. Everything from scratch, no preservatives!",
     location: "Rowe North",
+    phone: "(312) 555-0105",
+    email: "ebaker@hawk.illinoistech.edu",
+    cashApp: "$emmabaker",
+    venmo: "@emma-baker",
+    zelle: "ebaker@hawk.illinoistech.edu",
     transactions: [
       {
         id: 11,
@@ -178,6 +208,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Thai cuisine specialist from Bangkok! Authentic flavors from my mother's recipes. Every dish is made fresh with traditional techniques.",
     location: "Rowe South",
+    phone: "(312) 555-0106",
+    email: "mnok@hawk.illinoistech.edu",
+    cashApp: "$maynok",
+    venmo: "@may-nok",
+    zelle: "mnok@hawk.illinoistech.edu",
     transactions: [
       {
         id: 14,
@@ -205,6 +240,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Sushi chef trained by my grandmother in Tokyo. Only the freshest ingredients! Traditional techniques with modern creativity.",
     location: "Rowe Middle",
+    phone: "(312) 555-0107",
+    email: "mminato@hawk.illinoistech.edu",
+    cashApp: "$minaminato",
+    venmo: "@mina-minato",
+    zelle: "mminato@hawk.illinoistech.edu",
     transactions: [
       {
         id: 16,
@@ -232,6 +272,11 @@ export const mockSellersData: Record<string, SellerData> = {
     photo: null,
     bio: "Health and wellness enthusiast! Organic smoothies and fresh juices. All natural ingredients, no added sugar or artificial anything!",
     location: "The Quad",
+    phone: "(312) 555-0108",
+    email: "cgreen@hawk.illinoistech.edu",
+    cashApp: "$chrisgreen",
+    venmo: "@chris-green",
+    zelle: "cgreen@hawk.illinoistech.edu",
     transactions: [
       {
         id: 18,

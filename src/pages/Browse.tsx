@@ -15,6 +15,7 @@ interface BrowseProps {
   onCartClick: () => void;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onOrdersClick: () => void;
   onViewProfile: (sellerName: string) => void;
 }
 
@@ -30,6 +31,7 @@ const Browse = ({
   onCartClick,
   onSignOut,
   onProfileClick,
+  onOrdersClick,
   onViewProfile
 }: BrowseProps) => {
   const filteredItems = foodItems.filter(item => {
@@ -47,6 +49,7 @@ const Browse = ({
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onOrdersClick={onOrdersClick}
         showCart={true}
       />
 

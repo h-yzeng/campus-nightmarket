@@ -1,4 +1,4 @@
-import { ShoppingCart, User, ChevronDown, LogOut } from 'lucide-react';
+import { ShoppingCart, User, ChevronDown, LogOut, Package } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { CartItem, ProfileData } from '../types';
 
@@ -8,6 +8,7 @@ interface HeaderProps {
   onCartClick: () => void;
   onSignOut: () => void;
   onProfileClick?: () => void;
+  onOrdersClick?: () => void;
   showCart?: boolean;
 }
 
@@ -17,6 +18,7 @@ const Header = ({
   onCartClick, 
   onSignOut,
   onProfileClick,
+  onOrdersClick,
   showCart = false 
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -115,6 +117,19 @@ const Header = ({
                     >
                       <User size={18} />
                       <span>View Profile</span>
+                    </button>
+                  )}
+                  
+                  {onOrdersClick && (
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        onOrdersClick();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-900 font-medium border-b border-gray-100"
+                    >
+                      <Package size={18} />
+                      <span>My Orders</span>
                     </button>
                   )}
                   

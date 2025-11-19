@@ -26,7 +26,7 @@ const Signup = ({
   };
   
   const isValidEmail = (email: string): boolean => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[^\s@]+@hawk\.illinoistech\.edu$/.test(email);
   };
   
   const isValidPassword = (password: string): boolean => {
@@ -235,7 +235,7 @@ const Signup = ({
                 />
               </div>
               {profileData.email && !isValidEmail(profileData.email) && (
-                <p className="text-xs text-[#CC0000] mt-1">Please enter a valid email address</p>
+                <p className="text-xs text-[#CC0000] mt-1">Must use @hawk.illinoistech.edu email</p>
               )}
             </div>
 

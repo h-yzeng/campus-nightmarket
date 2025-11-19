@@ -6,7 +6,7 @@ export interface StoredAccount {
   profileData: ProfileData;
 }
 
-export type PageType = 'home' | 'login' | 'signup' | 'browse' | 'cart' | 'checkout' | 'profile' | 'viewProfile';
+export type PageType = 'home' | 'login' | 'signup' | 'browse' | 'cart' | 'checkout' | 'profile' | 'viewProfile' | 'userOrders' | 'orderDetails';
 
 export const STORAGE_KEYS = {
   ACCOUNTS: 'nightmarket_accounts',

@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import type { CartItem, FoodItem } from '../src/types';
-import { useAuth } from '../src/hooks/userAuth';
-import { mockFoodItems, mockSellersData } from '../src/data/mockData';
-import Home from '../src/pages/Home';
-import Signup from '../src/pages/Signup';
-import Login from '../src/pages/Login';
-import Browse from '../src/pages/Browse';
-import UserProfile from '../src/pages/UserProfile';
-import ViewProfile from '../src/pages/ViewProfile';
-import Cart from '../src/pages/Cart';
-import Checkout from '../src/pages/Checkout';
+import type { CartItem, FoodItem, Order } from './types';
+import { useAuth } from './hooks/userAuth';
+import { mockFoodItems, mockSellersData } from './data/mockData';
+import Home from './pages/Home';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import Browse from './pages/Browse';
+import UserProfile from './pages/UserProfile';
+import ViewProfile from './pages/ViewProfile';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import UserOrders from './pages/UserOrders';
+import OrderDetails from './pages/OrderDetails';
 
 function App() {
   const {
@@ -27,6 +29,8 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('All Dorms');
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [selectedOrderId, setSelectedOrderId] = useState<number>(0);
 
   const handleGetStarted = () => setCurrentPage('signup');
   const handleGoToLogin = () => setCurrentPage('login');
@@ -35,20 +39,64 @@ function App() {
   const handleBackToBrowse = () => setCurrentPage('browse');
   const handleCartClick = () => setCurrentPage('cart');
   const handleBackToCart = () => setCurrentPage('cart');
+  const handleGoToOrders = () => setCurrentPage('userOrders');
 
   const handleViewProfile = (sellerName: string) => {
     setSelectedSeller(sellerName);
     setCurrentPage('viewProfile');
   };
 
+  const handleViewOrderDetails = (orderId: number) => {
+    setSelectedOrderId(orderId);
+    setCurrentPage('orderDetails');
+  };
+
   const handleCheckout = () => {
     setCurrentPage('checkout');
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => {
+    const itemsBySeller = cart.reduce((acc, item) => {
+      if (!acc[item.seller]) {
+        acc[item.seller] = [];
+      }
+      acc[item.seller].push(item);
+      return acc;
+    }, {} as Record<string, CartItem[]>);
+
+    const newOrders: Order[] = Object.entries(itemsBySeller).map(([seller, items], index) => {
+      const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const now = new Date();
+      
+      return {
+        id: Date.now() + index, 
+        items: items,
+        sellerId: seller,
+        sellerName: seller,
+        sellerLocation: items[0].location,
+        pickupTime: pickupTimes[seller], 
+        paymentMethod: paymentMethod as 'Cash' | 'CashApp' | 'Venmo' | 'Zelle',
+        status: 'pending' as 'pending' | 'completed' | 'cancelled',
+        orderDate: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        total: total,
+        notes: notes
+      };
+    });
+
+    setOrders(prev => [...newOrders, ...prev]);
     setCart([]);
-    setCurrentPage('browse');
-    alert('Order placed successfully! The seller will contact you with pickup details.');
+    setCurrentPage('userOrders');
+  };
+
+  const handleCancelOrder = (orderId: number) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId
+          ? { ...order, status: 'cancelled' as const }
+          : order
+      )
+    );
+    setCurrentPage('userOrders');
   };
 
   const handleSignOutWithReset = () => {
@@ -155,7 +203,21 @@ function App() {
           onCartClick={handleCartClick}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
+          onOrdersClick={handleGoToOrders}
           onViewProfile={handleViewProfile}
+        />
+      )}
+
+      {currentPage === 'userOrders' && (
+        <UserOrders
+          orders={orders}
+          profileData={profileData}
+          cart={cart}
+          onViewOrderDetails={handleViewOrderDetails}
+          onBackToBrowse={handleBackToBrowse}
+          onCartClick={handleCartClick}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
         />
       )}
 
@@ -178,6 +240,24 @@ function App() {
           profileData={profileData}
           onBackToCart={handleBackToCart}
           onPlaceOrder={handlePlaceOrder}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+        />
+      )}
+
+      {currentPage === 'orderDetails' && (
+        <OrderDetails
+          order={orders.find(o => o.id === selectedOrderId)!}
+          sellerPhone={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.phone}
+          sellerEmail={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.email}
+          sellerCashApp={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.cashApp}
+          sellerVenmo={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.venmo}
+          sellerZelle={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.zelle}
+          profileData={profileData}
+          cart={cart}
+          onBackToOrders={handleGoToOrders}
+          onCancelOrder={handleCancelOrder}
+          onCartClick={handleCartClick}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
         />
