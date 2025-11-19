@@ -1,4 +1,4 @@
-import { Camera, Mail, User, IdCard, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Camera, Mail, User, IdCard, Eye, EyeOff, AlertCircle, Lock, DollarSign } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import Header from '../components/Header';
@@ -30,6 +30,11 @@ const UserProfile = ({
 }: UserProfileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -50,6 +55,61 @@ const UserProfile = ({
   const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setProfileData({ ...profileData, bio: e.target.value });
     setHasChanges(true);
+  };
+
+  const handlePaymentChange = (field: 'cashApp' | 'venmo' | 'zelle', value: string) => {
+    setProfileData({
+      ...profileData,
+      sellerInfo: {
+        ...profileData.sellerInfo,
+        paymentMethods: {
+          ...profileData.sellerInfo?.paymentMethods,
+          [field]: value
+        },
+        preferredLocations: profileData.sellerInfo?.preferredLocations || []
+      }
+    });
+    setHasChanges(true);
+  };
+
+  const isValidPassword = (password: string): boolean => {
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && 
+           /[a-z]/.test(password) && 
+           /\d/.test(password);
+  };
+
+  const handlePasswordChange = () => {
+    setPasswordError('');
+
+    // Validate current password
+    if (currentPassword !== profileData.password) {
+      setPasswordError('Current password is incorrect');
+      return;
+    }
+
+    // Validate new password
+    if (!isValidPassword(newPassword)) {
+      setPasswordError('Password must be 8+ characters with uppercase, lowercase, and number');
+      return;
+    }
+
+    // Confirm passwords match
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    // Update password
+    setProfileData({ ...profileData, password: newPassword, confirmPassword: newPassword });
+    setHasChanges(true);
+    
+    // Clear fields and close section
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setShowPasswordSection(false);
+    alert('Password updated! Remember to save changes.');
   };
 
   const handleSave = () => {
@@ -125,6 +185,7 @@ const UserProfile = ({
           </div>
 
           <div className="space-y-6">
+            {/* Public Information Section */}
             <div className="bg-[#F5F5F5] rounded-xl p-6 border-2 border-gray-200">
               <div className="flex items-center gap-2 mb-4">
                 <Eye size={20} className="text-green-600" />
@@ -191,35 +252,178 @@ const UserProfile = ({
               </div>
             </div>
 
+            {/* Private Information Section */}
             <div className="bg-[#FFF5F5] rounded-xl p-6 border-2 border-[#FFDDDD]">
               <div className="flex items-center gap-2 mb-4">
                 <EyeOff size={20} className="text-[#CC0000]" />
                 <h2 className="text-xl font-bold text-gray-900">Private Information</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">This information is only visible to you unless you decide to become a seller.</p>
+              <p className="text-sm text-gray-600 mb-4">This information is only visible to you</p>
               
-              <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">
-                  <Mail size={16} />
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={profileData.email}
-                  disabled
-                  className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
-                  title="Email Address"
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">
+                    <Mail size={16} />
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={profileData.email}
+                    disabled
+                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
+                    title="Email Address"
+                  />
+                </div>
+
+                {/* Password Change Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-semibold text-gray-900 items-center gap-2">
+                      <Lock size={16} />
+                      Password
+                    </label>
+                    <button
+                      onClick={() => setShowPasswordSection(!showPasswordSection)}
+                      className="text-sm text-[#CC0000] font-semibold hover:underline"
+                    >
+                      {showPasswordSection ? 'Cancel' : 'Change Password'}
+                    </button>
+                  </div>
+
+                  {!showPasswordSection ? (
+                    <input
+                      type="password"
+                      value="••••••••"
+                      disabled
+                      className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
+                      title="Password"
+                    />
+                  ) : (
+                    <div className="space-y-3 p-4 bg-white rounded-xl border-2 border-gray-200">
+                      <div>
+                        <label className="block text-xs font-semibold mb-1 text-gray-700">
+                          Current Password
+                        </label>
+                        <input
+                          type="password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          className="w-full px-3 py-2 border-2 border-[#D0D0D0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                          placeholder="Enter current password"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold mb-1 text-gray-700">
+                          New Password
+                        </label>
+                        <input
+                          type="password"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="w-full px-3 py-2 border-2 border-[#D0D0D0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                          placeholder="Enter new password"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold mb-1 text-gray-700">
+                          Confirm New Password
+                        </label>
+                        <input
+                          type="password"
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          className="w-full px-3 py-2 border-2 border-[#D0D0D0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+
+                      {passwordError && (
+                        <p className="text-xs text-[#CC0000]">{passwordError}</p>
+                      )}
+
+                      <button
+                        onClick={handlePasswordChange}
+                        className="w-full py-2 bg-[#CC0000] text-white text-sm font-bold rounded-lg hover:shadow-lg transition-all"
+                      >
+                        Update Password
+                      </button>
+
+                      <p className="text-xs text-gray-600">
+                        Password must be 8+ characters with uppercase, lowercase, and number
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
+            {/* Payment Information Section */}
+            <div className="bg-green-50 rounded-xl p-6 border-2 border-green-200">
+              <div className="flex items-center gap-2 mb-4">
+                <DollarSign size={20} className="text-green-600" />
+                <h2 className="text-xl font-bold text-gray-900">Payment Information</h2>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">Add your payment methods so buyers can easily pay you</p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                    💸 CashApp Username
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.sellerInfo?.paymentMethods?.cashApp || ''}
+                    onChange={(e) => handlePaymentChange('cashApp', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                    placeholder="$yourCashAppUsername"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                    💳 Venmo Username
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.sellerInfo?.paymentMethods?.venmo || ''}
+                    onChange={(e) => handlePaymentChange('venmo', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                    placeholder="@yourVenmoUsername"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                    🏦 Zelle Email/Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.sellerInfo?.paymentMethods?.zelle || ''}
+                    onChange={(e) => handlePaymentChange('zelle', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                    placeholder="your.email@hawk.illinoistech.edu"
+                  />
+                </div>
+
+                <div className="flex gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                  <AlertCircle size={16} className="text-blue-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-gray-700">
+                    Add at least one payment method if you plan to sell food. Buyers will see these details after placing an order.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Privacy Note */}
             <div className="flex gap-3 p-4 rounded-xl bg-blue-50 border-2 border-blue-200">
               <AlertCircle size={20} className="text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-gray-900 mb-1">Privacy Note</p>
                 <p className="text-sm text-gray-700">
                   Your name, student ID, profile photo, and bio are visible to other verified students. 
-                  Your email and password remain private.
+                  Your email, password, and payment information remain private.
                 </p>
               </div>
             </div>

@@ -19,6 +19,7 @@ interface OrderDetailsProps {
   onCartClick: () => void;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onLogoClick?: () => void;
 }
 
 const OrderDetails = ({
@@ -35,7 +36,8 @@ const OrderDetails = ({
   onCancelOrder,
   onCartClick,
   onSignOut,
-  onProfileClick
+  onProfileClick,
+  onLogoClick
 }: OrderDetailsProps) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
@@ -87,12 +89,13 @@ const OrderDetails = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
-        profileData={profileData} 
+      <Header
+        cartItems={cart}
+        profileData={profileData}
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}
       />

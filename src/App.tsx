@@ -274,6 +274,7 @@ function App() {
           onSignOut={handleSignOutWithReset}
           onCartClick={handleCartClick}
           onProfileClick={handleGoToProfile}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -295,6 +296,7 @@ function App() {
           onViewProfile={handleViewProfile}
           onModeChange={handleModeChange}
           onSellerDashboardClick={handleGoToSellerDashboard}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -312,6 +314,7 @@ function App() {
           onOrdersClick={handleGoToOrders}
           onSellerDashboardClick={handleGoToSellerDashboard}
           onModeChange={handleModeChange}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -326,6 +329,7 @@ function App() {
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
           userMode={userMode}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -338,6 +342,7 @@ function App() {
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
           userMode={userMode}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -357,6 +362,7 @@ function App() {
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
           userMode={userMode}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -376,6 +382,7 @@ function App() {
           onProfileClick={handleGoToProfile}
           onOrdersClick={handleGoToOrders}
           onSellerDashboardClick={handleGoToSellerDashboard}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -392,6 +399,7 @@ function App() {
           onProfileClick={handleGoToProfile}
           onOrdersClick={handleGoToOrders}
           onSellerDashboardClick={handleGoToSellerDashboard}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -411,6 +419,7 @@ function App() {
           onProfileClick={handleGoToProfile}
           onOrdersClick={handleGoToOrders}
           onSellerDashboardClick={handleGoToSellerDashboard}
+          onLogoClick={handleBackToBrowse}
         />
       )}
 
@@ -428,6 +437,7 @@ function App() {
           onProfileClick={handleGoToProfile}
           onOrdersClick={handleGoToOrders}
           onSellerDashboardClick={handleGoToSellerDashboard}
+          onLogoClick={handleBackToBrowse}
         />
       )}
     </div>

@@ -17,6 +17,7 @@ interface UserOrdersProps {
   onOrdersClick?: () => void;
   onSellerDashboardClick?: () => void;
   onModeChange?: (mode: UserMode) => void;
+  onLogoClick?: () => void;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -33,7 +34,8 @@ const UserOrders = ({
   onProfileClick,
   onOrdersClick,
   onSellerDashboardClick,
-  onModeChange
+  onModeChange,
+  onLogoClick
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
@@ -70,15 +72,16 @@ const UserOrders = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
-        profileData={profileData} 
+      <Header
+        cartItems={cart}
+        profileData={profileData}
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
         onOrdersClick={onOrdersClick}
         onSellerDashboardClick={onSellerDashboardClick}
         onModeChange={onModeChange}
+        onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}
       />

@@ -18,6 +18,7 @@ interface SellerDashboardProps {
   onProfileClick: () => void;
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
+  onLogoClick?: () => void;
 }
 
 const SellerDashboard = ({
@@ -34,7 +35,8 @@ const SellerDashboard = ({
   onSignOut,
   onProfileClick,
   onOrdersClick,
-  onSellerDashboardClick
+  onSellerDashboardClick,
+  onLogoClick
 }: SellerDashboardProps) => {
   const activeListings = listings.filter(l => l.isAvailable).length;
   const pendingOrders = incomingOrders.filter(o => o.status === 'pending').length;
@@ -43,6 +45,13 @@ const SellerDashboard = ({
     .reduce((sum, order) => sum + order.total, 0);
 
   const recentOrders = incomingOrders.slice(0, 5);
+
+  // Check if user has ANY payment method set up
+  const hasPaymentInfo = Boolean(
+    profileData.sellerInfo?.paymentMethods?.cashApp ||
+    profileData.sellerInfo?.paymentMethods?.venmo ||
+    profileData.sellerInfo?.paymentMethods?.zelle
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -63,8 +72,8 @@ const SellerDashboard = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
+      <Header
+        cartItems={cart}
         profileData={profileData}
         userMode={userMode}
         onCartClick={onCartClick}
@@ -73,6 +82,7 @@ const SellerDashboard = ({
         onOrdersClick={onOrdersClick}
         onModeChange={onModeChange}
         onSellerDashboardClick={onSellerDashboardClick}
+        onLogoClick={onLogoClick}
         showCart={true}
       />
 
@@ -234,10 +244,8 @@ const SellerDashboard = ({
           )}
         </div>
 
-        {/* Tips Section */}
-        {!profileData.sellerInfo?.paymentMethods.cashApp && 
-         !profileData.sellerInfo?.paymentMethods.venmo && 
-         !profileData.sellerInfo?.paymentMethods.zelle && (
+        {/* Tips Section - Only show if user has NO payment methods */}
+        {!hasPaymentInfo && (
           <div className="mt-8 flex gap-3 p-6 rounded-2xl bg-orange-50 border-2 border-orange-200">
             <AlertCircle size={24} className="text-orange-600 shrink-0" />
             <div>

@@ -12,6 +12,7 @@ interface CheckoutProps {
   onPlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => void;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onLogoClick?: () => void;
 }
 
 type PaymentMethod = 'Cash' | 'CashApp' | 'Venmo' | 'Zelle';
@@ -23,7 +24,8 @@ const Checkout = ({
   onBackToCart,
   onPlaceOrder,
   onSignOut,
-  onProfileClick
+  onProfileClick,
+  onLogoClick
 }: CheckoutProps) => {
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('Cash');
   const [pickupTimesBySeller, setPickupTimesBySeller] = useState<Record<string, string>>({});
@@ -91,12 +93,13 @@ const Checkout = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
-        profileData={profileData} 
+      <Header
+        cartItems={cart}
+        profileData={profileData}
         onCartClick={onBackToCart}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}
       />

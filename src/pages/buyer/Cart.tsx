@@ -13,6 +13,7 @@ interface CartProps {
   onContinueShopping: () => void;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onLogoClick?: () => void;
 }
 
 const Cart = ({
@@ -24,18 +25,20 @@ const Cart = ({
   onCheckout,
   onContinueShopping,
   onSignOut,
-  onProfileClick
+  onProfileClick,
+  onLogoClick
 }: CartProps) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
-        profileData={profileData} 
+      <Header
+        cartItems={cart}
+        profileData={profileData}
         onCartClick={() => {}}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onLogoClick={onLogoClick}
         showCart={false}
         userMode={userMode}
       />

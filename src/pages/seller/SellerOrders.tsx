@@ -17,6 +17,7 @@ interface SellerOrdersProps {
   onProfileClick: () => void;
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
+  onLogoClick?: () => void;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -33,7 +34,8 @@ const SellerOrders = ({
   onSignOut,
   onProfileClick,
   onOrdersClick,
-  onSellerDashboardClick
+  onSellerDashboardClick,
+  onLogoClick
 }: SellerOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
@@ -77,8 +79,8 @@ const SellerOrders = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
+      <Header
+        cartItems={cart}
         profileData={profileData}
         userMode={userMode}
         onCartClick={onCartClick}
@@ -87,6 +89,7 @@ const SellerOrders = ({
         onOrdersClick={onOrdersClick}
         onModeChange={onModeChange}
         onSellerDashboardClick={onSellerDashboardClick}
+        onLogoClick={onLogoClick}
         showCart={true}
       />
 

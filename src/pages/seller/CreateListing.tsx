@@ -16,6 +16,7 @@ interface CreateListingProps {
   onProfileClick: () => void;
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
+  onLogoClick?: () => void;
 }
 
 const CreateListing = ({
@@ -29,7 +30,8 @@ const CreateListing = ({
   onSignOut,
   onProfileClick,
   onOrdersClick,
-  onSellerDashboardClick
+  onSellerDashboardClick,
+  onLogoClick
 }: CreateListingProps) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -96,8 +98,8 @@ const CreateListing = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
+      <Header
+        cartItems={cart}
         profileData={profileData}
         userMode={userMode}
         onCartClick={onCartClick}
@@ -106,6 +108,7 @@ const CreateListing = ({
         onOrdersClick={onOrdersClick}
         onModeChange={onModeChange}
         onSellerDashboardClick={onSellerDashboardClick}
+        onLogoClick={onLogoClick}
         showCart={true}
       />
 

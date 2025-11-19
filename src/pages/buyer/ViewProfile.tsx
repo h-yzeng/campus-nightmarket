@@ -13,14 +13,15 @@ interface ViewProfileProps {
   transactions: Transaction[];
   currentUserProfile: ProfileData;
   cart: CartItem[];
-  userMode: UserMode; 
+  userMode: UserMode;
   onBack: () => void;
   onSignOut: () => void;
   onCartClick: () => void;
   onProfileClick: () => void;
+  onLogoClick?: () => void;
 }
 
-const ViewProfile = ({ 
+const ViewProfile = ({
   sellerName,
   sellerStudentId,
   sellerPhoto,
@@ -33,7 +34,8 @@ const ViewProfile = ({
   onBack,
   onSignOut,
   onCartClick,
-  onProfileClick
+  onProfileClick,
+  onLogoClick
 }: ViewProfileProps) => {
   const averageRating = transactions.length > 0
     ? (transactions.reduce((sum, t) => sum + t.rating, 0) / transactions.length).toFixed(1)
@@ -43,14 +45,15 @@ const ViewProfile = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
-        profileData={currentUserProfile} 
+      <Header
+        cartItems={cart}
+        profileData={currentUserProfile}
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onLogoClick={onLogoClick}
         showCart={true}
-        userMode={userMode} 
+        userMode={userMode}
       />
       
       <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">

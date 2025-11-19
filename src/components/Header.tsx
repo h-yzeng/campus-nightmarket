@@ -12,6 +12,7 @@ interface HeaderProps {
   onOrdersClick?: () => void;
   onModeChange?: (mode: UserMode) => void;
   onSellerDashboardClick?: () => void;
+  onLogoClick?: () => void;
   showCart?: boolean;
 }
 
@@ -25,6 +26,7 @@ const Header = ({
   onOrdersClick,
   onModeChange,
   onSellerDashboardClick,
+  onLogoClick,
   showCart = false 
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -43,11 +45,23 @@ const Header = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleLogoClick = () => {
+    if (onLogoClick) {
+      onLogoClick();
+    } else if (onModeChange) {
+      // Fallback: switch to buyer mode which goes to browse page
+      onModeChange('buyer');
+    }
+  };
+
   return (
     <header className="bg-white border-b-2 border-gray-200 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={handleLogoClick}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#CC0000]">
               <span className="text-2xl">🌙</span>
             </div>
@@ -55,7 +69,7 @@ const Header = ({
               <h1 className="text-xl font-bold text-[#CC0000]">Night Market</h1>
               <p className="text-xs text-gray-600">Campus Late-Night Food Exchange</p>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-4">
             {onModeChange && (

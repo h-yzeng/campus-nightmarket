@@ -19,6 +19,7 @@ interface SellerListingsProps {
   onProfileClick: () => void;
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
+  onLogoClick?: () => void;
 }
 
 type ListingTab = 'all' | 'active' | 'inactive';
@@ -37,7 +38,8 @@ const SellerListings = ({
   onSignOut,
   onProfileClick,
   onOrdersClick,
-  onSellerDashboardClick
+  onSellerDashboardClick,
+  onLogoClick
 }: SellerListingsProps) => {
   const [activeTab, setActiveTab] = useState<ListingTab>('all');
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -65,8 +67,8 @@ const SellerListings = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
+      <Header
+        cartItems={cart}
         profileData={profileData}
         userMode={userMode}
         onCartClick={onCartClick}
@@ -75,6 +77,7 @@ const SellerListings = ({
         onOrdersClick={onOrdersClick}
         onModeChange={onModeChange}
         onSellerDashboardClick={onSellerDashboardClick}
+        onLogoClick={onLogoClick}
         showCart={true}
       />
 

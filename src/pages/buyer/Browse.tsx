@@ -20,6 +20,7 @@ interface BrowseProps {
   onViewProfile: (sellerName: string) => void;
   onModeChange?: (mode: 'buyer' | 'seller') => void;
   onSellerDashboardClick?: () => void;
+  onLogoClick?: () => void;
 }
 
 const Browse = ({
@@ -38,7 +39,8 @@ const Browse = ({
   onOrdersClick,
   onViewProfile,
   onModeChange,
-  onSellerDashboardClick
+  onSellerDashboardClick,
+  onLogoClick
 }: BrowseProps) => {
   const filteredItems = foodItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,8 +51,8 @@ const Browse = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={cart} 
+      <Header
+        cartItems={cart}
         profileData={profileData}
         userMode={userMode}
         onCartClick={onCartClick}
@@ -59,6 +61,7 @@ const Browse = ({
         onOrdersClick={onOrdersClick}
         onModeChange={onModeChange}
         onSellerDashboardClick={onSellerDashboardClick}
+        onLogoClick={onLogoClick}
         showCart={true}
       />
 
