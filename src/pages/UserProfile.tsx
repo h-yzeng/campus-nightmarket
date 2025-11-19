@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import type { UserMode } from '../types';
 
 interface UserProfileProps {
   profileData: ProfileData;
@@ -10,6 +11,7 @@ interface UserProfileProps {
   onSaveProfile: () => void;
   onSignOut: () => void;
   onBack: () => void;
+  userMode: UserMode;
 }
 
 const UserProfile = ({ 
@@ -17,7 +19,8 @@ const UserProfile = ({
   setProfileData, 
   onSaveProfile,
   onSignOut,
-  onBack 
+  onBack,
+  userMode
 }: UserProfileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -56,6 +59,7 @@ const UserProfile = ({
         onCartClick={() => {}}
         onSignOut={onSignOut}
         showCart={false}
+        userMode={userMode}
       />
 
       <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">

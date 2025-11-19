@@ -1,7 +1,8 @@
 import { User, IdCard, Star, MapPin, Calendar, ShoppingBag } from 'lucide-react';
-import type { Transaction, ProfileData, CartItem } from '../types';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import type { Transaction, ProfileData, CartItem } from '../../types';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import type { UserMode } from '../../types';
 
 interface ViewProfileProps {
   sellerName: string;
@@ -12,6 +13,7 @@ interface ViewProfileProps {
   transactions: Transaction[];
   currentUserProfile: ProfileData;
   cart: CartItem[];
+  userMode: UserMode; 
   onBack: () => void;
   onSignOut: () => void;
   onCartClick: () => void;
@@ -27,6 +29,7 @@ const ViewProfile = ({
   transactions,
   currentUserProfile,
   cart,
+  userMode,
   onBack,
   onSignOut,
   onCartClick,
@@ -47,6 +50,7 @@ const ViewProfile = ({
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
         showCart={true}
+        userMode={userMode} 
       />
       
       <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">

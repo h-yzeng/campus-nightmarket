@@ -1,11 +1,12 @@
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
-import type { CartItem, ProfileData } from '../types';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import type { UserMode,CartItem, ProfileData } from '../../types';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 interface CartProps {
   cart: CartItem[];
   profileData: ProfileData;
+  userMode: UserMode;
   onUpdateQuantity: (itemId: number, newQuantity: number) => void;
   onRemoveItem: (itemId: number) => void;
   onCheckout: () => void;
@@ -17,6 +18,7 @@ interface CartProps {
 const Cart = ({
   cart,
   profileData,
+  userMode,
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
@@ -35,6 +37,7 @@ const Cart = ({
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
         showCart={false}
+        userMode={userMode}
       />
 
       <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">

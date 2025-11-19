@@ -1,7 +1,7 @@
 import { Search, MapPin } from 'lucide-react';
-import type { FoodItem, CartItem, ProfileData } from '../types';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import type { FoodItem, CartItem, ProfileData } from '../../types';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 interface BrowseProps {
   foodItems: FoodItem[];
@@ -12,11 +12,14 @@ interface BrowseProps {
   setSelectedLocation: (location: string) => void;
   addToCart: (item: FoodItem) => void;
   profileData: ProfileData;
+  userMode: 'buyer' | 'seller';
   onCartClick: () => void;
   onSignOut: () => void;
   onProfileClick: () => void;
   onOrdersClick: () => void;
   onViewProfile: (sellerName: string) => void;
+  onModeChange?: (mode: 'buyer' | 'seller') => void;
+  onSellerDashboardClick?: () => void;
 }
 
 const Browse = ({
@@ -28,15 +31,18 @@ const Browse = ({
   setSelectedLocation,
   addToCart,
   profileData,
+  userMode,
   onCartClick,
   onSignOut,
   onProfileClick,
   onOrdersClick,
-  onViewProfile
+  onViewProfile,
+  onModeChange,
+  onSellerDashboardClick
 }: BrowseProps) => {
   const filteredItems = foodItems.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.seller.toLowerCase().includes(searchQuery.toLowerCase());
+                        item.seller.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLocation = selectedLocation === 'All Dorms' || item.location === selectedLocation;
     return matchesSearch && matchesLocation;
   });
@@ -45,11 +51,14 @@ const Browse = ({
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header 
         cartItems={cart} 
-        profileData={profileData} 
+        profileData={profileData}
+        userMode={userMode}
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
         onOrdersClick={onOrdersClick}
+        onModeChange={onModeChange}
+        onSellerDashboardClick={onSellerDashboardClick}
         showCart={true}
       />
 

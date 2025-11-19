@@ -1,12 +1,13 @@
 import { ArrowLeft, Wallet, Clock, ShoppingBag, MapPin, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
-import type { CartItem, ProfileData } from '../types';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import type { UserMode, CartItem, ProfileData } from '../../types';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 interface CheckoutProps {
   cart: CartItem[];
   profileData: ProfileData;
+  userMode: UserMode;
   onBackToCart: () => void;
   onPlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => void;
   onSignOut: () => void;
@@ -18,6 +19,7 @@ type PaymentMethod = 'Cash' | 'CashApp' | 'Venmo' | 'Zelle';
 const Checkout = ({
   cart,
   profileData,
+  userMode,
   onBackToCart,
   onPlaceOrder,
   onSignOut,
@@ -96,6 +98,7 @@ const Checkout = ({
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
         showCart={true}
+        userMode={userMode}
       />
 
       <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">

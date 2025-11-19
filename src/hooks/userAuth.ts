@@ -24,10 +24,13 @@ export const useAuth = () => {
     const newAccount: StoredAccount = {
       email: profileData.email,
       password: profileData.password,
-      profileData: { ...profileData }
+      profileData: { 
+        ...profileData,
+        isSeller: true 
+      }
     };
     setAccounts(prev => [...prev, newAccount]);
-    saveCurrentUser(profileData);
+    saveCurrentUser(newAccount.profileData);
     setCurrentPage('browse');
   };
 
@@ -37,8 +40,12 @@ export const useAuth = () => {
     );
 
     if (account) {
-      setProfileData(account.profileData);
-      saveCurrentUser(account.profileData);
+      const updatedProfile = {
+        ...account.profileData,
+        isSeller: account.profileData.isSeller ?? true
+      };
+      setProfileData(updatedProfile);
+      saveCurrentUser(updatedProfile);
       setCurrentPage('browse');
       return true;
     }
@@ -67,10 +74,24 @@ export const useAuth = () => {
       lastName: '',
       studentId: '',
       bio: '',
-      photo: null
+      photo: null,
+      isSeller: false
     });
     removeCurrentUser();
     setCurrentPage('home');
+  };
+
+  const handleBecomeSeller = () => {
+    const updatedProfile = {
+      ...profileData,
+      isSeller: true,
+      sellerInfo: {
+        paymentMethods: {},
+        preferredLocations: []
+      }
+    };
+    setProfileData(updatedProfile);
+    handleSaveProfile();
   };
 
   return {
@@ -81,6 +102,7 @@ export const useAuth = () => {
     handleCreateProfile,
     handleLogin,
     handleSaveProfile,
-    handleSignOut
+    handleSignOut,
+    handleBecomeSeller
   };
 };

@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import type { CartItem, FoodItem, Order } from './types';
+import type { CartItem, FoodItem, Order, Listing, UserMode } from './types';
 import { useAuth } from './hooks/userAuth';
 import { mockFoodItems, mockSellersData } from './data/mockData';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
-import Browse from './pages/Browse';
+import Browse from './pages/buyer/Browse';
 import UserProfile from './pages/UserProfile';
-import ViewProfile from './pages/ViewProfile';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import UserOrders from './pages/UserOrders';
-import OrderDetails from './pages/OrderDetails';
+import ViewProfile from './pages/buyer/ViewProfile';
+import Cart from './pages/buyer/Cart';
+import Checkout from './pages/buyer/Checkout';
+import UserOrders from './pages/buyer/UserOrders';
+import OrderDetails from './pages/buyer/OrderDetails';
+import SellerDashboard from './pages/seller/SellerDashboard';
+import CreateListing from './pages/seller/CreateListing';
 
 function App() {
   const {
@@ -31,15 +33,39 @@ function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrderId, setSelectedOrderId] = useState<number>(0);
+  const [userMode, setUserMode] = useState<'buyer' | 'seller'>('buyer');
+
+  
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [incomingOrders, setIncomingOrders] = useState<Order[]>([]);
 
   const handleGetStarted = () => setCurrentPage('signup');
   const handleGoToLogin = () => setCurrentPage('login');
   const handleGoToSignup = () => setCurrentPage('signup');
   const handleGoToProfile = () => setCurrentPage('profile');
-  const handleBackToBrowse = () => setCurrentPage('browse');
+  const handleBackToBrowse = () => {
+    setCurrentPage('browse');
+    setUserMode('buyer');
+  };
   const handleCartClick = () => setCurrentPage('cart');
   const handleBackToCart = () => setCurrentPage('cart');
   const handleGoToOrders = () => setCurrentPage('userOrders');
+  const handleGoToSellerDashboard = () => {
+    setCurrentPage('sellerDashboard');
+    setUserMode('seller');
+  };
+  const handleGoToCreateListing = () => setCurrentPage('createListing');
+  const handleGoToSellerListings = () => setCurrentPage('sellerListings');
+  const handleGoToSellerOrders = () => setCurrentPage('sellerOrders');
+
+  const handleModeChange = (mode: UserMode) => {
+    setUserMode(mode);
+    if (mode === 'buyer') {
+      setCurrentPage('browse');
+    } else {
+      setCurrentPage('sellerDashboard');
+    }
+  };
 
   const handleViewProfile = (sellerName: string) => {
     setSelectedSeller(sellerName);
@@ -74,16 +100,24 @@ function App() {
         sellerId: seller,
         sellerName: seller,
         sellerLocation: items[0].location,
-        pickupTime: pickupTimes[seller], 
+        pickupTime: pickupTimes[seller],
         paymentMethod: paymentMethod as 'Cash' | 'CashApp' | 'Venmo' | 'Zelle',
-        status: 'pending' as 'pending' | 'completed' | 'cancelled',
+        status: 'pending' as const,
         orderDate: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         total: total,
-        notes: notes
+        notes: notes,
+        buyerId: profileData.email,
+        buyerName: `${profileData.firstName} ${profileData.lastName}`
       };
     });
 
     setOrders(prev => [...newOrders, ...prev]);
+    
+    const userOrders = newOrders.filter(order => order.sellerName === `${profileData.firstName} ${profileData.lastName}`);
+    if (userOrders.length > 0) {
+      setIncomingOrders(prev => [...userOrders, ...prev]);
+    }
+    
     setCart([]);
     setCurrentPage('userOrders');
   };
@@ -99,11 +133,27 @@ function App() {
     setCurrentPage('userOrders');
   };
 
+  const handleCreateListing = (listingData: Omit<Listing, 'id' | 'sellerId' | 'sellerName' | 'datePosted'>) => {
+    const now = new Date();
+    
+    const newListing: Listing = {
+      ...listingData,
+      id: Date.now(),
+      sellerId: profileData.email,
+      sellerName: `${profileData.firstName} ${profileData.lastName}`,
+      datePosted: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    };
+
+    setListings(prev => [newListing, ...prev]);
+    setCurrentPage('sellerDashboard');
+  };  
+
   const handleSignOutWithReset = () => {
     handleSignOut();
     setCart([]);
     setSearchQuery('');
     setSelectedLocation('All Dorms');
+    setUserMode('buyer');
   };
 
   const addToCart = (item: FoodItem) => {
@@ -170,6 +220,7 @@ function App() {
           onSaveProfile={handleSaveProfile}
           onSignOut={handleSignOutWithReset}
           onBack={handleBackToBrowse}
+          userMode={userMode}
         />
       )}
 
@@ -182,6 +233,7 @@ function App() {
           sellerLocation={currentSellerData.location}
           transactions={currentSellerData.transactions}
           currentUserProfile={profileData}
+          userMode={userMode}  
           cart={cart}
           onBack={handleBackToBrowse}
           onSignOut={handleSignOutWithReset}
@@ -200,11 +252,14 @@ function App() {
           setSelectedLocation={setSelectedLocation}
           addToCart={addToCart}
           profileData={profileData}
+          userMode={userMode}  
           onCartClick={handleCartClick}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
           onOrdersClick={handleGoToOrders}
           onViewProfile={handleViewProfile}
+          onModeChange={handleModeChange}
+          onSellerDashboardClick={handleGoToSellerDashboard}
         />
       )}
 
@@ -213,6 +268,7 @@ function App() {
           orders={orders}
           profileData={profileData}
           cart={cart}
+          userMode={userMode}
           onViewOrderDetails={handleViewOrderDetails}
           onBackToBrowse={handleBackToBrowse}
           onCartClick={handleCartClick}
@@ -231,6 +287,7 @@ function App() {
           onContinueShopping={handleBackToBrowse}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
+          userMode={userMode}
         />
       )}
 
@@ -242,6 +299,7 @@ function App() {
           onPlaceOrder={handlePlaceOrder}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
+          userMode={userMode}
         />
       )}
 
@@ -260,6 +318,42 @@ function App() {
           onCartClick={handleCartClick}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
+          userMode={userMode}
+        />
+      )}
+
+      {currentPage === 'sellerDashboard' && (
+        <SellerDashboard
+          profileData={profileData}
+          cart={cart}
+          listings={listings}
+          incomingOrders={incomingOrders}
+          userMode={userMode}
+          onModeChange={handleModeChange}
+          onCreateListing={handleGoToCreateListing}
+          onViewListings={handleGoToSellerListings}
+          onViewOrders={handleGoToSellerOrders}
+          onCartClick={handleCartClick}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+          onOrdersClick={handleGoToOrders}
+          onSellerDashboardClick={handleGoToSellerDashboard}
+        />
+      )}
+
+      {currentPage === 'createListing' && (
+        <CreateListing
+          profileData={profileData}
+          cart={cart}
+          userMode={userMode}
+          onBackToDashboard={handleGoToSellerDashboard}
+          onCreateListing={handleCreateListing}
+          onModeChange={handleModeChange}
+          onCartClick={handleCartClick}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+          onOrdersClick={handleGoToOrders}
+          onSellerDashboardClick={handleGoToSellerDashboard}
         />
       )}
     </div>

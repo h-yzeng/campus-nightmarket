@@ -22,6 +22,32 @@ export interface ProfileData {
   studentId: string;
   bio: string;
   photo: string | null;
+  isSeller: boolean;
+  sellerInfo?: SellerInfo;
+}
+
+export interface SellerInfo {
+  phone?: string;
+  paymentMethods: {
+    cashApp?: string;
+    venmo?: string;
+    zelle?: string;
+  };
+  preferredLocations: string[];
+}
+
+export interface Listing {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  location: string;
+  sellerId: string;
+  sellerName: string;
+  isAvailable: boolean;
+  category: string;
+  datePosted: string;
 }
 
 export interface Transaction {
@@ -36,7 +62,7 @@ export interface Transaction {
 
 export type PaymentMethod = 'Cash' | 'CashApp' | 'Venmo' | 'Zelle';
 
-export type OrderStatus = 'pending' | 'completed' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'ready' | 'completed' | 'cancelled';
 
 export interface Order {
   id: number;
@@ -50,8 +76,26 @@ export interface Order {
   orderDate: string;
   total: number;
   notes?: string;
+  buyerId?: string;
+  buyerName?: string;
 }
+
+export type UserMode = 'buyer' | 'seller';
 
 export type OrderType = 'purchase' | 'pickup' | '';
 
-export type PageType = 'welcome' | 'signup' | 'browse' | 'cart' | 'checkout';
+export type PageType = 
+  | 'home' 
+  | 'login'
+  | 'signup' 
+  | 'browse' 
+  | 'cart' 
+  | 'checkout'
+  | 'profile'
+  | 'viewProfile'
+  | 'userOrders'
+  | 'orderDetails'
+  | 'sellerDashboard'
+  | 'createListing'
+  | 'sellerListings'
+  | 'sellerOrders';

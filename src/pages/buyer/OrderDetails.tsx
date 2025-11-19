@@ -1,8 +1,8 @@
 import { ArrowLeft, Clock, MapPin, Package, Wallet, User, Phone, Mail, MessageSquare, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
-import type { Order, ProfileData, CartItem } from '../types';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import type { UserMode, Order, ProfileData, CartItem } from '../../types';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 interface OrderDetailsProps {
   order: Order;
@@ -13,6 +13,7 @@ interface OrderDetailsProps {
   sellerZelle?: string;
   profileData: ProfileData;
   cart: CartItem[];
+  userMode: UserMode;
   onBackToOrders: () => void;
   onCancelOrder: (orderId: number) => void;
   onCartClick: () => void;
@@ -29,6 +30,7 @@ const OrderDetails = ({
   sellerZelle,
   profileData,
   cart,
+  userMode,
   onBackToOrders,
   onCancelOrder,
   onCartClick,
@@ -92,6 +94,7 @@ const OrderDetails = ({
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
         showCart={true}
+        userMode={userMode}
       />
 
       <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">

@@ -1,24 +1,30 @@
-import { ShoppingCart, User, ChevronDown, LogOut, Package } from 'lucide-react';
+import { ShoppingCart, User, ChevronDown, LogOut, Package, Store, LayoutGrid } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import type { CartItem, ProfileData } from '../types';
+import type { CartItem, ProfileData, UserMode } from '../types';
 
 interface HeaderProps {
   cartItems: CartItem[];
   profileData: ProfileData;
+  userMode: UserMode;
   onCartClick: () => void;
   onSignOut: () => void;
   onProfileClick?: () => void;
   onOrdersClick?: () => void;
+  onModeChange?: (mode: UserMode) => void;
+  onSellerDashboardClick?: () => void;
   showCart?: boolean;
 }
 
 const Header = ({ 
   cartItems, 
-  profileData, 
+  profileData,
+  userMode,
   onCartClick, 
   onSignOut,
   onProfileClick,
   onOrdersClick,
+  onModeChange,
+  onSellerDashboardClick,
   showCart = false 
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -52,7 +58,35 @@ const Header = ({
           </div>
 
           <div className="flex items-center gap-4">
-            {showCart && (
+            {/* Mode Toggle */}
+            {onModeChange && (
+              <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1">
+                <button
+                  onClick={() => onModeChange('buyer')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    userMode === 'buyer'
+                      ? 'bg-white text-[#CC0000] shadow-md'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <ShoppingCart size={16} />
+                  Buyer
+                </button>
+                <button
+                  onClick={() => onModeChange('seller')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    userMode === 'seller'
+                      ? 'bg-white text-[#CC0000] shadow-md'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Store size={16} />
+                  Seller
+                </button>
+              </div>
+            )}
+
+            {showCart && userMode === 'buyer' && (
               <button
                 onClick={onCartClick}
                 className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -117,6 +151,19 @@ const Header = ({
                     >
                       <User size={18} />
                       <span>View Profile</span>
+                    </button>
+                  )}
+
+                  {onSellerDashboardClick && (
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        onSellerDashboardClick();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors text-gray-900 font-medium border-b border-gray-100"
+                    >
+                      <LayoutGrid size={18} />
+                      <span>Seller Dashboard</span>
                     </button>
                   )}
                   
