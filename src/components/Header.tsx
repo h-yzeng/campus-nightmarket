@@ -58,29 +58,35 @@ const Header = ({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Mode Toggle */}
             {onModeChange && (
-              <div className="flex items-center gap-2 bg-gray-100 rounded-xl p-1">
+              <div className="relative flex items-center bg-gray-100 rounded-xl p-1">
+                <div
+                  className={`absolute top-1 bottom-1 w-24 bg-white rounded-lg shadow-md transition-all duration-1000 ease-out ${
+                    userMode === 'seller' ? 'left-[100px]' : 'left-1'
+                  }`}
+                />
+                
+                {/* Buttons */}
                 <button
                   onClick={() => onModeChange('buyer')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  className={`relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-1000 w-24 ${
                     userMode === 'buyer'
-                      ? 'bg-white text-[#CC0000] shadow-md'
+                      ? 'text-[#CC0000]'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <ShoppingCart size={16} />
+                  <ShoppingCart size={16} className={`transition-all duration-1000 ${userMode === 'buyer' ? 'scale-110' : ''}`} />
                   Buyer
                 </button>
                 <button
                   onClick={() => onModeChange('seller')}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  className={`relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-1000 w-24 ${
                     userMode === 'seller'
-                      ? 'bg-white text-[#CC0000] shadow-md'
+                      ? 'text-[#CC0000]'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <Store size={16} />
+                  <Store size={16} className={`transition-all duration-1000 ${userMode === 'seller' ? 'scale-110' : ''}`} />
                   Seller
                 </button>
               </div>

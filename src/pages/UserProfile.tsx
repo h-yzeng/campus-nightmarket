@@ -12,6 +12,9 @@ interface UserProfileProps {
   onSignOut: () => void;
   onBack: () => void;
   userMode: UserMode;
+  onOrdersClick: () => void;
+  onSellerDashboardClick: () => void;
+  onModeChange?: (mode: UserMode) => void;
 }
 
 const UserProfile = ({ 
@@ -20,7 +23,10 @@ const UserProfile = ({
   onSaveProfile,
   onSignOut,
   onBack,
-  userMode
+  userMode,
+  onOrdersClick,
+  onSellerDashboardClick,
+  onModeChange
 }: UserProfileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -58,6 +64,10 @@ const UserProfile = ({
         profileData={profileData} 
         onCartClick={() => {}}
         onSignOut={onSignOut}
+        onProfileClick={() => {}} 
+        onOrdersClick={onOrdersClick}
+        onSellerDashboardClick={onSellerDashboardClick}
+        onModeChange={onModeChange}
         showCart={false}
         userMode={userMode}
       />

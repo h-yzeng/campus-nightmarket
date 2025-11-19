@@ -221,6 +221,9 @@ function App() {
           onSignOut={handleSignOutWithReset}
           onBack={handleBackToBrowse}
           userMode={userMode}
+          onOrdersClick={handleGoToOrders}
+          onSellerDashboardClick={handleGoToSellerDashboard}
+          onModeChange={handleModeChange}
         />
       )}
 
@@ -274,6 +277,9 @@ function App() {
           onCartClick={handleCartClick}
           onSignOut={handleSignOutWithReset}
           onProfileClick={handleGoToProfile}
+          onOrdersClick={handleGoToOrders}
+          onSellerDashboardClick={handleGoToSellerDashboard}
+          onModeChange={handleModeChange}
         />
       )}
 
