@@ -196,7 +196,7 @@ const UserProfile = ({
                 <EyeOff size={20} className="text-[#CC0000]" />
                 <h2 className="text-xl font-bold text-gray-900">Private Information</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">This information is only visible to you</p>
+              <p className="text-sm text-gray-600 mb-4">This information is only visible to you unless you decide to become a seller.</p>
               
               <div>
                 <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">

@@ -14,6 +14,8 @@ import UserOrders from './pages/buyer/UserOrders';
 import OrderDetails from './pages/buyer/OrderDetails';
 import SellerDashboard from './pages/seller/SellerDashboard';
 import CreateListing from './pages/seller/CreateListing';
+import SellerListings from './pages/seller/SellerListings';
+import SellerOrders from './pages/seller/SellerOrders';
 
 function App() {
   const {
@@ -146,6 +148,36 @@ function App() {
 
     setListings(prev => [newListing, ...prev]);
     setCurrentPage('sellerDashboard');
+  };
+
+  const handleToggleAvailability = (listingId: number) => {
+    setListings(prev => 
+      prev.map(listing => 
+        listing.id === listingId
+          ? { ...listing, isAvailable: !listing.isAvailable }
+          : listing
+      )
+    );
+  };
+
+  const handleDeleteListing = (listingId: number) => {
+    setListings(prev => prev.filter(listing => listing.id !== listingId));
+  };
+
+  const handleEditListing = (listingId: number) => {
+    // For now, just log - you can implement edit functionality later
+    console.log('Edit listing:', listingId);
+    alert('Edit functionality coming soon!');
+  };
+
+  const handleUpdateOrderStatus = (orderId: number, status: Order['status']) => {
+    setIncomingOrders(prev =>
+      prev.map(order =>
+        order.id === orderId
+          ? { ...order, status }
+          : order
+      )
+    );
   };  
 
   const handleSignOutWithReset = () => {
@@ -354,6 +386,42 @@ function App() {
           userMode={userMode}
           onBackToDashboard={handleGoToSellerDashboard}
           onCreateListing={handleCreateListing}
+          onModeChange={handleModeChange}
+          onCartClick={handleCartClick}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+          onOrdersClick={handleGoToOrders}
+          onSellerDashboardClick={handleGoToSellerDashboard}
+        />
+      )}
+
+      {currentPage === 'sellerListings' && (
+        <SellerListings
+          profileData={profileData}
+          cart={cart}
+          listings={listings}
+          userMode={userMode}
+          onBackToDashboard={handleGoToSellerDashboard}
+          onToggleAvailability={handleToggleAvailability}
+          onDeleteListing={handleDeleteListing}
+          onEditListing={handleEditListing}
+          onModeChange={handleModeChange}
+          onCartClick={handleCartClick}
+          onSignOut={handleSignOutWithReset}
+          onProfileClick={handleGoToProfile}
+          onOrdersClick={handleGoToOrders}
+          onSellerDashboardClick={handleGoToSellerDashboard}
+        />
+      )}
+
+      {currentPage === 'sellerOrders' && (
+        <SellerOrders
+          profileData={profileData}
+          cart={cart}
+          incomingOrders={incomingOrders}
+          userMode={userMode}
+          onBackToDashboard={handleGoToSellerDashboard}
+          onUpdateOrderStatus={handleUpdateOrderStatus}
           onModeChange={handleModeChange}
           onCartClick={handleCartClick}
           onSignOut={handleSignOutWithReset}
