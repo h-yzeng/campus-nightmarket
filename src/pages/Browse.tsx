@@ -107,7 +107,10 @@ const Browse = ({
               >
                 <div className="relative p-6 pb-4 bg-[#FAFAFA]">
                   <div className="text-7xl text-center mb-2">{item.image}</div>
-                  {parseFloat(item.rating) >= 4.8 && (
+                  {(item.name.toLowerCase().includes('ramen') || 
+                    item.name.toLowerCase().includes('sushi') || 
+                    item.name.toLowerCase().includes('pizza') || 
+                    item.name.toLowerCase().includes('taco')) && (
                     <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full text-white font-bold shadow-md bg-[#FF9900]">
                       POPULAR
                     </span>
