@@ -1,21 +1,12 @@
 import { useState } from 'react';
-import type { CartItem, FoodItem, Order, Listing, UserMode } from './types';
 import { useAuth } from './hooks/userAuth';
-import { mockFoodItems, mockSellersData } from './data/mockData';
-import Home from './pages/Home';
-import Signup from './pages/Signup';
-import Login from './pages/Login';
-import Browse from './pages/buyer/Browse';
-import UserProfile from './pages/UserProfile';
-import ViewProfile from './pages/buyer/ViewProfile';
-import Cart from './pages/buyer/Cart';
-import Checkout from './pages/buyer/Checkout';
-import UserOrders from './pages/buyer/UserOrders';
-import OrderDetails from './pages/buyer/OrderDetails';
-import SellerDashboard from './pages/seller/SellerDashboard';
-import CreateListing from './pages/seller/CreateListing';
-import SellerListings from './pages/seller/SellerListings';
-import SellerOrders from './pages/seller/SellerOrders';
+import { useListings } from './hooks/useListings';
+import { useOrders } from './hooks/useOrders';
+import { useCart } from './hooks/useCart';
+import { useNavigation } from './hooks/useNavigation';
+import { useOrderManagement } from './hooks/useOrderManagement';
+import { useListingManagement } from './hooks/useListingManagement';
+import { AppRouter } from './components/AppRouter';
 
 function App() {
   const {
@@ -26,420 +17,145 @@ function App() {
     handleCreateProfile,
     handleLogin,
     handleSaveProfile,
-    handleSignOut
+    handleSignOut,
+    user,
   } = useAuth();
 
-  const [selectedSeller, setSelectedSeller] = useState<string>('');
+  const { foodItems, loading: listingsLoading, error: listingsError, refreshListings } = useListings();
+
+  const { orders: buyerOrders, loading: buyerOrdersLoading, createOrder } = useOrders(user?.uid, 'buyer');
+
+  const { orders: sellerOrders, loading: sellerOrdersLoading } = useOrders(user?.uid, 'seller');
+
+  const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
+
+  const {
+    selectedSellerId,
+    selectedOrderId,
+    selectedListingId,
+    userMode,
+    setUserMode,
+    handleModeChange,
+    handleViewProfile,
+    handleViewOrderDetails,
+    handleEditListing: handleEditListingNav,
+    handleBackToBrowse,
+  } = useNavigation();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('All Dorms');
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState<number>(0);
-  const [userMode, setUserMode] = useState<'buyer' | 'seller'>('buyer');
 
-  
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [incomingOrders, setIncomingOrders] = useState<Order[]>([]);
+  const { listings, handleCreateListing, handleToggleAvailability, handleDeleteListing, handleEditListing, refreshSellerListings } =
+    useListingManagement(user?.uid, refreshListings);
+
+  const { handlePlaceOrder, handleCancelOrder, handleUpdateOrderStatus } = useOrderManagement({
+    createOrder,
+    user,
+    profileData,
+    buyerOrders,
+  });
 
   const handleGetStarted = () => setCurrentPage('signup');
   const handleGoToLogin = () => setCurrentPage('login');
   const handleGoToSignup = () => setCurrentPage('signup');
   const handleGoToProfile = () => setCurrentPage('profile');
-  const handleBackToBrowse = () => {
-    setCurrentPage('browse');
-    setUserMode('buyer');
-  };
   const handleCartClick = () => setCurrentPage('cart');
   const handleBackToCart = () => setCurrentPage('cart');
   const handleGoToOrders = () => setCurrentPage('userOrders');
+  const handleCheckout = () => setCurrentPage('checkout');
+  const handleGoToCreateListing = () => setCurrentPage('createListing');
+  const handleGoToSellerListings = () => setCurrentPage('sellerListings');
+  const handleGoToSellerOrders = () => setCurrentPage('sellerOrders');
+  const handleBackToSellerListings = () => setCurrentPage('sellerListings');
+
   const handleGoToSellerDashboard = () => {
     setCurrentPage('sellerDashboard');
     setUserMode('seller');
   };
-  const handleGoToCreateListing = () => setCurrentPage('createListing');
-  const handleGoToSellerListings = () => setCurrentPage('sellerListings');
-  const handleGoToSellerOrders = () => setCurrentPage('sellerOrders');
-
-  const handleModeChange = (mode: UserMode) => {
-    setUserMode(mode);
-    if (mode === 'buyer') {
-      setCurrentPage('browse');
-    } else {
-      setCurrentPage('sellerDashboard');
-    }
-  };
-
-  const handleViewProfile = (sellerName: string) => {
-    setSelectedSeller(sellerName);
-    setCurrentPage('viewProfile');
-  };
-
-  const handleViewOrderDetails = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setCurrentPage('orderDetails');
-  };
-
-  const handleCheckout = () => {
-    setCurrentPage('checkout');
-  };
-
-  const handlePlaceOrder = (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => {
-    const itemsBySeller = cart.reduce((acc, item) => {
-      if (!acc[item.seller]) {
-        acc[item.seller] = [];
-      }
-      acc[item.seller].push(item);
-      return acc;
-    }, {} as Record<string, CartItem[]>);
-
-    const newOrders: Order[] = Object.entries(itemsBySeller).map(([seller, items], index) => {
-      const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const now = new Date();
-      
-      return {
-        id: Date.now() + index, 
-        items: items,
-        sellerId: seller,
-        sellerName: seller,
-        sellerLocation: items[0].location,
-        pickupTime: pickupTimes[seller],
-        paymentMethod: paymentMethod as 'Cash' | 'CashApp' | 'Venmo' | 'Zelle',
-        status: 'pending' as const,
-        orderDate: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        total: total,
-        notes: notes,
-        buyerId: profileData.email,
-        buyerName: `${profileData.firstName} ${profileData.lastName}`
-      };
-    });
-
-    setOrders(prev => [...newOrders, ...prev]);
-    
-    const userOrders = newOrders.filter(order => order.sellerName === `${profileData.firstName} ${profileData.lastName}`);
-    if (userOrders.length > 0) {
-      setIncomingOrders(prev => [...userOrders, ...prev]);
-    }
-    
-    setCart([]);
-    setCurrentPage('userOrders');
-  };
-
-  const handleCancelOrder = (orderId: number) => {
-    setOrders(prevOrders =>
-      prevOrders.map(order =>
-        order.id === orderId
-          ? { ...order, status: 'cancelled' as const }
-          : order
-      )
-    );
-    setCurrentPage('userOrders');
-  };
-
-  const handleCreateListing = (listingData: Omit<Listing, 'id' | 'sellerId' | 'sellerName' | 'datePosted'>) => {
-    const now = new Date();
-    
-    const newListing: Listing = {
-      ...listingData,
-      id: Date.now(),
-      sellerId: profileData.email,
-      sellerName: `${profileData.firstName} ${profileData.lastName}`,
-      datePosted: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    };
-
-    setListings(prev => [newListing, ...prev]);
-    setCurrentPage('sellerDashboard');
-  };
-
-  const handleToggleAvailability = (listingId: number) => {
-    setListings(prev => 
-      prev.map(listing => 
-        listing.id === listingId
-          ? { ...listing, isAvailable: !listing.isAvailable }
-          : listing
-      )
-    );
-  };
-
-  const handleDeleteListing = (listingId: number) => {
-    setListings(prev => prev.filter(listing => listing.id !== listingId));
-  };
-
-  const handleEditListing = (listingId: number) => {
-    // For now, just log - you can implement edit functionality later
-    console.log('Edit listing:', listingId);
-    alert('Edit functionality coming soon!');
-  };
-
-  const handleUpdateOrderStatus = (orderId: number, status: Order['status']) => {
-    setIncomingOrders(prev =>
-      prev.map(order =>
-        order.id === orderId
-          ? { ...order, status }
-          : order
-      )
-    );
-  };  
 
   const handleSignOutWithReset = () => {
     handleSignOut();
-    setCart([]);
+    clearCart();
     setSearchQuery('');
     setSelectedLocation('All Dorms');
     setUserMode('buyer');
   };
 
-  const addToCart = (item: FoodItem) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-      
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-      }
-      
-      return [...prevCart, { ...item, quantity: 1 }];
-    });
-  };
+  const setPage = (page: typeof currentPage) => setCurrentPage(page);
 
-  const updateCartQuantity = (itemId: number, newQuantity: number) => {
-    setCart(prevCart =>
-      prevCart.map(item =>
-        item.id === itemId
-          ? { ...item, quantity: newQuantity }
-          : item
-      )
-    );
+  const wrappedHandleModeChange = (mode: 'buyer' | 'seller') => handleModeChange(mode, setPage);
+  const wrappedHandleViewProfile = (sellerId: string) => handleViewProfile(sellerId, setPage);
+  const wrappedHandleViewOrderDetails = (orderId: number) => handleViewOrderDetails(orderId, setPage);
+  const wrappedHandleBackToBrowse = () => handleBackToBrowse(setPage);
+  const wrappedHandleCreateListing = async () => handleCreateListing(setPage);
+  const wrappedHandleEditListing = (listingId: number | string) => {
+    handleEditListing(listingId, (id: string) => handleEditListingNav(id, setPage));
   };
-
-  const removeFromCart = (itemId: number) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== itemId));
+  const wrappedHandleUpdateListing = async () => {
+    await refreshListings();
+    await refreshSellerListings();
+    handleBackToSellerListings();
   };
-
-  const currentSellerData = mockSellersData[selectedSeller];
+  const wrappedHandlePlaceOrder = async (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) =>
+    handlePlaceOrder(cart, paymentMethod, pickupTimes, setPage, clearCart, notes);
+  const wrappedHandleCancelOrder = async (orderId: number) => handleCancelOrder(orderId, setPage);
 
   return (
     <div className="app">
-      {currentPage === 'home' && (
-        <Home 
-          onGetStarted={handleGetStarted}
-          onLogin={handleGoToLogin}
-        />
-      )}
-
-      {currentPage === 'login' && (
-        <Login
-          onLogin={handleLogin}
-          onGoToSignup={handleGoToSignup}
-        />
-      )}
-
-      {currentPage === 'signup' && (
-        <Signup 
-          profileData={profileData}
-          setProfileData={setProfileData}
-          onCreateProfile={handleCreateProfile}
-          onGoToLogin={handleGoToLogin}
-        />
-      )}
-
-      {currentPage === 'profile' && (
-        <UserProfile
-          profileData={profileData}
-          setProfileData={setProfileData}
-          onSaveProfile={handleSaveProfile}
-          onSignOut={handleSignOutWithReset}
-          onBack={handleBackToBrowse}
-          userMode={userMode}
-          onOrdersClick={handleGoToOrders}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onModeChange={handleModeChange}
-        />
-      )}
-
-      {currentPage === 'viewProfile' && currentSellerData && (
-        <ViewProfile
-          sellerName={currentSellerData.name}
-          sellerStudentId={currentSellerData.studentId}
-          sellerPhoto={currentSellerData.photo}
-          sellerBio={currentSellerData.bio}
-          sellerLocation={currentSellerData.location}
-          transactions={currentSellerData.transactions}
-          currentUserProfile={profileData}
-          userMode={userMode}  
-          cart={cart}
-          onBack={handleBackToBrowse}
-          onSignOut={handleSignOutWithReset}
-          onCartClick={handleCartClick}
-          onProfileClick={handleGoToProfile}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'browse' && (
-        <Browse
-          foodItems={mockFoodItems}
-          cart={cart}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          addToCart={addToCart}
-          profileData={profileData}
-          userMode={userMode}  
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          onOrdersClick={handleGoToOrders}
-          onViewProfile={handleViewProfile}
-          onModeChange={handleModeChange}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'userOrders' && (
-        <UserOrders
-          orders={orders}
-          profileData={profileData}
-          cart={cart}
-          userMode={userMode}
-          onViewOrderDetails={handleViewOrderDetails}
-          onBackToBrowse={handleBackToBrowse}
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          onOrdersClick={handleGoToOrders}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onModeChange={handleModeChange}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'cart' && (
-        <Cart
-          cart={cart}
-          profileData={profileData}
-          onUpdateQuantity={updateCartQuantity}
-          onRemoveItem={removeFromCart}
-          onCheckout={handleCheckout}
-          onContinueShopping={handleBackToBrowse}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          userMode={userMode}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'checkout' && (
-        <Checkout
-          cart={cart}
-          profileData={profileData}
-          onBackToCart={handleBackToCart}
-          onPlaceOrder={handlePlaceOrder}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          userMode={userMode}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'orderDetails' && (
-        <OrderDetails
-          order={orders.find(o => o.id === selectedOrderId)!}
-          sellerPhone={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.phone}
-          sellerEmail={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.email}
-          sellerCashApp={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.cashApp}
-          sellerVenmo={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.venmo}
-          sellerZelle={mockSellersData[orders.find(o => o.id === selectedOrderId)?.sellerName || '']?.zelle}
-          profileData={profileData}
-          cart={cart}
-          onBackToOrders={handleGoToOrders}
-          onCancelOrder={handleCancelOrder}
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          userMode={userMode}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'sellerDashboard' && (
-        <SellerDashboard
-          profileData={profileData}
-          cart={cart}
-          listings={listings}
-          incomingOrders={incomingOrders}
-          userMode={userMode}
-          onModeChange={handleModeChange}
-          onCreateListing={handleGoToCreateListing}
-          onViewListings={handleGoToSellerListings}
-          onViewOrders={handleGoToSellerOrders}
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          onOrdersClick={handleGoToOrders}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'createListing' && (
-        <CreateListing
-          profileData={profileData}
-          cart={cart}
-          userMode={userMode}
-          onBackToDashboard={handleGoToSellerDashboard}
-          onCreateListing={handleCreateListing}
-          onModeChange={handleModeChange}
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          onOrdersClick={handleGoToOrders}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'sellerListings' && (
-        <SellerListings
-          profileData={profileData}
-          cart={cart}
-          listings={listings}
-          userMode={userMode}
-          onBackToDashboard={handleGoToSellerDashboard}
-          onToggleAvailability={handleToggleAvailability}
-          onDeleteListing={handleDeleteListing}
-          onEditListing={handleEditListing}
-          onModeChange={handleModeChange}
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          onOrdersClick={handleGoToOrders}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
-
-      {currentPage === 'sellerOrders' && (
-        <SellerOrders
-          profileData={profileData}
-          cart={cart}
-          incomingOrders={incomingOrders}
-          userMode={userMode}
-          onBackToDashboard={handleGoToSellerDashboard}
-          onUpdateOrderStatus={handleUpdateOrderStatus}
-          onModeChange={handleModeChange}
-          onCartClick={handleCartClick}
-          onSignOut={handleSignOutWithReset}
-          onProfileClick={handleGoToProfile}
-          onOrdersClick={handleGoToOrders}
-          onSellerDashboardClick={handleGoToSellerDashboard}
-          onLogoClick={handleBackToBrowse}
-        />
-      )}
+      <AppRouter
+        currentPage={currentPage}
+        profileData={profileData}
+        setProfileData={setProfileData}
+        cart={cart}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        selectedOrderId={selectedOrderId}
+        selectedListingId={selectedListingId}
+        selectedSellerId={selectedSellerId}
+        userMode={userMode}
+        buyerOrders={buyerOrders}
+        sellerOrders={sellerOrders}
+        listings={listings}
+        foodItems={foodItems}
+        listingsLoading={listingsLoading}
+        listingsError={listingsError}
+        buyerOrdersLoading={buyerOrdersLoading}
+        sellerOrdersLoading={sellerOrdersLoading}
+        handleGetStarted={handleGetStarted}
+        handleGoToLogin={handleGoToLogin}
+        handleGoToSignup={handleGoToSignup}
+        handleGoToProfile={handleGoToProfile}
+        handleBackToBrowse={wrappedHandleBackToBrowse}
+        handleCartClick={handleCartClick}
+        handleBackToCart={handleBackToCart}
+        handleGoToOrders={handleGoToOrders}
+        handleGoToSellerDashboard={handleGoToSellerDashboard}
+        handleGoToCreateListing={handleGoToCreateListing}
+        handleGoToSellerListings={handleGoToSellerListings}
+        handleGoToSellerOrders={handleGoToSellerOrders}
+        handleModeChange={wrappedHandleModeChange}
+        handleViewProfile={wrappedHandleViewProfile}
+        handleViewOrderDetails={wrappedHandleViewOrderDetails}
+        handleCreateProfile={handleCreateProfile}
+        handleLogin={handleLogin}
+        handleSaveProfile={handleSaveProfile}
+        handleSignOutWithReset={handleSignOutWithReset}
+        addToCart={addToCart}
+        updateCartQuantity={updateCartQuantity}
+        removeFromCart={removeFromCart}
+        handleCheckout={handleCheckout}
+        handlePlaceOrder={wrappedHandlePlaceOrder}
+        handleCancelOrder={wrappedHandleCancelOrder}
+        handleCreateListing={wrappedHandleCreateListing}
+        handleToggleAvailability={handleToggleAvailability}
+        handleDeleteListing={handleDeleteListing}
+        handleEditListing={wrappedHandleEditListing}
+        handleUpdateListing={wrappedHandleUpdateListing}
+        handleBackToSellerListings={handleBackToSellerListings}
+        handleUpdateOrderStatus={handleUpdateOrderStatus}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ export interface FoodItem {
   id: number;
   name: string;
   seller: string;
+  sellerId: string;
   price: number;
   image: string;
   location: string;
@@ -50,6 +51,8 @@ export interface Listing {
   datePosted: string;
 }
 
+export type ListingWithFirebaseId = Listing & { firebaseId: string };
+
 export interface Transaction {
   id: number;
   buyerName: string;
@@ -84,12 +87,12 @@ export type UserMode = 'buyer' | 'seller';
 
 export type OrderType = 'purchase' | 'pickup' | '';
 
-export type PageType = 
-  | 'home' 
+export type PageType =
+  | 'home'
   | 'login'
-  | 'signup' 
-  | 'browse' 
-  | 'cart' 
+  | 'signup'
+  | 'browse'
+  | 'cart'
   | 'checkout'
   | 'profile'
   | 'viewProfile'
@@ -97,5 +100,6 @@ export type PageType =
   | 'orderDetails'
   | 'sellerDashboard'
   | 'createListing'
+  | 'editListing'
   | 'sellerListings'
   | 'sellerOrders';

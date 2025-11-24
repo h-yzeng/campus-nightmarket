@@ -1,9 +1,11 @@
-import { Camera, Mail, User, IdCard, Eye, EyeOff, AlertCircle, Lock, DollarSign } from 'lucide-react';
+import { Camera, Mail, User, IdCard, Eye, EyeOff, AlertCircle, Lock, DollarSign, MapPin } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import type { UserMode } from '../types';
+import { uploadProfilePhoto } from '../services/storage/imageService';
+import { useAuth } from '../hooks/userAuth';
 
 interface UserProfileProps {
   profileData: ProfileData;
@@ -17,9 +19,9 @@ interface UserProfileProps {
   onModeChange?: (mode: UserMode) => void;
 }
 
-const UserProfile = ({ 
-  profileData, 
-  setProfileData, 
+const UserProfile = ({
+  profileData,
+  setProfileData,
   onSaveProfile,
   onSignOut,
   onBack,
@@ -28,6 +30,7 @@ const UserProfile = ({
   onSellerDashboardClick,
   onModeChange
 }: UserProfileProps) => {
+  const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
@@ -35,20 +38,31 @@ const UserProfile = ({
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileData({ ...profileData, photo: reader.result as string });
-        setHasChanges(true);
-      };
-      reader.readAsDataURL(file);
+    if (!file || !user) return;
+
+    setUploadingPhoto(true);
+    setError('');
+
+    try {
+      const photoURL = await uploadProfilePhoto(user.uid, file);
+
+      setProfileData({ ...profileData, photo: photoURL });
+      setHasChanges(true);
+    } catch (err) {
+      console.error('Error uploading photo:', err);
+      setError(err instanceof Error ? err.message : 'Failed to upload photo');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -72,6 +86,18 @@ const UserProfile = ({
     setHasChanges(true);
   };
 
+  const handleLocationChange = (location: string) => {
+    setProfileData({
+      ...profileData,
+      sellerInfo: {
+        ...profileData.sellerInfo,
+        paymentMethods: profileData.sellerInfo?.paymentMethods || {},
+        preferredLocations: location ? [location] : []
+      }
+    });
+    setHasChanges(true);
+  };
+
   const isValidPassword = (password: string): boolean => {
     return password.length >= 8 && 
            /[A-Z]/.test(password) && 
@@ -79,52 +105,62 @@ const UserProfile = ({
            /\d/.test(password);
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     setPasswordError('');
 
-    // Validate current password
-    if (currentPassword !== profileData.password) {
-      setPasswordError('Current password is incorrect');
+    if (!currentPassword) {
+      setPasswordError('Please enter your current password');
       return;
     }
 
-    // Validate new password
     if (!isValidPassword(newPassword)) {
       setPasswordError('Password must be 8+ characters with uppercase, lowercase, and number');
       return;
     }
 
-    // Confirm passwords match
     if (newPassword !== confirmNewPassword) {
       setPasswordError('New passwords do not match');
       return;
     }
 
-    // Update password
-    setProfileData({ ...profileData, password: newPassword, confirmPassword: newPassword });
-    setHasChanges(true);
-    
-    // Clear fields and close section
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
-    setShowPasswordSection(false);
-    alert('Password updated! Remember to save changes.');
+    try {
+      const { changePassword } = await import('../services/auth/authService');
+      await changePassword(currentPassword, newPassword);
+
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setShowPasswordSection(false);
+      alert('Password changed successfully!');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to change password';
+      setPasswordError(errorMessage);
+    }
   };
 
-  const handleSave = () => {
-    onSaveProfile();
-    setHasChanges(false);
+  const handleSave = async () => {
+    setSaving(true);
+    setError('');
+
+    try {
+      await onSaveProfile();
+      setHasChanges(false);
+    } catch (err) {
+      console.error('Error saving profile:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        cartItems={[]} 
-        profileData={profileData} 
+    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+      <Header
+        cartItems={[]}
+        profileData={profileData}
         onCartClick={() => {}}
         onSignOut={onSignOut}
-        onProfileClick={() => {}} 
+        onProfileClick={() => {}}
         onOrdersClick={onOrdersClick}
         onSellerDashboardClick={onSellerDashboardClick}
         onModeChange={onModeChange}
@@ -136,39 +172,52 @@ const UserProfile = ({
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="text-[#CC0000] font-semibold hover:underline flex items-center gap-2"
+            className="text-[#FF4444] hover:text-[#CC0000] font-semibold hover:underline flex items-center gap-2 transition-colors"
           >
             ← Back to Browse
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-8">
+        <div className="bg-[#1A1A1B] rounded-2xl shadow-xl border-2 border-[#2A2A2A] p-8">
           <h1 className="text-3xl font-bold mb-2 text-[#CC0000]">My Profile</h1>
-          <p className="text-gray-600 mb-8">Manage your account information and privacy settings</p>
+          <p className="text-[#B0B0B0] mb-8">Manage your account information and privacy settings</p>
+
+          {error && (
+            <div className="flex gap-3 p-4 rounded-xl mb-6 bg-[#2A0A0A] border-2 border-[#4A1A1A]">
+              <AlertCircle size={20} className="text-[#FF4444] shrink-0 mt-0.5" />
+              <p className="text-sm text-[#FFB0B0]">{error}</p>
+            </div>
+          )}
 
           <div className="flex justify-center mb-8">
             <div className="relative">
-              <div 
-                onClick={handlePhotoClick}
-                className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#E0E0E0] bg-[#F5F5F5] cursor-pointer hover:border-red-300 transition-colors overflow-hidden"
+              <div
+                onClick={uploadingPhoto ? undefined : handlePhotoClick}
+                className={`w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#3A3A3A] bg-[#252525] ${uploadingPhoto ? 'cursor-wait' : 'cursor-pointer hover:border-[#CC0000]'} transition-colors overflow-hidden`}
               >
-                {profileData.photo ? (
-                  <img 
-                    src={profileData.photo} 
-                    alt="Profile" 
-                    className="w-full h-full object-cover" 
+                {uploadingPhoto ? (
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#CC0000] mx-auto"></div>
+                    <p className="text-xs mt-2 text-[#B0B0B0]">Uploading...</p>
+                  </div>
+                ) : profileData.photo ? (
+                  <img
+                    src={profileData.photo}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="text-center">
-                    <Camera size={36} className="text-[#76777B] mx-auto" />
-                    <p className="text-xs mt-2 text-gray-500">Add Photo</p>
+                    <Camera size={36} className="text-[#888888] mx-auto" />
+                    <p className="text-xs mt-2 text-[#B0B0B0]">Add Photo</p>
                   </div>
                 )}
               </div>
-              <button 
+              <button
                 type="button"
                 onClick={handlePhotoClick}
-                className="absolute bottom-1 right-1 p-3 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow bg-[#CC0000]"
+                disabled={uploadingPhoto}
+                className="absolute bottom-1 right-1 p-3 rounded-full text-white shadow-lg hover:shadow-xl transition-shadow bg-[#CC0000] disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Change Photo"
               >
                 <Camera size={16} />
@@ -186,17 +235,17 @@ const UserProfile = ({
 
           <div className="space-y-6">
             {/* Public Information Section */}
-            <div className="bg-[#F5F5F5] rounded-xl p-6 border-2 border-gray-200">
+            <div className="bg-[#0A2A0A] rounded-xl p-6 border-2 border-[#1A4A1A]">
               <div className="flex items-center gap-2 mb-4">
-                <Eye size={20} className="text-green-600" />
-                <h2 className="text-xl font-bold text-gray-900">Public Information</h2>
+                <Eye size={20} className="text-green-400" />
+                <h2 className="text-xl font-bold text-[#E0E0E0]">Public Information</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">This information is visible to other students on Night Market</p>
+              <p className="text-sm text-[#90C090] mb-4">This information is visible to other students on Night Market</p>
               
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">
+                    <label className="block text-sm font-semibold mb-2 text-[#E0E0E0] items-center gap-2">
                       <User size={16} />
                       First Name
                     </label>
@@ -204,13 +253,13 @@ const UserProfile = ({
                       type="text"
                       value={profileData.firstName}
                       disabled
-                      className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
+                      className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base bg-[#1A3A1A] text-[#A0C0A0] cursor-not-allowed"
                       title="First Name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">
+                    <label className="block text-sm font-semibold mb-2 text-[#E0E0E0] items-center gap-2">
                       <User size={16} />
                       Last Name
                     </label>
@@ -218,14 +267,14 @@ const UserProfile = ({
                       type="text"
                       value={profileData.lastName}
                       disabled
-                      className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
+                      className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base bg-[#1A3A1A] text-[#A0C0A0] cursor-not-allowed"
                       title="Last Name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">
+                  <label className="block text-sm font-semibold mb-2 text-[#E0E0E0] items-center gap-2">
                     <IdCard size={16} />
                     Student ID
                   </label>
@@ -233,36 +282,60 @@ const UserProfile = ({
                     type="text"
                     value={profileData.studentId}
                     disabled
-                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base font-mono bg-white text-gray-700 cursor-not-allowed"
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base font-mono bg-[#1A3A1A] text-[#A0C0A0] cursor-not-allowed"
                     title="Student ID"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
                     Bio
                   </label>
                   <textarea
                     value={profileData.bio}
                     onChange={handleBioChange}
-                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all resize-none bg-white min-h-[100px]"
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base text-[#E0E0E0] placeholder-[#5A7A5A] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all resize-none bg-[#1A3A1A] min-h-[100px]"
                     placeholder="Tell us something about yourself..."
                   />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold mb-2 text-[#E0E0E0]">
+                    <MapPin size={16} />
+                    Current Dorm Location
+                  </label>
+                  <select
+                    value={profileData.sellerInfo?.preferredLocations?.[0] || ''}
+                    onChange={(e) => handleLocationChange(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base text-[#E0E0E0] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all bg-[#1A3A1A] appearance-none"
+                    title="Select your current dorm"
+                  >
+                    <option value="">Select your dorm...</option>
+                    <option value="Cunningham Hall">Cunningham Hall</option>
+                    <option value="Kacek Hall">Kacek Hall</option>
+                    <option value="Carmen Hall">Carmen Hall</option>
+                    <option value="MSV">MSV</option>
+                    <option value="Rowe North">Rowe North</option>
+                    <option value="Rowe Middle">Rowe Middle</option>
+                    <option value="Rowe South">Rowe South</option>
+                    <option value="The Quad">The Quad</option>
+                  </select>
+                  <p className="text-xs text-[#90C090] mt-1">This helps buyers know your general location</p>
                 </div>
               </div>
             </div>
 
             {/* Private Information Section */}
-            <div className="bg-[#FFF5F5] rounded-xl p-6 border-2 border-[#FFDDDD]">
+            <div className="bg-[#2A0A0A] rounded-xl p-6 border-2 border-[#4A1A1A]">
               <div className="flex items-center gap-2 mb-4">
-                <EyeOff size={20} className="text-[#CC0000]" />
-                <h2 className="text-xl font-bold text-gray-900">Private Information</h2>
+                <EyeOff size={20} className="text-[#FF4444]" />
+                <h2 className="text-xl font-bold text-[#E0E0E0]">Private Information</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">This information is only visible to you</p>
+              <p className="text-sm text-[#C09090] mb-4">This information is only visible to you</p>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900 items-center gap-2">
+                  <label className="block text-sm font-semibold mb-2 text-[#E0E0E0] items-center gap-2">
                     <Mail size={16} />
                     Email Address
                   </label>
@@ -270,7 +343,7 @@ const UserProfile = ({
                     type="email"
                     value={profileData.email}
                     disabled
-                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
+                    className="w-full px-4 py-3 border-2 border-[#4A2A2A] rounded-xl text-base bg-[#3A1A1A] text-[#C0A0A0] cursor-not-allowed"
                     title="Email Address"
                   />
                 </div>
@@ -278,13 +351,13 @@ const UserProfile = ({
                 {/* Password Change Section */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-semibold text-gray-900 items-center gap-2">
+                    <label className="block text-sm font-semibold text-[#E0E0E0] items-center gap-2">
                       <Lock size={16} />
                       Password
                     </label>
                     <button
                       onClick={() => setShowPasswordSection(!showPasswordSection)}
-                      className="text-sm text-[#CC0000] font-semibold hover:underline"
+                      className="text-sm text-[#FF4444] hover:text-[#CC0000] font-semibold hover:underline transition-colors"
                     >
                       {showPasswordSection ? 'Cancel' : 'Change Password'}
                     </button>
@@ -295,62 +368,62 @@ const UserProfile = ({
                       type="password"
                       value="••••••••"
                       disabled
-                      className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base bg-white text-gray-700 cursor-not-allowed"
+                      className="w-full px-4 py-3 border-2 border-[#4A2A2A] rounded-xl text-base bg-[#3A1A1A] text-[#C0A0A0] cursor-not-allowed"
                       title="Password"
                     />
                   ) : (
-                    <div className="space-y-3 p-4 bg-white rounded-xl border-2 border-gray-200">
+                    <div className="space-y-3 p-4 bg-[#3A1A1A] rounded-xl border-2 border-[#5A2A2A]">
                       <div>
-                        <label className="block text-xs font-semibold mb-1 text-gray-700">
+                        <label className="block text-xs font-semibold mb-1 text-[#D0B0B0]">
                           Current Password
                         </label>
                         <input
                           type="password"
                           value={currentPassword}
                           onChange={(e) => setCurrentPassword(e.target.value)}
-                          className="w-full px-3 py-2 border-2 border-[#D0D0D0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                          className="w-full px-3 py-2 border-2 border-[#5A2A2A] rounded-lg text-sm text-[#E0E0E0] placeholder-[#8A5A5A] focus:outline-none focus:ring-2 focus:ring-[#FF4444] focus:border-[#FF4444] transition-all bg-[#2A0A0A]"
                           placeholder="Enter current password"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold mb-1 text-gray-700">
+                        <label className="block text-xs font-semibold mb-1 text-[#D0B0B0]">
                           New Password
                         </label>
                         <input
                           type="password"
                           value={newPassword}
                           onChange={(e) => setNewPassword(e.target.value)}
-                          className="w-full px-3 py-2 border-2 border-[#D0D0D0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                          className="w-full px-3 py-2 border-2 border-[#5A2A2A] rounded-lg text-sm text-[#E0E0E0] placeholder-[#8A5A5A] focus:outline-none focus:ring-2 focus:ring-[#FF4444] focus:border-[#FF4444] transition-all bg-[#2A0A0A]"
                           placeholder="Enter new password"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold mb-1 text-gray-700">
+                        <label className="block text-xs font-semibold mb-1 text-[#D0B0B0]">
                           Confirm New Password
                         </label>
                         <input
                           type="password"
                           value={confirmNewPassword}
                           onChange={(e) => setConfirmNewPassword(e.target.value)}
-                          className="w-full px-3 py-2 border-2 border-[#D0D0D0] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                          className="w-full px-3 py-2 border-2 border-[#5A2A2A] rounded-lg text-sm text-[#E0E0E0] placeholder-[#8A5A5A] focus:outline-none focus:ring-2 focus:ring-[#FF4444] focus:border-[#FF4444] transition-all bg-[#2A0A0A]"
                           placeholder="Confirm new password"
                         />
                       </div>
 
                       {passwordError && (
-                        <p className="text-xs text-[#CC0000]">{passwordError}</p>
+                        <p className="text-xs text-[#FF8888]">{passwordError}</p>
                       )}
 
                       <button
                         onClick={handlePasswordChange}
-                        className="w-full py-2 bg-[#CC0000] text-white text-sm font-bold rounded-lg hover:shadow-lg transition-all"
+                        className="w-full py-2 bg-[#CC0000] text-white text-sm font-bold rounded-lg hover:bg-[#AA0000] hover:shadow-lg transition-all"
                       >
                         Update Password
                       </button>
 
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-[#B08080]">
                         Password must be 8+ characters with uppercase, lowercase, and number
                       </p>
                     </div>
@@ -360,56 +433,56 @@ const UserProfile = ({
             </div>
 
             {/* Payment Information Section */}
-            <div className="bg-green-50 rounded-xl p-6 border-2 border-green-200">
+            <div className="bg-[#0A2A0A] rounded-xl p-6 border-2 border-[#1A4A1A]">
               <div className="flex items-center gap-2 mb-4">
-                <DollarSign size={20} className="text-green-600" />
-                <h2 className="text-xl font-bold text-gray-900">Payment Information</h2>
+                <DollarSign size={20} className="text-green-400" />
+                <h2 className="text-xl font-bold text-[#E0E0E0]">Payment Information</h2>
               </div>
-              <p className="text-sm text-gray-600 mb-4">Add your payment methods so buyers can easily pay you</p>
-              
+              <p className="text-sm text-[#90C090] mb-4">Add your payment methods so buyers can easily pay you</p>
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
                     💸 CashApp Username
                   </label>
                   <input
                     type="text"
                     value={profileData.sellerInfo?.paymentMethods?.cashApp || ''}
                     onChange={(e) => handlePaymentChange('cashApp', e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base text-[#E0E0E0] placeholder-[#5A7A5A] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all bg-[#1A3A1A]"
                     placeholder="$yourCashAppUsername"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
                     💳 Venmo Username
                   </label>
                   <input
                     type="text"
                     value={profileData.sellerInfo?.paymentMethods?.venmo || ''}
                     onChange={(e) => handlePaymentChange('venmo', e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base text-[#E0E0E0] placeholder-[#5A7A5A] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all bg-[#1A3A1A]"
                     placeholder="@yourVenmoUsername"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900">
+                  <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
                     🏦 Zelle Email/Phone
                   </label>
                   <input
                     type="text"
                     value={profileData.sellerInfo?.paymentMethods?.zelle || ''}
                     onChange={(e) => handlePaymentChange('zelle', e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-white"
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base text-[#E0E0E0] placeholder-[#5A7A5A] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all bg-[#1A3A1A]"
                     placeholder="your.email@hawk.illinoistech.edu"
                   />
                 </div>
 
-                <div className="flex gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                  <AlertCircle size={16} className="text-blue-600 shrink-0 mt-0.5" />
-                  <p className="text-xs text-gray-700">
+                <div className="flex gap-3 p-3 rounded-lg bg-[#0A1A2A] border border-[#1A3A4A]">
+                  <AlertCircle size={16} className="text-blue-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-[#90A0C0]">
                     Add at least one payment method if you plan to sell food. Buyers will see these details after placing an order.
                   </p>
                 </div>
@@ -417,12 +490,12 @@ const UserProfile = ({
             </div>
 
             {/* Privacy Note */}
-            <div className="flex gap-3 p-4 rounded-xl bg-blue-50 border-2 border-blue-200">
-              <AlertCircle size={20} className="text-blue-600 shrink-0 mt-0.5" />
+            <div className="flex gap-3 p-4 rounded-xl bg-[#0A1A2A] border-2 border-[#1A3A4A]">
+              <AlertCircle size={20} className="text-blue-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-gray-900 mb-1">Privacy Note</p>
-                <p className="text-sm text-gray-700">
-                  Your name, student ID, profile photo, and bio are visible to other verified students. 
+                <p className="text-sm font-semibold text-[#E0E0E0] mb-1">Privacy Note</p>
+                <p className="text-sm text-[#90A0C0]">
+                  Your name, student ID, profile photo, and bio are visible to other verified students.
                   Your email, password, and payment information remain private.
                 </p>
               </div>
@@ -431,9 +504,12 @@ const UserProfile = ({
             {hasChanges && (
               <button
                 onClick={handleSave}
-                className="w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 bg-[#CC0000]"
+                disabled={saving || uploadingPhoto}
+                className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 ${
+                  saving || uploadingPhoto ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#CC0000]'
+                }`}
               >
-                Save Changes
+                {saving ? 'Saving...' : uploadingPhoto ? 'Uploading Photo...' : 'Save Changes'}
               </button>
             )}
           </div>

@@ -1,18 +1,19 @@
 import { ArrowLeft, DollarSign, MapPin, Tag, AlertCircle, Upload } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ProfileData, CartItem } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { uploadListingImage } from '../../services/storage/imageService';
-import { createListing } from '../../services/listings/listingService';
+import { getListing, updateListing } from '../../services/listings/listingService';
 import { useAuth } from '../../hooks/userAuth';
 
-interface CreateListingProps {
+interface EditListingProps {
+  listingId: string;
   profileData: ProfileData;
   cart: CartItem[];
   userMode: 'buyer' | 'seller';
-  onBackToDashboard: () => void;
-  onCreateListing?: () => void | Promise<void>;
+  onBackToListings: () => void;
+  onUpdateListing?: () => void | Promise<void>;
   onModeChange: (mode: 'buyer' | 'seller') => void;
   onCartClick: () => void;
   onSignOut: () => void;
@@ -22,12 +23,13 @@ interface CreateListingProps {
   onLogoClick?: () => void;
 }
 
-const CreateListing = ({
+const EditListing = ({
+  listingId,
   profileData,
   cart,
   userMode,
-  onBackToDashboard,
-  onCreateListing,
+  onBackToListings,
+  onUpdateListing,
   onModeChange,
   onCartClick,
   onSignOut,
@@ -35,7 +37,7 @@ const CreateListing = ({
   onOrdersClick,
   onSellerDashboardClick,
   onLogoClick
-}: CreateListingProps) => {
+}: EditListingProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,11 +46,13 @@ const CreateListing = ({
   const [price, setPrice] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [currentImageURL, setCurrentImageURL] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
 
+  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
 
   const locations = [
@@ -72,12 +76,42 @@ const CreateListing = ({
     'Other'
   ];
 
+  useEffect(() => {
+    const loadListing = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const listing = await getListing(listingId);
+
+        if (!listing) {
+          setError('Listing not found');
+          return;
+        }
+
+        setName(listing.name);
+        setDescription(listing.description);
+        setPrice(listing.price.toString());
+        setLocation(listing.location);
+        setCategory(listing.category);
+        setCurrentImageURL(listing.imageURL);
+        setImagePreview(listing.imageURL);
+      } catch (err) {
+        console.error('Error loading listing:', err);
+        setError('Failed to load listing');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadListing();
+  }, [listingId]);
+
   const isFormValid =
     name.trim() !== '' &&
     description.trim() !== '' &&
     price !== '' &&
     parseFloat(price) > 0 &&
-    imageFile !== null &&
+    (imagePreview !== '' || imageFile !== null) &&
     location !== '' &&
     category !== '';
 
@@ -110,49 +144,77 @@ const CreateListing = ({
   };
 
   const handleSubmit = async () => {
-    if (!isFormValid || !user || !imageFile) {
+    if (!isFormValid || !user) {
       setError('Please fill out all required fields');
       return;
     }
 
-    setCreating(true);
+    setUpdating(true);
     setError('');
 
     try {
-      setUploading(true);
-      const imageURL = await uploadListingImage(user.uid, imageFile);
-      setUploading(false);
+      let imageURL = currentImageURL;
 
-      console.log('[CreateListing] Creating listing in Firestore...');
-      await createListing({
+      if (imageFile) {
+        setUploading(true);
+        imageURL = await uploadListingImage(user.uid, imageFile);
+        setUploading(false);
+      }
+
+      console.log('[EditListing] Updating listing in Firestore...');
+      await updateListing(listingId, {
         name: name.trim(),
         description: description.trim(),
         price: parseFloat(price),
         imageURL: imageURL,
         location: location,
-        sellerId: user.uid,
-        sellerName: `${profileData.firstName} ${profileData.lastName}`,
-        isAvailable: true,
         category: category,
       });
-      console.log('[CreateListing] Listing created successfully');
+      console.log('[EditListing] Listing updated successfully');
 
-      if (onCreateListing) {
-        console.log('[CreateListing] Calling onCreateListing callback...');
-        await onCreateListing();
-        console.log('[CreateListing] onCreateListing callback complete');
+      if (onUpdateListing) {
+        console.log('[EditListing] Calling onUpdateListing callback...');
+        await onUpdateListing();
+        console.log('[EditListing] onUpdateListing callback complete');
       } else {
-        console.log('[CreateListing] No onCreateListing callback, navigating to dashboard');
-        onBackToDashboard();
+        console.log('[EditListing] No onUpdateListing callback, navigating back');
+        onBackToListings();
       }
     } catch (err) {
-      console.error('Error creating listing:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create listing');
+      console.error('Error updating listing:', err);
+      setError(err instanceof Error ? err.message : 'Failed to update listing');
     } finally {
-      setCreating(false);
+      setUpdating(false);
       setUploading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+        <Header
+          cartItems={cart}
+          profileData={profileData}
+          userMode={userMode}
+          onCartClick={onCartClick}
+          onSignOut={onSignOut}
+          onProfileClick={onProfileClick}
+          onOrdersClick={onOrdersClick}
+          onModeChange={onModeChange}
+          onSellerDashboardClick={onSellerDashboardClick}
+          onLogoClick={onLogoClick}
+          showCart={true}
+        />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⏳</div>
+            <p className="text-xl font-semibold text-white">Loading listing...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
@@ -173,18 +235,18 @@ const CreateListing = ({
       <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">
         <div className="mb-6">
           <button
-            onClick={onBackToDashboard}
+            onClick={onBackToListings}
             className="text-[#CC0000] font-semibold hover:underline flex items-center gap-2"
           >
             <ArrowLeft size={20} />
-            Back to Dashboard
+            Back to Listings
           </button>
         </div>
 
         <div className="bg-[#1E1E1E] rounded-2xl shadow-xl border-2 border-[#3A3A3A] p-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#CC0000] mb-2">Create New Listing</h1>
-            <p className="text-[#A0A0A0]">Post a new food item for sale on Night Market</p>
+            <h1 className="text-3xl font-bold text-[#CC0000] mb-2">Edit Listing</h1>
+            <p className="text-[#A0A0A0]">Update your food item details</p>
           </div>
 
           {error && (
@@ -260,7 +322,9 @@ const CreateListing = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-white mb-2">Image selected</p>
+                    <p className="text-sm font-semibold text-white mb-2">
+                      {imageFile ? 'New image selected' : 'Current image'}
+                    </p>
                     <button
                       type="button"
                       onClick={handleImageClick}
@@ -341,24 +405,24 @@ const CreateListing = ({
             <div className="flex gap-3 p-4 rounded-xl bg-[#0A1A2A] border-2 border-[#1A3A4A]">
               <AlertCircle size={20} className="text-blue-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-white mb-1">Listing Tips</p>
+                <p className="text-sm font-semibold text-white mb-1">Update Tips</p>
                 <ul className="text-sm text-[#90A0C0] space-y-1">
-                  <li>• Be clear and descriptive in your food name</li>
-                  <li>• Include ingredients or dietary info in the description</li>
-                  <li>• Price fairly based on portion size and ingredients</li>
-                  <li>• Choose the location where buyers can pick up</li>
+                  <li>• Update any field to make changes</li>
+                  <li>• Keep the current image or upload a new one</li>
+                  <li>• Price changes will be reflected immediately</li>
+                  <li>• All fields are required</li>
                 </ul>
               </div>
             </div>
 
             <button
               onClick={handleSubmit}
-              disabled={!isFormValid || creating || uploading}
+              disabled={!isFormValid || updating || uploading}
               className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 disabled:transform-none disabled:hover:shadow-lg ${
-                isFormValid && !creating && !uploading ? 'bg-[#CC0000] cursor-pointer' : 'bg-[#999999] cursor-not-allowed'
+                isFormValid && !updating && !uploading ? 'bg-[#CC0000] cursor-pointer' : 'bg-[#999999] cursor-not-allowed'
               }`}
             >
-              {uploading ? 'Uploading Image...' : creating ? 'Creating Listing...' : isFormValid ? 'Create Listing →' : 'Fill Required Fields'}
+              {uploading ? 'Uploading Image...' : updating ? 'Updating Listing...' : isFormValid ? 'Update Listing →' : 'Fill Required Fields'}
             </button>
           </div>
         </div>
@@ -369,4 +433,4 @@ const CreateListing = ({
   );
 };
 
-export default CreateListing;
+export default EditListing;

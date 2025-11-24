@@ -92,7 +92,7 @@ const Checkout = ({
   const allTimesSelected = sellers.every(seller => pickupTimesBySeller[seller]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#040707]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -115,7 +115,7 @@ const Checkout = ({
           </button>
         </div>
 
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">Checkout</h1>
+        <h1 className="text-3xl font-bold mb-8 text-white">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
@@ -124,11 +124,11 @@ const Checkout = ({
               const sellerTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
               
               return (
-                <div key={seller} className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+                <div key={seller} className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
                   <div className="mb-4 pb-4 border-b-2 border-gray-200">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin size={20} className="text-[#CC0000]" />
-                      <h2 className="text-xl font-bold text-gray-900">
+                      <h2 className="text-xl font-bold text-white">
                         {seller}
                       </h2>
                     </div>
@@ -137,7 +137,7 @@ const Checkout = ({
 
                   {/* Items List */}
                   <div className="mb-6">
-                    <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
                       <ShoppingBag size={16} />
                       Items ({items.length})
                     </h3>
@@ -147,7 +147,7 @@ const Checkout = ({
                           <div className="flex items-center gap-3">
                             <span className="text-2xl">{item.image}</span>
                             <div>
-                              <p className="font-semibold text-gray-900">{item.name}</p>
+                              <p className="font-semibold text-white">{item.name}</p>
                               <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                             </div>
                           </div>
@@ -157,15 +157,15 @@ const Checkout = ({
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 pt-3 border-t-2 border-gray-200 flex justify-between items-center">
-                      <span className="font-bold text-gray-900">Subtotal</span>
+                    <div className="mt-3 pt-3 border-t-2 border-neutral-700 flex justify-between items-center">
+                      <span className="font-bold text-white">Subtotal</span>
                       <span className="font-bold text-[#CC0000]">${sellerTotal.toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Pickup Time Selection */}
                   <div>
-                    <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
                       <Clock size={16} />
                       Select Pickup Time
                     </h3>
@@ -178,7 +178,7 @@ const Checkout = ({
                           className={`px-3 py-2 rounded-xl text-sm font-semibold border-2 transition-all ${
                             pickupTimesBySeller[seller] === time
                               ? 'bg-[#CC0000] text-white border-[#CC0000]'
-                              : 'bg-white text-gray-700 border-gray-300 hover:border-[#CC0000]'
+                              : 'bg-neutral-800 text-gray-300 border-neutral-600 hover:border-[#CC0000]'
                           }`}
                         >
                           {time}
@@ -195,7 +195,7 @@ const Checkout = ({
                     )}
 
                     {pickupTimesBySeller[seller] && (
-                      <div className="p-3 bg-green-50 rounded-xl border-2 border-green-200">
+                      <div className="p-3 bg-green-950 rounded-xl border-2 border-green-800">
                         <p className="text-sm text-gray-700">
                           ✅ Pickup scheduled for <span className="font-bold">{pickupTimesBySeller[seller]}</span>
                         </p>
@@ -207,8 +207,8 @@ const Checkout = ({
             })}
 
             {/* Payment Method */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Wallet size={20} />
                 Payment Method
               </h2>
@@ -221,7 +221,7 @@ const Checkout = ({
                     className={`px-4 py-4 rounded-xl text-sm font-semibold border-2 transition-all ${
                       selectedPayment === method
                         ? 'bg-[#CC0000] text-white border-[#CC0000]'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-[#CC0000]'
+                        : 'bg-neutral-800 text-gray-300 border-neutral-600 hover:border-[#CC0000]'
                     }`}
                   >
                     {method === 'Cash' ? '💵' : method === 'CashApp' ? '💸' : method === 'Venmo' ? '💳' : '🏦'} {method}
@@ -229,7 +229,7 @@ const Checkout = ({
                 ))}
               </div>
 
-              <div className="p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+              <div className="p-4 bg-blue-950 rounded-xl border-2 border-blue-800">
                 <p className="text-sm text-gray-700">
                   {selectedPayment === 'Cash' 
                     ? '💵 Pay each seller in person when you pick up your orders'
@@ -239,8 +239,8 @@ const Checkout = ({
             </div>
 
             {/* Special Instructions */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4">
                 Special Instructions (Optional)
               </h2>
               
@@ -248,15 +248,15 @@ const Checkout = ({
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any special requests or dietary restrictions..."
-                className="w-full px-4 py-3 border-2 border-[#E0E0E0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all resize-none bg-white min-h-[100px]"
+                className="w-full px-4 py-3 border-2 border-[#E0E0E0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all resize-none bg-neutral-800 min-h-[100px]"
               />
             </div>
           </div>
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6 sticky top-24">
+              <h2 className="text-xl font-bold text-white mb-4">
                 Order Summary
               </h2>
 
@@ -278,11 +278,11 @@ const Checkout = ({
               {/* Pickup Times Summary */}
               {sellers.length > 0 && (
                 <div className="mb-4 pb-4 border-b-2 border-gray-200">
-                  <p className="text-sm font-bold text-gray-700 mb-2">Pickup Times:</p>
+                  <p className="text-sm font-bold text-gray-300 mb-2">Pickup Times:</p>
                   <div className="space-y-2">
                     {sellers.map(seller => (
                       <div key={seller} className="text-sm">
-                        <p className="font-semibold text-gray-900">{seller}</p>
+                        <p className="font-semibold text-white">{seller}</p>
                         <p className={`text-xs ${pickupTimesBySeller[seller] ? 'text-green-600' : 'text-red-600'}`}>
                           {pickupTimesBySeller[seller] || 'Not selected'}
                         </p>
@@ -292,7 +292,7 @@ const Checkout = ({
                 </div>
               )}
 
-              <div className="flex justify-between text-xl font-bold text-gray-900 mb-6">
+              <div className="flex justify-between text-xl font-bold text-white mb-6">
                 <span>Total</span>
                 <span className="text-[#CC0000]">${total.toFixed(2)}</span>
               </div>
@@ -317,7 +317,7 @@ const Checkout = ({
               </button>
 
               <div className="mt-6 p-4 bg-[#F5F5F5] rounded-xl">
-                <p className="text-xs text-gray-600 text-center">
+                <p className="text-xs text-gray-400 text-center">
                   🎓 Student-to-Student · Campus pickup only
                 </p>
               </div>

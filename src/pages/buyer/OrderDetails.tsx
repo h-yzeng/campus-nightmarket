@@ -50,7 +50,7 @@ const OrderDetails = ({
       case 'cancelled':
         return 'bg-red-100 text-red-800 border-red-300';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-neutral-700 text-gray-200 border-gray-300';
     }
   };
 
@@ -88,7 +88,7 @@ const OrderDetails = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#040707]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -114,7 +114,7 @@ const OrderDetails = ({
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Order #{order.id}</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">Order #{order.id}</h1>
               <p className="text-gray-600">Placed on {order.orderDate}</p>
             </div>
             <span className={`px-4 py-2 rounded-full text-sm font-bold border-2 flex items-center gap-2 ${getStatusColor(order.status)}`}>
@@ -128,8 +128,8 @@ const OrderDetails = ({
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Items */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Package size={20} />
                 Order Items
               </h2>
@@ -138,13 +138,13 @@ const OrderDetails = ({
                 {order.items.map((item) => (
                   <div key={item.id} className="flex justify-between items-center p-4 bg-[#FAFAFA] rounded-xl">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center border-2 border-gray-200">
+                      <div className="w-16 h-16 rounded-xl bg-neutral-800 flex items-center justify-center border-2 border-gray-200">
                         <span className="text-3xl">{item.image}</span>
                       </div>
                       <div>
-                        <p className="font-bold text-gray-900 text-lg">{item.name}</p>
+                        <p className="font-bold text-white text-lg">{item.name}</p>
                         <p className="text-sm text-gray-600">{item.description}</p>
-                        <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
+                        <p className="text-sm text-gray-400 mt-1">Quantity: {item.quantity}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -155,15 +155,15 @@ const OrderDetails = ({
                 ))}
               </div>
 
-              <div className="mt-4 pt-4 border-t-2 border-gray-200 flex justify-between items-center">
-                <span className="text-xl font-bold text-gray-900">Total</span>
+              <div className="mt-4 pt-4 border-t-2 border-neutral-700 flex justify-between items-center">
+                <span className="text-xl font-bold text-white">Total</span>
                 <span className="text-2xl font-bold text-[#CC0000]">${order.total.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Pickup Information */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <MapPin size={20} />
                 Pickup Information
               </h2>
@@ -173,7 +173,7 @@ const OrderDetails = ({
                   <Clock size={20} className="text-[#CC0000] mt-1" />
                   <div>
                     <p className="text-sm font-semibold text-gray-700">Pickup Time</p>
-                    <p className="text-lg font-bold text-gray-900">{order.pickupTime}</p>
+                    <p className="text-lg font-bold text-white">{order.pickupTime}</p>
                   </div>
                 </div>
 
@@ -181,7 +181,7 @@ const OrderDetails = ({
                   <MapPin size={20} className="text-[#CC0000] mt-1" />
                   <div>
                     <p className="text-sm font-semibold text-gray-700">Location</p>
-                    <p className="text-lg font-bold text-gray-900">{order.sellerLocation}</p>
+                    <p className="text-lg font-bold text-white">{order.sellerLocation}</p>
                   </div>
                 </div>
 
@@ -189,7 +189,7 @@ const OrderDetails = ({
                   <User size={20} className="text-[#CC0000] mt-1" />
                   <div>
                     <p className="text-sm font-semibold text-gray-700">Seller</p>
-                    <p className="text-lg font-bold text-gray-900">{order.sellerName}</p>
+                    <p className="text-lg font-bold text-white">{order.sellerName}</p>
                   </div>
                 </div>
               </div>
@@ -197,8 +197,8 @@ const OrderDetails = ({
 
             {/* Special Instructions */}
             {order.notes && (
-              <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <MessageSquare size={20} />
                   Special Instructions
                 </h2>
@@ -212,35 +212,35 @@ const OrderDetails = ({
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Payment Information */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6 sticky top-24">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <Wallet size={20} />
                 Payment
               </h2>
 
               <div className="space-y-4">
                 <div className="p-4 bg-[#FAFAFA] rounded-xl">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Payment Method</p>
+                  <p className="text-sm font-semibold text-gray-300 mb-2">Payment Method</p>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">
                       {order.paymentMethod === 'Cash' ? '💵' : 
                        order.paymentMethod === 'CashApp' ? '💸' : 
                        order.paymentMethod === 'Venmo' ? '💳' : '🏦'}
                     </span>
-                    <span className="text-lg font-bold text-gray-900">{order.paymentMethod}</span>
+                    <span className="text-lg font-bold text-white">{order.paymentMethod}</span>
                   </div>
                 </div>
 
-                <div className="p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Payment Details</p>
-                  <p className="text-sm text-gray-900 font-medium">{getPaymentInfo()}</p>
+                <div className="p-4 bg-blue-950 rounded-xl border-2 border-blue-800">
+                  <p className="text-sm font-semibold text-gray-300 mb-2">Payment Details</p>
+                  <p className="text-sm text-white font-medium">{getPaymentInfo()}</p>
                 </div>
               </div>
             </div>
 
             {/* Seller Contact Information */}
-            <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Contact Seller</h2>
+            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Contact Seller</h2>
 
               <div className="space-y-3">
                 {sellerPhone && (
@@ -251,7 +251,7 @@ const OrderDetails = ({
                     <Phone size={18} className="text-[#CC0000]" />
                     <div>
                       <p className="text-xs text-gray-600">Phone</p>
-                      <p className="text-sm font-semibold text-gray-900">{sellerPhone}</p>
+                      <p className="text-sm font-semibold text-white">{sellerPhone}</p>
                     </div>
                   </a>
                 )}
@@ -264,7 +264,7 @@ const OrderDetails = ({
                     <Mail size={18} className="text-[#CC0000]" />
                     <div>
                       <p className="text-xs text-gray-600">Email</p>
-                      <p className="text-sm font-semibold text-gray-900">{sellerEmail}</p>
+                      <p className="text-sm font-semibold text-white">{sellerEmail}</p>
                     </div>
                   </a>
                 )}
@@ -283,7 +283,7 @@ const OrderDetails = ({
             {order.status === 'pending' && !showCancelConfirm && (
               <button
                 onClick={() => setShowCancelConfirm(true)}
-                className="w-full py-3 bg-white text-red-600 font-bold rounded-xl border-2 border-red-300 hover:bg-red-50 transition-all"
+                className="w-full py-3 bg-neutral-800 text-red-600 font-bold rounded-xl border-2 border-red-300 hover:bg-red-50 transition-all"
               >
                 Cancel Order
               </button>
@@ -291,12 +291,12 @@ const OrderDetails = ({
 
             {/* Cancel Confirmation */}
             {showCancelConfirm && (
-              <div className="bg-white rounded-2xl shadow-md border-2 border-red-300 p-6">
+              <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-red-300 p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <AlertCircle size={20} className="text-red-600" />
-                  <h3 className="text-lg font-bold text-gray-900">Cancel Order?</h3>
+                  <h3 className="text-lg font-bold text-white">Cancel Order?</h3>
                 </div>
-                <p className="text-sm text-gray-700 mb-4">
+                <p className="text-sm text-gray-300 mb-4">
                   Are you sure you want to cancel this order? This action cannot be undone.
                 </p>
                 <div className="flex gap-3">
@@ -308,7 +308,7 @@ const OrderDetails = ({
                   </button>
                   <button
                     onClick={() => setShowCancelConfirm(false)}
-                    className="flex-1 py-2 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition-all"
+                    className="flex-1 py-2 bg-gray-200 text-gray-300 font-bold rounded-xl hover:bg-gray-300 transition-all"
                   >
                     Keep Order
                   </button>

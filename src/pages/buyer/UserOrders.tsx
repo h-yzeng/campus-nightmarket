@@ -1,4 +1,4 @@
-import { Clock, MapPin, Package, CheckCircle, XCircle, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Clock, MapPin, Package, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem } from '../../types';
 import Header from '../../components/Header';
@@ -18,6 +18,7 @@ interface UserOrdersProps {
   onSellerDashboardClick?: () => void;
   onModeChange?: (mode: UserMode) => void;
   onLogoClick?: () => void;
+  loading?: boolean;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -35,7 +36,8 @@ const UserOrders = ({
   onOrdersClick,
   onSellerDashboardClick,
   onModeChange,
-  onLogoClick
+  onLogoClick,
+  loading = false
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
@@ -47,13 +49,13 @@ const UserOrders = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-[#2A2A0A] text-[#FFD700] border-[#4A4A1A]';
       case 'completed':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-[#0A2A0A] text-[#88FF88] border-[#1A4A1A]';
       case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-[#2A0A0A] text-[#FF8888] border-[#4A1A1A]';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-[#252525] text-[#B0B0B0] border-[#3A3A3A]';
     }
   };
 
@@ -71,7 +73,7 @@ const UserOrders = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -98,18 +100,18 @@ const UserOrders = ({
         </div>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
-          <p className="text-gray-600">Track and manage your food orders</p>
+          <h1 className="text-3xl font-bold text-white mb-2">My Orders</h1>
+          <p className="text-[#A0A0A0]">Track and manage your food orders</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b-2 border-gray-200">
+        <div className="flex gap-4 mb-6 border-b-2 border-[#3A3A3A]">
           <button
             onClick={() => setActiveTab('pending')}
             className={`px-6 py-3 font-semibold transition-all ${
               activeTab === 'pending'
                 ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
             Pending ({pendingOrders.length})
@@ -119,7 +121,7 @@ const UserOrders = ({
             className={`px-6 py-3 font-semibold transition-all ${
               activeTab === 'completed'
                 ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
             Completed ({completedOrders.length})
@@ -127,17 +129,22 @@ const UserOrders = ({
         </div>
 
         {/* Orders List */}
-        {displayOrders.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-md border-2 border-gray-100">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 size={48} className="text-[#CC0000] animate-spin mb-4" />
+            <p className="text-lg text-[#A0A0A0]">Loading your orders...</p>
+          </div>
+        ) : displayOrders.length === 0 ? (
+          <div className="text-center py-16 bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A]">
             <div className="text-7xl mb-4">
               {activeTab === 'pending' ? '📦' : '✅'}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-white mb-2">
               {activeTab === 'pending' ? 'No pending orders' : 'No completed orders yet'}
             </h2>
-            <p className="text-gray-600 mb-6">
-              {activeTab === 'pending' 
-                ? 'Start browsing to place your first order!' 
+            <p className="text-[#A0A0A0] mb-6">
+              {activeTab === 'pending'
+                ? 'Start browsing to place your first order!'
                 : 'Your completed orders will appear here'}
             </p>
             <button
@@ -153,12 +160,12 @@ const UserOrders = ({
               <div
                 key={order.id}
                 onClick={() => onViewOrderDetails(order.id)}
-                className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6 hover:shadow-xl hover:border-gray-300 transition-all cursor-pointer"
+                className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6 hover:shadow-xl hover:border-neutral-600 transition-all cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">
+                      <h3 className="text-xl font-bold text-[#E0E0E0]">
                         Order #{order.id}
                       </h3>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 flex items-center gap-1 ${getStatusColor(order.status)}`}>
@@ -166,26 +173,26 @@ const UserOrders = ({
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-[#A0A0A0]">
                       Ordered on {order.orderDate}
                     </p>
                   </div>
-                  <ChevronRight size={24} className="text-gray-400" />
+                  <ChevronRight size={24} className="text-[#A0A0A0]" />
                 </div>
 
                 {/* Order Items Preview */}
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-gray-200">
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#3A3A3A]">
                   <div className="flex -space-x-2">
                     {order.items.slice(0, 3).map((item, index) => (
                       <div
                         key={index}
-                        className="w-12 h-12 rounded-full bg-[#FAFAFA] border-2 border-white flex items-center justify-center"
+                        className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center"
                       >
                         <span className="text-xl">{item.image}</span>
                       </div>
                     ))}
                     {order.items.length > 3 && (
-                      <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-[#3A3A3A] border-2 border-[#3A3A3A] flex items-center justify-center">
                         <span className="text-xs font-bold text-gray-700">
                           +{order.items.length - 3}
                         </span>
@@ -193,10 +200,10 @@ const UserOrders = ({
                     )}
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-[#E0E0E0]">
                       {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-[#A0A0A0]">
                       from {order.sellerName.split(' ')[0]}
                     </p>
                   </div>
@@ -205,40 +212,40 @@ const UserOrders = ({
                 {/* Order Details */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-gray-500" />
+                    <Clock size={16} className="text-[#888888]" />
                     <div>
-                      <p className="text-xs text-gray-500">Pickup Time</p>
-                      <p className="text-sm font-semibold text-gray-900">{order.pickupTime}</p>
+                      <p className="text-xs text-[#888888]">Pickup Time</p>
+                      <p className="text-sm font-semibold text-[#E0E0E0]">{order.pickupTime}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-gray-500" />
+                    <MapPin size={16} className="text-[#888888]" />
                     <div>
-                      <p className="text-xs text-gray-500">Location</p>
-                      <p className="text-sm font-semibold text-gray-900">{order.sellerLocation}</p>
+                      <p className="text-xs text-[#888888]">Location</p>
+                      <p className="text-sm font-semibold text-[#E0E0E0]">{order.sellerLocation}</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Package size={16} className="text-gray-500" />
+                    <Package size={16} className="text-[#888888]" />
                     <div>
-                      <p className="text-xs text-gray-500">Total</p>
+                      <p className="text-xs text-[#888888]">Total</p>
                       <p className="text-sm font-bold text-[#CC0000]">${order.total.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Method */}
-                <div className="mt-4 pt-4 border-t-2 border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Payment Method</p>
+                <div className="mt-4 pt-4 border-t-2 border-[#3A3A3A]">
+                  <p className="text-xs text-[#888888] mb-1">Payment Method</p>
                   <div className="flex items-center gap-2">
                     <span className="text-lg">
                       {order.paymentMethod === 'Cash' ? '💵' : 
                        order.paymentMethod === 'CashApp' ? '💸' : 
                        order.paymentMethod === 'Venmo' ? '💳' : '🏦'}
                     </span>
-                    <span className="text-sm font-semibold text-gray-900">{order.paymentMethod}</span>
+                    <span className="text-sm font-semibold text-[#E0E0E0]">{order.paymentMethod}</span>
                   </div>
                 </div>
               </div>

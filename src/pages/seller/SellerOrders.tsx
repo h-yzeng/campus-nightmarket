@@ -1,4 +1,4 @@
-import { ArrowLeft, Clock, MapPin, Package, User, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Package, User, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import type { ProfileData, CartItem, Order } from '../../types';
 import Header from '../../components/Header';
@@ -18,6 +18,7 @@ interface SellerOrdersProps {
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
   onLogoClick?: () => void;
+  loading?: boolean;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -35,7 +36,8 @@ const SellerOrders = ({
   onProfileClick,
   onOrdersClick,
   onSellerDashboardClick,
-  onLogoClick
+  onLogoClick,
+  loading = false
 }: SellerOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
@@ -50,13 +52,13 @@ const SellerOrders = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-[#2A2A0A] text-[#FFD700] border-[#4A4A1A]';
       case 'completed':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-[#0A2A0A] text-[#88FF88] border-[#1A4A1A]';
       case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-[#2A0A0A] text-[#FF8888] border-[#4A1A1A]';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-[#252525] text-[#B0B0B0] border-[#3A3A3A]';
     }
   };
 
@@ -78,7 +80,7 @@ const SellerOrders = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -105,23 +107,23 @@ const SellerOrders = ({
         </div>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Incoming Orders</h1>
-          <p className="text-gray-600">Manage and fulfill customer orders</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Incoming Orders</h1>
+          <p className="text-[#A0A0A0]">Manage and fulfill customer orders</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+          <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-gray-600">Total Orders</p>
-              <Package size={20} className="text-gray-400" />
+              <p className="text-sm font-semibold text-[#A0A0A0]">Total Orders</p>
+              <Package size={20} className="text-[#A0A0A0]" />
             </div>
-            <p className="text-3xl font-bold text-gray-900">{incomingOrders.length}</p>
+            <p className="text-3xl font-bold text-[#E0E0E0]">{incomingOrders.length}</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+          <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-gray-600">Pending Orders</p>
+              <p className="text-sm font-semibold text-[#A0A0A0]">Pending Orders</p>
               <Clock size={20} className="text-yellow-600" />
             </div>
             <p className="text-3xl font-bold text-yellow-600">{pendingOrders.length}</p>
@@ -130,9 +132,9 @@ const SellerOrders = ({
             )}
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+          <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-gray-600">Completed Orders</p>
+              <p className="text-sm font-semibold text-[#A0A0A0]">Completed Orders</p>
               <CheckCircle size={20} className="text-green-600" />
             </div>
             <p className="text-3xl font-bold text-green-600">{completedOrders.length}</p>
@@ -140,13 +142,13 @@ const SellerOrders = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b-2 border-gray-200">
+        <div className="flex gap-4 mb-6 border-b-2 border-[#3A3A3A]">
           <button
             onClick={() => setActiveTab('pending')}
             className={`px-6 py-3 font-semibold transition-all ${
               activeTab === 'pending'
                 ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
             Pending ({pendingOrders.length})
@@ -156,7 +158,7 @@ const SellerOrders = ({
             className={`px-6 py-3 font-semibold transition-all ${
               activeTab === 'completed'
                 ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
             Completed ({completedOrders.length})
@@ -164,17 +166,22 @@ const SellerOrders = ({
         </div>
 
         {/* Orders List */}
-        {displayOrders.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-md border-2 border-gray-100">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader2 size={48} className="text-[#CC0000] animate-spin mb-4" />
+            <p className="text-lg text-[#A0A0A0]">Loading orders...</p>
+          </div>
+        ) : displayOrders.length === 0 ? (
+          <div className="text-center py-16 bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A]">
             <div className="text-7xl mb-4">
               {activeTab === 'pending' ? '📦' : '✅'}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-white mb-2">
               {activeTab === 'pending' ? 'No pending orders' : 'No completed orders yet'}
             </h2>
-            <p className="text-gray-600 mb-6">
-              {activeTab === 'pending' 
-                ? 'New orders will appear here when customers place them' 
+            <p className="text-[#A0A0A0] mb-6">
+              {activeTab === 'pending'
+                ? 'New orders will appear here when customers place them'
                 : 'Completed orders will appear here'}
             </p>
           </div>
@@ -186,17 +193,17 @@ const SellerOrders = ({
               return (
                 <div
                   key={order.id}
-                  className="bg-white rounded-2xl shadow-md border-2 border-gray-100 overflow-hidden transition-all hover:shadow-lg"
+                  className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] overflow-hidden transition-all hover:shadow-lg"
                 >
                   {/* Order Header */}
                   <div 
-                    className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                    className="p-6 cursor-pointer hover:bg-[#0A0A0B] transition-colors"
                     onClick={() => toggleOrderExpanded(order.id)}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold text-gray-900">
+                          <h3 className="text-xl font-bold text-[#E0E0E0]">
                             Order #{order.id}
                           </h3>
                           <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 flex items-center gap-1 ${getStatusColor(order.status)}`}>
@@ -204,37 +211,37 @@ const SellerOrders = ({
                             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-[#A0A0A0]">
                           Ordered on {order.orderDate}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-[#CC0000]">${order.total.toFixed(2)}</p>
-                        <p className="text-xs text-gray-500">{order.items.length} items</p>
+                        <p className="text-xs text-[#888888]">{order.items.length} items</p>
                       </div>
                     </div>
 
                     {/* Order Items Preview */}
-                    <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-gray-200">
+                    <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#3A3A3A]">
                       <div className="flex -space-x-2">
                         {order.items.slice(0, 3).map((item, index) => (
                           <div
                             key={index}
-                            className="w-12 h-12 rounded-full bg-[#FAFAFA] border-2 border-white flex items-center justify-center"
+                            className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center"
                           >
                             <span className="text-xl">{item.image}</span>
                           </div>
                         ))}
                         {order.items.length > 3 && (
-                          <div className="w-12 h-12 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
-                            <span className="text-xs font-bold text-gray-700">
+                          <div className="w-12 h-12 rounded-full bg-[#3A3A3A] border-2 border-[#3A3A3A] flex items-center justify-center">
+                            <span className="text-xs font-bold text-[#90A0C0]">
                               +{order.items.length - 3}
                             </span>
                           </div>
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-[#E0E0E0]">
                           {order.items.map(item => item.name).join(', ')}
                         </p>
                       </div>
@@ -243,26 +250,26 @@ const SellerOrders = ({
                     {/* Quick Info */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="flex items-center gap-2">
-                        <User size={16} className="text-gray-500" />
+                        <User size={16} className="text-[#888888]" />
                         <div>
-                          <p className="text-xs text-gray-500">Customer</p>
-                          <p className="text-sm font-semibold text-gray-900">{order.buyerName || 'Anonymous'}</p>
+                          <p className="text-xs text-[#888888]">Customer</p>
+                          <p className="text-sm font-semibold text-[#E0E0E0]">{order.buyerName || 'Anonymous'}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Clock size={16} className="text-gray-500" />
+                        <Clock size={16} className="text-[#888888]" />
                         <div>
-                          <p className="text-xs text-gray-500">Pickup Time</p>
-                          <p className="text-sm font-semibold text-gray-900">{order.pickupTime}</p>
+                          <p className="text-xs text-[#888888]">Pickup Time</p>
+                          <p className="text-sm font-semibold text-[#E0E0E0]">{order.pickupTime}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Package size={16} className="text-gray-500" />
+                        <Package size={16} className="text-[#888888]" />
                         <div>
-                          <p className="text-xs text-gray-500">Payment</p>
-                          <p className="text-sm font-semibold text-gray-900">{order.paymentMethod}</p>
+                          <p className="text-xs text-[#888888]">Payment</p>
+                          <p className="text-sm font-semibold text-[#E0E0E0]">{order.paymentMethod}</p>
                         </div>
                       </div>
                     </div>
@@ -277,20 +284,20 @@ const SellerOrders = ({
 
                   {/* Expanded Order Details */}
                   {isExpanded && (
-                    <div className="p-6 pt-0 border-t-2 border-gray-200 bg-[#FAFAFA]">
+                    <div className="p-6 pt-0 border-t-2 border-[#3A3A3A] bg-[#252525]">
                       {/* Order Items List */}
                       <div className="mb-6">
-                        <h4 className="text-lg font-bold text-gray-900 mb-3">Order Items</h4>
+                        <h4 className="text-lg font-bold text-white mb-3">Order Items</h4>
                         <div className="space-y-3">
                           {order.items.map((item, index) => (
-                            <div key={index} className="flex justify-between items-center p-3 bg-white rounded-xl">
+                            <div key={index} className="flex justify-between items-center p-3 bg-[#1E1E1E] rounded-xl">
                               <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-[#FAFAFA] border-2 border-gray-200 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-xl bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center">
                                   <span className="text-2xl">{item.image}</span>
                                 </div>
                                 <div>
-                                  <p className="font-semibold text-gray-900">{item.name}</p>
-                                  <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                  <p className="font-semibold text-[#E0E0E0]">{item.name}</p>
+                                  <p className="text-sm text-[#A0A0A0]">Quantity: {item.quantity}</p>
                                 </div>
                               </div>
                               <p className="font-bold text-[#CC0000]">
@@ -303,29 +310,29 @@ const SellerOrders = ({
 
                       {/* Customer Information */}
                       <div className="mb-6">
-                        <h4 className="text-lg font-bold text-gray-900 mb-3">Customer Information</h4>
-                        <div className="bg-white rounded-xl p-4 space-y-3">
+                        <h4 className="text-lg font-bold text-white mb-3">Customer Information</h4>
+                        <div className="bg-[#1E1E1E] rounded-xl p-4 space-y-3">
                           <div className="flex items-center gap-3">
                             <User size={18} className="text-[#CC0000]" />
                             <div>
-                              <p className="text-xs text-gray-500">Name</p>
-                              <p className="text-sm font-semibold text-gray-900">{order.buyerName || 'Not provided'}</p>
+                              <p className="text-xs text-[#888888]">Name</p>
+                              <p className="text-sm font-semibold text-[#E0E0E0]">{order.buyerName || 'Not provided'}</p>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-3">
                             <MapPin size={18} className="text-[#CC0000]" />
                             <div>
-                              <p className="text-xs text-gray-500">Pickup Location</p>
-                              <p className="text-sm font-semibold text-gray-900">{order.sellerLocation}</p>
+                              <p className="text-xs text-[#888888]">Pickup Location</p>
+                              <p className="text-sm font-semibold text-[#E0E0E0]">{order.sellerLocation}</p>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-3">
                             <Clock size={18} className="text-[#CC0000]" />
                             <div>
-                              <p className="text-xs text-gray-500">Pickup Time</p>
-                              <p className="text-sm font-semibold text-gray-900">{order.pickupTime}</p>
+                              <p className="text-xs text-[#888888]">Pickup Time</p>
+                              <p className="text-sm font-semibold text-[#E0E0E0]">{order.pickupTime}</p>
                             </div>
                           </div>
                         </div>
@@ -334,17 +341,17 @@ const SellerOrders = ({
                       {/* Special Instructions */}
                       {order.notes && (
                         <div className="mb-6">
-                          <h4 className="text-lg font-bold text-gray-900 mb-3">Special Instructions</h4>
-                          <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
-                            <p className="text-sm text-gray-900">{order.notes}</p>
+                          <h4 className="text-lg font-bold text-white mb-3">Special Instructions</h4>
+                          <div className="bg-blue-950 rounded-xl p-4 border-2 border-blue-800">
+                            <p className="text-sm text-[#E0E0E0]">{order.notes}</p>
                           </div>
                         </div>
                       )}
 
                       {/* Payment Information */}
                       <div className="mb-6">
-                        <h4 className="text-lg font-bold text-gray-900 mb-3">Payment Information</h4>
-                        <div className="bg-white rounded-xl p-4">
+                        <h4 className="text-lg font-bold text-white mb-3">Payment Information</h4>
+                        <div className="bg-[#1E1E1E] rounded-xl p-4">
                           <div className="flex items-center gap-3 mb-2">
                             <span className="text-2xl">
                               {order.paymentMethod === 'Cash' ? '💵' : 
@@ -352,13 +359,13 @@ const SellerOrders = ({
                                order.paymentMethod === 'Venmo' ? '💳' : '🏦'}
                             </span>
                             <div>
-                              <p className="text-xs text-gray-500">Payment Method</p>
-                              <p className="text-sm font-bold text-gray-900">{order.paymentMethod}</p>
+                              <p className="text-xs text-[#888888]">Payment Method</p>
+                              <p className="text-sm font-bold text-[#E0E0E0]">{order.paymentMethod}</p>
                             </div>
                           </div>
                           {order.paymentMethod !== 'Cash' && (
-                            <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                              <p className="text-xs text-gray-700">
+                            <div className="mt-3 p-3 bg-[#0A1A2A] rounded-lg border border-[#1A3A4A]">
+                              <p className="text-xs text-[#90A0C0]">
                                 💡 Share your {order.paymentMethod} details with the customer for payment
                               </p>
                             </div>
@@ -387,10 +394,10 @@ const SellerOrders = ({
                       )}
 
                       {order.status === 'completed' && (
-                        <div className="p-4 bg-green-50 rounded-xl border-2 border-green-200">
+                        <div className="p-4 bg-green-950 rounded-xl border-2 border-green-800">
                           <div className="flex items-center gap-2">
                             <CheckCircle size={20} className="text-green-600" />
-                            <p className="text-sm font-semibold text-green-800">
+                            <p className="text-sm font-semibold text-[#88FF88]">
                               Order completed successfully!
                             </p>
                           </div>
@@ -401,7 +408,7 @@ const SellerOrders = ({
                         <div className="p-4 bg-red-50 rounded-xl border-2 border-red-200">
                           <div className="flex items-center gap-2">
                             <AlertCircle size={20} className="text-red-600" />
-                            <p className="text-sm font-semibold text-red-800">
+                            <p className="text-sm font-semibold text-[#FF8888]">
                               This order was cancelled
                             </p>
                           </div>

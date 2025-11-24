@@ -46,7 +46,6 @@ const SellerDashboard = ({
 
   const recentOrders = incomingOrders.slice(0, 5);
 
-  // Check if user has ANY payment method set up
   const hasPaymentInfo = Boolean(
     profileData.sellerInfo?.paymentMethods?.cashApp ||
     profileData.sellerInfo?.paymentMethods?.venmo ||
@@ -56,22 +55,22 @@ const SellerDashboard = ({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-[#2A2A0A] text-[#FFD700] border-[#4A4A1A]';
       case 'confirmed':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-[#0A1A2A] text-[#88CCFF] border-[#1A3A4A]';
       case 'ready':
-        return 'bg-purple-100 text-purple-800 border-purple-300';
+        return 'bg-[#1A0A2A] text-[#CC88FF] border-[#3A1A4A]';
       case 'completed':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-[#0A2A0A] text-[#88FF88] border-[#1A4A1A]';
       case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-[#2A0A0A] text-[#FF8888] border-[#4A1A1A]';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-[#252525] text-[#B0B0B0] border-[#3A3A3A]';
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -88,60 +87,59 @@ const SellerDashboard = ({
 
       <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Seller Dashboard</h1>
-          <p className="text-gray-600">Manage your food listings and incoming orders</p>
+          <h1 className="text-3xl font-bold text-[#E0E0E0] mb-2">Seller Dashboard</h1>
+          <p className="text-[#A0A0A0]">Manage your food listings and incoming orders</p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+          <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-xl bg-blue-50">
-                <Package size={24} className="text-blue-600" />
+              <div className="p-3 rounded-xl bg-[#0A1A2A]">
+                <Package size={24} className="text-[#88CCFF]" />
               </div>
-              <TrendingUp size={20} className="text-green-500" />
+              <TrendingUp size={20} className="text-[#88FF88]" />
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-1">Active Listings</p>
-            <p className="text-3xl font-bold text-gray-900">{activeListings}</p>
-            <p className="text-xs text-gray-500 mt-2">Total: {listings.length} listings</p>
+            <p className="text-sm font-semibold text-[#A0A0A0] mb-1">Active Listings</p>
+            <p className="text-3xl font-bold text-[#E0E0E0]">{activeListings}</p>
+            <p className="text-xs text-[#888888] mt-2">Total: {listings.length} listings</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+          <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-xl bg-yellow-50">
-                <Clock size={24} className="text-yellow-600" />
+              <div className="p-3 rounded-xl bg-[#2A2A0A]">
+                <Clock size={24} className="text-[#FFD700]" />
               </div>
               {pendingOrders > 0 && (
-                <span className="px-2 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
+                <span className="px-2 py-1 rounded-full text-xs font-bold bg-[#2A2A0A] text-[#FFD700] border-2 border-[#4A4A1A]">
                   Action Needed
                 </span>
               )}
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-1">Pending Orders</p>
-            <p className="text-3xl font-bold text-gray-900">{pendingOrders}</p>
-            <p className="text-xs text-gray-500 mt-2">Total: {incomingOrders.length} orders</p>
+            <p className="text-sm font-semibold text-[#A0A0A0] mb-1">Pending Orders</p>
+            <p className="text-3xl font-bold text-[#E0E0E0]">{pendingOrders}</p>
+            <p className="text-xs text-[#888888] mt-2">Total: {incomingOrders.length} orders</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
+          <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-3 rounded-xl bg-green-50">
-                <DollarSign size={24} className="text-green-600" />
+              <div className="p-3 rounded-xl bg-[#0A2A0A]">
+                <DollarSign size={24} className="text-[#88FF88]" />
               </div>
-              <TrendingUp size={20} className="text-green-500" />
+              <TrendingUp size={20} className="text-[#88FF88]" />
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-1">Total Earnings</p>
-            <p className="text-3xl font-bold text-gray-900">${totalEarnings.toFixed(2)}</p>
-            <p className="text-xs text-gray-500 mt-2">Completed orders only</p>
+            <p className="text-sm font-semibold text-[#A0A0A0] mb-1">Total Earnings</p>
+            <p className="text-3xl font-bold text-[#E0E0E0]">${totalEarnings.toFixed(2)}</p>
+            <p className="text-xs text-[#888888] mt-2">Completed orders only</p>
           </div>
         </div>
 
-        {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <button
             onClick={onCreateListing}
             className="flex items-center gap-3 p-6 bg-[#CC0000] text-white rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102"
           >
-            <div className="p-3 rounded-xl bg-white bg-opacity-20">
+            <div className="p-3 rounded-xl bg-[#1E1E1E] bg-opacity-50">
               <Plus size={24} />
             </div>
             <div className="text-left">
@@ -152,40 +150,39 @@ const SellerDashboard = ({
 
           <button
             onClick={onViewListings}
-            className="flex items-center gap-3 p-6 bg-white rounded-2xl shadow-md border-2 border-gray-100 hover:shadow-lg transition-all"
+            className="flex items-center gap-3 p-6 bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] hover:shadow-lg transition-all"
           >
-            <div className="p-3 rounded-xl bg-blue-50">
-              <List size={24} className="text-blue-600" />
+            <div className="p-3 rounded-xl bg-[#0A1A2A]">
+              <List size={24} className="text-[#88CCFF]" />
             </div>
             <div className="text-left">
-              <p className="font-bold text-lg text-gray-900">My Listings</p>
-              <p className="text-sm text-gray-600">Manage your menu</p>
+              <p className="font-bold text-lg text-[#E0E0E0]">My Listings</p>
+              <p className="text-sm text-[#A0A0A0]">Manage your menu</p>
             </div>
           </button>
 
           <button
             onClick={onViewOrders}
-            className="flex items-center gap-3 p-6 bg-white rounded-2xl shadow-md border-2 border-gray-100 hover:shadow-lg transition-all"
+            className="flex items-center gap-3 p-6 bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] hover:shadow-lg transition-all"
           >
-            <div className="p-3 rounded-xl bg-yellow-50">
-              <ShoppingBag size={24} className="text-yellow-600" />
+            <div className="p-3 rounded-xl bg-[#2A2A0A]">
+              <ShoppingBag size={24} className="text-[#FFD700]" />
             </div>
             <div className="text-left">
-              <p className="font-bold text-lg text-gray-900">Incoming Orders</p>
-              <p className="text-sm text-gray-600">View & manage orders</p>
+              <p className="font-bold text-lg text-[#E0E0E0]">Incoming Orders</p>
+              <p className="text-sm text-[#A0A0A0]">View & manage orders</p>
             </div>
           </button>
         </div>
 
-        {/* Recent Orders */}
-        <div className="bg-white rounded-2xl shadow-md border-2 border-gray-100 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Orders</h2>
-          
+        <div className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6">
+          <h2 className="text-xl font-bold text-[#E0E0E0] mb-4">Recent Orders</h2>
+
           {recentOrders.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📦</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No orders yet</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-xl font-bold text-[#E0E0E0] mb-2">No orders yet</h3>
+              <p className="text-[#A0A0A0] mb-6">
                 Start by creating your first listing!
               </p>
               <button
@@ -200,7 +197,7 @@ const SellerDashboard = ({
               {recentOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between p-4 bg-[#FAFAFA] rounded-xl hover:bg-gray-100 transition-all cursor-pointer"
+                  className="flex items-center justify-between p-4 bg-[#252525] rounded-xl hover:bg-[#2A2A2A] transition-all cursor-pointer border-2 border-[#3A3A3A]"
                   onClick={onViewOrders}
                 >
                   <div className="flex items-center gap-4">
@@ -208,24 +205,24 @@ const SellerDashboard = ({
                       {order.items.slice(0, 2).map((item, index) => (
                         <div
                           key={index}
-                          className="w-10 h-10 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center"
+                          className="w-10 h-10 rounded-full bg-[#1E1E1E] border-2 border-[#3A3A3A] flex items-center justify-center"
                         >
                           <span className="text-lg">{item.image}</span>
                         </div>
                       ))}
                       {order.items.length > 2 && (
-                        <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
-                          <span className="text-xs font-bold text-gray-700">
+                        <div className="w-10 h-10 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center">
+                          <span className="text-xs font-bold text-[#B0B0B0]">
                             +{order.items.length - 2}
                           </span>
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-gray-900">
+                      <p className="font-bold text-[#E0E0E0]">
                         Order #{order.id}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-[#A0A0A0]">
                         {order.buyerName || 'Anonymous'} · {order.pickupTime}
                       </p>
                     </div>
@@ -244,18 +241,17 @@ const SellerDashboard = ({
           )}
         </div>
 
-        {/* Tips Section - Only show if user has NO payment methods */}
         {!hasPaymentInfo && (
-          <div className="mt-8 flex gap-3 p-6 rounded-2xl bg-orange-50 border-2 border-orange-200">
-            <AlertCircle size={24} className="text-orange-600 shrink-0" />
+          <div className="mt-8 flex gap-3 p-6 rounded-2xl bg-[#2A1A0A] border-2 border-[#4A3A1A]">
+            <AlertCircle size={24} className="text-[#FFB088] shrink-0" />
             <div>
-              <p className="text-lg font-bold text-gray-900 mb-2">Complete Your Seller Profile</p>
-              <p className="text-sm text-gray-700 mb-4">
+              <p className="text-lg font-bold text-[#E0E0E0] mb-2">Complete Your Seller Profile</p>
+              <p className="text-sm text-[#D0B0A0] mb-4">
                 Add your payment information to make it easier for buyers to pay you. Go to your profile settings to add CashApp, Venmo, or Zelle details.
               </p>
               <button
                 onClick={onProfileClick}
-                className="px-4 py-2 bg-[#CC0000] text-white font-bold rounded-lg hover:shadow-lg transition-all"
+                className="px-4 py-2 bg-[#CC0000] text-white font-bold rounded-lg hover:bg-[#AA0000] hover:shadow-lg transition-all"
               >
                 Update Profile
               </button>
