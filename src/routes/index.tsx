@@ -75,16 +75,31 @@ const HomeWrapper = () => {
 
 const LoginWrapper = (props: Pick<AppRoutesProps, 'handleLogin'>) => {
   const navigate = useNavigate();
-  return <Login onLogin={props.handleLogin} onGoToSignup={() => navigate('/signup')} />;
+
+  const handleLoginWithNavigation = async (email: string, password: string) => {
+    const success = await props.handleLogin(email, password);
+    if (success) {
+      navigate('/browse');
+    }
+    return success;
+  };
+
+  return <Login onLogin={handleLoginWithNavigation} onGoToSignup={() => navigate('/signup')} />;
 };
 
 const SignupWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'setProfileData' | 'handleCreateProfile'>) => {
   const navigate = useNavigate();
+
+  const handleSignupWithNavigation = async () => {
+    await props.handleCreateProfile();
+    navigate('/browse');
+  };
+
   return (
     <Signup
       profileData={props.profileData}
       setProfileData={props.setProfileData}
-      onCreateProfile={props.handleCreateProfile}
+      onCreateProfile={handleSignupWithNavigation}
       onGoToLogin={() => navigate('/login')}
     />
   );
