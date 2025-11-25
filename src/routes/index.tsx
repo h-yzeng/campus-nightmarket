@@ -21,12 +21,12 @@ import type { ProfileData, Order, FoodItem } from '../types';
 import {
   useAuthStore,
   useCartStore,
-  useOrdersStore,
-  useListingsStore,
   useNavigationStore,
 } from '../stores';
+import { useListingsQuery, useSellerListingsQuery } from '../hooks/queries/useListingsQuery';
+import { useBuyerOrdersQuery, useSellerOrdersQuery } from '../hooks/queries/useOrdersQuery';
 
-// Simplified interface - most data now comes from Zustand stores
+// Simplified interface - data comes from React Query, UI state from Zustand
 interface AppRoutesProps {
   // Profile setters (needed for forms)
   setProfileData: (data: ProfileData) => void;
@@ -102,8 +102,10 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCre
 const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
   const navigate = useNavigate();
 
-  // Get data from stores
-  const foodItems = useListingsStore((state) => state.foodItems);
+  // Get data from React Query
+  const { data: foodItems = [], isLoading: listingsLoading, error: listingsError } = useListingsQuery();
+
+  // Get UI state from stores
   const cart = useCartStore((state) => state.cart);
   const profileData = useAuthStore((state) => state.profileData);
   const userMode = useNavigationStore((state) => state.userMode);
@@ -112,8 +114,6 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
   const selectedLocation = useNavigationStore((state) => state.selectedLocation);
   const setSelectedLocation = useNavigationStore((state) => state.setSelectedLocation);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
-  const listingsLoading = useListingsStore((state) => state.listingsLoading);
-  const listingsError = useListingsStore((state) => state.listingsError);
 
   return (
     <Browse
@@ -138,7 +138,7 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
       loading={listingsLoading}
-      error={listingsError}
+      error={listingsError?.message || null}
     />
   );
 };
@@ -265,13 +265,15 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
 const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
 
-  // Get data from stores
-  const buyerOrders = useOrdersStore((state) => state.buyerOrders);
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: buyerOrders = [], isLoading: buyerOrdersLoading } = useBuyerOrdersQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
-  const buyerOrdersLoading = useOrdersStore((state) => state.buyerOrdersLoading);
 
   return (
     <UserOrders
@@ -303,8 +305,11 @@ const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'hand
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
 
-  // Get data from stores
-  const buyerOrders = useOrdersStore((state) => state.buyerOrders);
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: buyerOrders = [] } = useBuyerOrdersQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
@@ -346,11 +351,14 @@ const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'hand
 const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
 
-  // Get data from stores
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: listings = [] } = useSellerListingsQuery(user?.uid);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
-  const listings = useListingsStore((state) => state.sellerListings);
-  const sellerOrders = useOrdersStore((state) => state.sellerOrders);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
@@ -458,10 +466,13 @@ const EditListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handl
 const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>) => {
   const navigate = useNavigate();
 
-  // Get data from stores
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: listings = [] } = useSellerListingsQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
-  const listings = useListingsStore((state) => state.sellerListings);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
@@ -495,13 +506,15 @@ const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'ha
 const SellerOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>) => {
   const navigate = useNavigate();
 
-  // Get data from stores
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
-  const sellerOrders = useOrdersStore((state) => state.sellerOrders);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
-  const sellerOrdersLoading = useOrdersStore((state) => state.sellerOrdersLoading);
 
   return (
     <SellerOrders

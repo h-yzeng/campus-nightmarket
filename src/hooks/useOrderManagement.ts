@@ -1,27 +1,23 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { useCreateOrderMutation, useCancelOrderMutation, useUpdateOrderStatusMutation } from './mutations/useOrderMutations';
 import type { CartItem, Order, ProfileData } from '../types';
 import type { CreateOrder, FirebaseOrderItem } from '../types/firebase';
 import type { PageType } from './useNavigation';
 import type { User } from 'firebase/auth';
 
 interface UseOrderManagementProps {
-  createOrder: (orderData: CreateOrder) => Promise<string>;
-  cancelOrder: (orderId: string) => Promise<void>;
-  updateStatus?: (orderId: string, status: Order['status']) => Promise<void>;
   user: User | null;
   profileData: ProfileData;
-  buyerOrders: Order[];
-  sellerOrders?: Order[];
 }
 
 export const useOrderManagement = ({
-  createOrder,
-  cancelOrder,
-  updateStatus,
   user,
   profileData,
-  buyerOrders,
-  sellerOrders = [],
 }: UseOrderManagementProps) => {
+  const queryClient = useQueryClient();
+  const createOrderMutation = useCreateOrderMutation();
+  const cancelOrderMutation = useCancelOrderMutation();
+  const updateOrderStatusMutation = useUpdateOrderStatusMutation();
   const handlePlaceOrder = async (
     cart: CartItem[],
     paymentMethod: string,
@@ -75,7 +71,7 @@ export const useOrderManagement = ({
         };
 
         console.log('[useOrderManagement] Creating order:', orderData);
-        return await createOrder(orderData);
+        return await createOrderMutation.mutateAsync(orderData);
       });
 
       const orderIds = await Promise.all(orderPromises);
@@ -90,7 +86,10 @@ export const useOrderManagement = ({
   };
 
   const handleCancelOrder = async (orderId: number, setCurrentPage: (page: PageType) => void) => {
+    // Get buyer orders from React Query cache
+    const buyerOrders = queryClient.getQueryData<Order[]>(['orders', 'buyer', user?.uid]) || [];
     const order = buyerOrders.find(o => o.id === orderId);
+
     if (!order) {
       console.error('[useOrderManagement] Order not found:', orderId);
       return;
@@ -98,7 +97,7 @@ export const useOrderManagement = ({
 
     try {
       console.log('[useOrderManagement] Cancelling order:', order.firebaseId);
-      await cancelOrder(order.firebaseId);
+      await cancelOrderMutation.mutateAsync(order.firebaseId);
       console.log('[useOrderManagement] Order cancelled successfully');
       setCurrentPage('userOrders');
     } catch (err) {
@@ -108,12 +107,10 @@ export const useOrderManagement = ({
   };
 
   const handleUpdateOrderStatus = async (orderId: number, status: Order['status']) => {
-    if (!updateStatus) {
-      console.error('[useOrderManagement] updateStatus function not provided');
-      return;
-    }
-
+    // Get seller orders from React Query cache
+    const sellerOrders = queryClient.getQueryData<Order[]>(['orders', 'seller', user?.uid]) || [];
     const order = sellerOrders.find(o => o.id === orderId);
+
     if (!order) {
       console.error('[useOrderManagement] Order not found:', orderId);
       return;
@@ -121,7 +118,7 @@ export const useOrderManagement = ({
 
     try {
       console.log('[useOrderManagement] Updating order status:', order.firebaseId, 'to', status);
-      await updateStatus(order.firebaseId, status);
+      await updateOrderStatusMutation.mutateAsync({ orderId: order.firebaseId, status });
       console.log('[useOrderManagement] Order status updated successfully');
     } catch (err) {
       console.error('[useOrderManagement] Error updating order status:', err);

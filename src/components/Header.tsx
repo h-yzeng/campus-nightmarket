@@ -1,5 +1,7 @@
 import { ShoppingCart, User, ChevronDown, LogOut, Package, Store, LayoutGrid } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import NotificationBell from './NotificationBell';
+import { useNotificationStore } from '../stores';
 import type { CartItem, ProfileData, UserMode } from '../types';
 
 interface HeaderProps {
@@ -16,21 +18,26 @@ interface HeaderProps {
   showCart?: boolean;
 }
 
-const Header = ({ 
-  cartItems, 
+const Header = ({
+  cartItems,
   profileData,
   userMode,
-  onCartClick, 
+  onCartClick,
   onSignOut,
   onProfileClick,
   onOrdersClick,
   onModeChange,
   onSellerDashboardClick,
   onLogoClick,
-  showCart = false 
+  showCart = false
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Get notifications from store
+  const notifications = useNotificationStore((state) => state.notifications);
+  const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const handlers = useNotificationStore((state) => state.handlers);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -105,6 +112,18 @@ const Header = ({
                   Seller
                 </button>
               </div>
+            )}
+
+            {/* Notification Bell */}
+            {handlers && (
+              <NotificationBell
+                notifications={notifications}
+                unreadCount={unreadCount}
+                onMarkAsRead={handlers.markAsRead}
+                onMarkAllAsRead={handlers.markAllAsRead}
+                onClear={handlers.clearNotification}
+                onClearAll={handlers.clearAll}
+              />
             )}
 
             {showCart && userMode === 'buyer' && (

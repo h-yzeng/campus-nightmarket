@@ -16,6 +16,31 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+
+# Firebase Admin SDK Private Keys 
+**/serviceAccountKey.json
+**/service-account-key.json
+**/*-firebase-adminsdk-*.json
+
+# Firebase emulator data and cache
+.firebase/
+**/firebase-debug.log
+**/firebase-debug.*.log
+**/.firebase/
+**/database-debug.log
+**/firestore-debug.log
+**/pubsub-debug.log
+**/ui-debug.log
+
+# Cloud Functions
+cloudfunctions/lib/
+cloudfunctions/node_modules/
+cloudfunctions/.runtimeconfig.json
+functions/lib/
+functions/node_modules/
+functions/.runtimeconfig.json
 
 # Editor directories and files
 .vscode/*

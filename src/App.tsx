@@ -1,21 +1,22 @@
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from './hooks/userAuth';
-import { useListings } from './hooks/useListings';
-import { useOrders } from './hooks/useOrders';
 import { useCart } from './hooks/useCart';
 import { useOrderManagement } from './hooks/useOrderManagement';
-import { useListingManagement } from './hooks/useListingManagement';
+import { useNotifications } from './hooks/useNotifications';
+import { useDeleteListingMutation, useToggleListingAvailabilityMutation } from './hooks/mutations/useListingMutations';
 import { AppRoutes } from './routes';
 import {
   useAuthStore,
   useCartStore,
-  useOrdersStore,
-  useListingsStore,
+  useNotificationStore,
 } from './stores';
 
 function App() {
-  // Get data from hooks
+  const queryClient = useQueryClient();
+
+  // Auth and cart still use hooks
   const {
     profileData,
     setProfileData,
@@ -26,41 +27,28 @@ function App() {
     user,
   } = useAuth();
 
-  const { foodItems, loading: listingsLoading, error: listingsError, refreshListings } = useListings();
-
-  const { orders: buyerOrders, loading: buyerOrdersLoading, createOrder, cancelOrder } = useOrders(user?.uid, 'buyer');
-
-  const { orders: sellerOrders, loading: sellerOrdersLoading, updateStatus } = useOrders(user?.uid, 'seller');
-
   const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
 
-  const { listings, handleCreateListing, handleToggleAvailability, handleDeleteListing, refreshSellerListings } =
-    useListingManagement(user?.uid, refreshListings);
+  // Listing mutations
+  const deleteListingMutation = useDeleteListingMutation();
+  const toggleAvailabilityMutation = useToggleListingAvailabilityMutation();
 
+  // Order management now uses React Query mutations
   const { handlePlaceOrder, handleCancelOrder, handleUpdateOrderStatus } = useOrderManagement({
-    createOrder,
-    cancelOrder,
-    updateStatus,
     user,
     profileData,
-    buyerOrders,
-    sellerOrders,
   });
 
-  // Get store actions
+  // Notifications
+  const notifications = useNotifications(user?.uid);
+
+  // Sync only auth, cart, and notifications to stores (data now comes from React Query)
   const setUser = useAuthStore((state) => state.setUser);
   const setStoreProfileData = useAuthStore((state) => state.setProfileData);
   const setCart = useCartStore((state) => state.setCart);
-  const setBuyerOrders = useOrdersStore((state) => state.setBuyerOrders);
-  const setSellerOrders = useOrdersStore((state) => state.setSellerOrders);
-  const setBuyerOrdersLoading = useOrdersStore((state) => state.setBuyerOrdersLoading);
-  const setSellerOrdersLoading = useOrdersStore((state) => state.setSellerOrdersLoading);
-  const setFoodItems = useListingsStore((state) => state.setFoodItems);
-  const setSellerListings = useListingsStore((state) => state.setSellerListings);
-  const setListingsLoading = useListingsStore((state) => state.setListingsLoading);
-  const setListingsError = useListingsStore((state) => state.setListingsError);
+  const setNotifications = useNotificationStore((state) => state.setNotifications);
+  const setNotificationHandlers = useNotificationStore((state) => state.setHandlers);
 
-  // Sync hook data into Zustand stores
   useEffect(() => {
     setUser(user);
   }, [user, setUser]);
@@ -74,39 +62,14 @@ function App() {
   }, [cart, setCart]);
 
   useEffect(() => {
-    setBuyerOrders(buyerOrders);
-  }, [buyerOrders, setBuyerOrders]);
-
-  useEffect(() => {
-    setSellerOrders(sellerOrders);
-  }, [sellerOrders, setSellerOrders]);
-
-  useEffect(() => {
-    setBuyerOrdersLoading(buyerOrdersLoading);
-  }, [buyerOrdersLoading, setBuyerOrdersLoading]);
-
-  useEffect(() => {
-    setSellerOrdersLoading(sellerOrdersLoading);
-  }, [sellerOrdersLoading, setSellerOrdersLoading]);
-
-  useEffect(() => {
-    setFoodItems(foodItems);
-  }, [foodItems, setFoodItems]);
-
-  useEffect(() => {
-    setSellerListings(listings);
-  }, [listings, setSellerListings]);
-
-  useEffect(() => {
-    setListingsLoading(listingsLoading);
-  }, [listingsLoading, setListingsLoading]);
-
-  useEffect(() => {
-    setListingsError(listingsError);
-  }, [listingsError, setListingsError]);
-
-  // Dummy navigation function - navigation is now handled by React Router in the routes
-  const noOpNavigation = () => {};
+    setNotifications(notifications.notifications, notifications.unreadCount);
+    setNotificationHandlers({
+      markAsRead: notifications.markAsRead,
+      markAllAsRead: notifications.markAllAsRead,
+      clearNotification: notifications.clearNotification,
+      clearAll: notifications.clearAll,
+    });
+  }, [notifications, setNotifications, setNotificationHandlers]);
 
   const wrappedHandleSignOut = () => {
     handleSignOut();
@@ -114,21 +77,28 @@ function App() {
   };
 
   const wrappedHandleCreateListing = async () => {
-    await handleCreateListing(noOpNavigation);
-    await refreshSellerListings();
+    queryClient.invalidateQueries({ queryKey: ['listings'] });
   };
 
   const wrappedHandleUpdateListing = async () => {
-    await refreshListings();
-    await refreshSellerListings();
+    queryClient.invalidateQueries({ queryKey: ['listings'] });
+  };
+
+  const wrappedHandleToggleAvailability = async (listingId: number) => {
+    // Mutations expect Firebase ID (string), convert number to string
+    await toggleAvailabilityMutation.mutateAsync(String(listingId));
+  };
+
+  const wrappedHandleDeleteListing = async (listingId: number | string) => {
+    await deleteListingMutation.mutateAsync(String(listingId));
   };
 
   const wrappedHandlePlaceOrder = async (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => {
-    await handlePlaceOrder(cart, paymentMethod, pickupTimes, noOpNavigation, clearCart, notes);
+    await handlePlaceOrder(cart, paymentMethod, pickupTimes, () => {}, clearCart, notes);
   };
 
   const wrappedHandleCancelOrder = async (orderId: number) => {
-    await handleCancelOrder(orderId, noOpNavigation);
+    await handleCancelOrder(orderId, () => {});
   };
 
   return (
@@ -143,8 +113,8 @@ function App() {
           handlePlaceOrder={wrappedHandlePlaceOrder}
           handleCancelOrder={wrappedHandleCancelOrder}
           handleCreateListing={wrappedHandleCreateListing}
-          handleToggleAvailability={handleToggleAvailability}
-          handleDeleteListing={handleDeleteListing}
+          handleToggleAvailability={wrappedHandleToggleAvailability}
+          handleDeleteListing={wrappedHandleDeleteListing}
           handleUpdateListing={wrappedHandleUpdateListing}
           handleUpdateOrderStatus={handleUpdateOrderStatus}
           addToCart={addToCart}
