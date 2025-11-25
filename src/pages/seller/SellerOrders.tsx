@@ -43,8 +43,6 @@ const SellerOrders = ({
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
   const pendingOrders = incomingOrders.filter(order => order.status === 'pending');
-  const confirmedOrders = incomingOrders.filter(order => order.status === 'confirmed');
-  const readyOrders = incomingOrders.filter(order => order.status === 'ready');
   const activeOrders = incomingOrders.filter(order =>
     order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready'
   );
@@ -468,7 +466,7 @@ const SellerOrders = ({
                       )}
 
                       {order.status === 'cancelled' && (
-                        <div className="p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                        <div className="p-4 bg-red-950 rounded-xl border-2 border-red-800">
                           <div className="flex items-center gap-2">
                             <AlertCircle size={20} className="text-red-600" />
                             <p className="text-sm font-semibold text-[#FF8888]">
