@@ -17,6 +17,7 @@ interface UserProfileProps {
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
   onModeChange?: (mode: UserMode) => void;
+  onLogoClick?: () => void;
 }
 
 const UserProfile = ({
@@ -28,7 +29,8 @@ const UserProfile = ({
   userMode,
   onOrdersClick,
   onSellerDashboardClick,
-  onModeChange
+  onModeChange,
+  onLogoClick
 }: UserProfileProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -177,6 +179,7 @@ const UserProfile = ({
         onOrdersClick={onOrdersClick}
         onSellerDashboardClick={onSellerDashboardClick}
         onModeChange={onModeChange}
+        onLogoClick={onLogoClick}
         showCart={false}
         userMode={userMode}
       />

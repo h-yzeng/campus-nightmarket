@@ -17,48 +17,41 @@ import SellerListings from '../pages/seller/SellerListings';
 import SellerOrders from '../pages/seller/SellerOrders';
 import ViewProfileWrapper from '../pages/buyer/ViewProfileWrapper';
 import { useSellerProfile } from '../hooks/useSellerProfile';
-import type { ProfileData, CartItem, Order, ListingWithFirebaseId, FoodItem } from '../types';
+import type { ProfileData, Order, FoodItem } from '../types';
+import {
+  useAuthStore,
+  useCartStore,
+  useOrdersStore,
+  useListingsStore,
+  useNavigationStore,
+} from '../stores';
 
+// Simplified interface - most data now comes from Zustand stores
 interface AppRoutesProps {
-  profileData: ProfileData;
+  // Profile setters (needed for forms)
   setProfileData: (data: ProfileData) => void;
-  user: User | null;
 
-  cart: CartItem[];
+  // Cart actions (still passed from hooks for now)
   addToCart: (item: FoodItem) => void;
   updateCartQuantity: (itemId: number, newQuantity: number) => void;
   removeFromCart: (itemId: number) => void;
-  clearCart: () => void;
 
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedLocation: string;
-  setSelectedLocation: (location: string) => void;
-
-  userMode: 'buyer' | 'seller';
-  setUserMode: (mode: 'buyer' | 'seller') => void;
-
-  buyerOrders: Order[];
-  sellerOrders: Order[];
-  buyerOrdersLoading: boolean;
-  sellerOrdersLoading: boolean;
-
-  listings: ListingWithFirebaseId[];
-  foodItems: FoodItem[];
-  listingsLoading: boolean;
-  listingsError: string | null;
-
+  // Auth handlers
   handleCreateProfile: () => Promise<void>;
   handleLogin: (email: string, password: string) => Promise<boolean>;
   handleSaveProfile: () => Promise<void>;
   handleSignOut: () => void;
+
+  // Order handlers
   handlePlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => Promise<void>;
   handleCancelOrder: (orderId: number) => Promise<void>;
+  handleUpdateOrderStatus: (orderId: number, status: Order['status']) => Promise<void>;
+
+  // Listing handlers
   handleCreateListing: () => Promise<void>;
   handleToggleAvailability: (listingId: number) => void;
   handleDeleteListing: (listingId: number | string) => void;
   handleUpdateListing: () => Promise<void>;
-  handleUpdateOrderStatus: (orderId: number, status: Order['status']) => Promise<void>;
 }
 
 const RequireAuth = ({ children, user }: { children: ReactElement; user: User | null }) => {
@@ -87,8 +80,9 @@ const LoginWrapper = (props: Pick<AppRoutesProps, 'handleLogin'>) => {
   return <Login onLogin={handleLoginWithNavigation} onGoToSignup={() => navigate('/signup')} />;
 };
 
-const SignupWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'setProfileData' | 'handleCreateProfile'>) => {
+const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCreateProfile'>) => {
   const navigate = useNavigate();
+  const profileData = useAuthStore((state) => state.profileData);
 
   const handleSignupWithNavigation = async () => {
     await props.handleCreateProfile();
@@ -97,7 +91,7 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'setProfileDa
 
   return (
     <Signup
-      profileData={props.profileData}
+      profileData={profileData}
       setProfileData={props.setProfileData}
       onCreateProfile={handleSignupWithNavigation}
       onGoToLogin={() => navigate('/login')}
@@ -105,41 +99,61 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'setProfileDa
   );
 };
 
-const BrowseWrapper = (props: Pick<AppRoutesProps, 'foodItems' | 'cart' | 'searchQuery' | 'setSearchQuery' | 'selectedLocation' | 'setSelectedLocation' | 'addToCart' | 'profileData' | 'userMode' | 'setUserMode' | 'listingsLoading' | 'listingsError'>) => {
+const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const foodItems = useListingsStore((state) => state.foodItems);
+  const cart = useCartStore((state) => state.cart);
+  const profileData = useAuthStore((state) => state.profileData);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const searchQuery = useNavigationStore((state) => state.searchQuery);
+  const setSearchQuery = useNavigationStore((state) => state.setSearchQuery);
+  const selectedLocation = useNavigationStore((state) => state.selectedLocation);
+  const setSelectedLocation = useNavigationStore((state) => state.setSelectedLocation);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const listingsLoading = useListingsStore((state) => state.listingsLoading);
+  const listingsError = useListingsStore((state) => state.listingsError);
+
   return (
     <Browse
-      foodItems={props.foodItems}
-      cart={props.cart}
-      searchQuery={props.searchQuery}
-      setSearchQuery={props.setSearchQuery}
-      selectedLocation={props.selectedLocation}
-      setSelectedLocation={props.setSelectedLocation}
+      foodItems={foodItems}
+      cart={cart}
+      searchQuery={searchQuery}
+      setSearchQuery={setSearchQuery}
+      selectedLocation={selectedLocation}
+      setSelectedLocation={setSelectedLocation}
       addToCart={props.addToCart}
-      profileData={props.profileData}
-      userMode={props.userMode}
+      profileData={profileData}
+      userMode={userMode}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => navigate('/')}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'seller') navigate('/seller/dashboard');
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
-      loading={props.listingsLoading}
-      error={props.listingsError}
+      loading={listingsLoading}
+      error={listingsError}
     />
   );
 };
 
-const UserProfileWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'setProfileData' | 'handleSaveProfile' | 'handleSignOut' | 'userMode' | 'setUserMode'>) => {
+const UserProfileWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleSaveProfile' | 'handleSignOut'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
   return (
     <UserProfile
-      profileData={props.profileData}
+      profileData={profileData}
       setProfileData={props.setProfileData}
       onSaveProfile={props.handleSaveProfile}
       onSignOut={() => {
@@ -147,27 +161,33 @@ const UserProfileWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'setProf
         navigate('/');
       }}
       onBack={() => navigate('/browse')}
-      userMode={props.userMode}
+      userMode={userMode}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'seller') navigate('/seller/dashboard');
       }}
+      onLogoClick={() => navigate('/browse')}
     />
   );
 };
 
-const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' | 'userMode' | 'handleSignOut'>) => {
+const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
   const { sellerId } = useParams<{ sellerId: string }>();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
 
   return (
     <ViewProfileWrapper
       sellerId={sellerId || ''}
-      currentUserProfile={props.profileData}
-      cart={props.cart}
-      userMode={props.userMode}
+      currentUserProfile={profileData}
+      cart={cart}
+      userMode={userMode}
       onBack={() => navigate('/browse')}
       onSignOut={() => {
         props.handleSignOut();
@@ -180,12 +200,19 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'c
   );
 };
 
-const CartWrapper = (props: Pick<AppRoutesProps, 'cart' | 'profileData' | 'updateCartQuantity' | 'removeFromCart' | 'handleSignOut' | 'userMode'>) => {
+const CartWrapper = (props: Pick<AppRoutesProps, 'updateCartQuantity' | 'removeFromCart' | 'handleSignOut'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const cart = useCartStore((state) => state.cart);
+  const profileData = useAuthStore((state) => state.profileData);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
   return (
     <Cart
-      cart={props.cart}
-      profileData={props.profileData}
+      cart={cart}
+      profileData={profileData}
       onUpdateQuantity={props.updateCartQuantity}
       onRemoveItem={props.removeFromCart}
       onCheckout={() => navigate('/checkout')}
@@ -195,18 +222,30 @@ const CartWrapper = (props: Pick<AppRoutesProps, 'cart' | 'profileData' | 'updat
         navigate('/');
       }}
       onProfileClick={() => navigate('/profile')}
-      userMode={props.userMode}
+      onOrdersClick={() => navigate('/orders')}
+      onModeChange={(mode) => {
+        setUserMode(mode);
+        if (mode === 'seller') navigate('/seller/dashboard');
+      }}
+      onSellerDashboardClick={() => navigate('/seller/dashboard')}
+      userMode={userMode}
       onLogoClick={() => navigate('/browse')}
     />
   );
 };
 
-const CheckoutWrapper = (props: Pick<AppRoutesProps, 'cart' | 'profileData' | 'handlePlaceOrder' | 'handleSignOut' | 'userMode'>) => {
+const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handleSignOut'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const cart = useCartStore((state) => state.cart);
+  const profileData = useAuthStore((state) => state.profileData);
+  const userMode = useNavigationStore((state) => state.userMode);
+
   return (
     <Checkout
-      cart={props.cart}
-      profileData={props.profileData}
+      cart={cart}
+      profileData={profileData}
       onBackToCart={() => navigate('/cart')}
       onPlaceOrder={async (paymentMethod, pickupTimes, notes) => {
         await props.handlePlaceOrder(paymentMethod, pickupTimes, notes);
@@ -217,20 +256,29 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'cart' | 'profileData' | 'h
         navigate('/');
       }}
       onProfileClick={() => navigate('/profile')}
-      userMode={props.userMode}
+      userMode={userMode}
       onLogoClick={() => navigate('/browse')}
     />
   );
 };
 
-const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'buyerOrders' | 'profileData' | 'cart' | 'userMode' | 'setUserMode' | 'handleSignOut' | 'buyerOrdersLoading'>) => {
+const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const buyerOrders = useOrdersStore((state) => state.buyerOrders);
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const buyerOrdersLoading = useOrdersStore((state) => state.buyerOrdersLoading);
+
   return (
     <UserOrders
-      orders={props.buyerOrders}
-      profileData={props.profileData}
-      cart={props.cart}
-      userMode={props.userMode}
+      orders={buyerOrders}
+      profileData={profileData}
+      cart={cart}
+      userMode={userMode}
       onViewOrderDetails={(orderId) => navigate(`/orders/${orderId}`)}
       onBackToBrowse={() => navigate('/browse')}
       onCartClick={() => navigate('/cart')}
@@ -242,19 +290,26 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'buyerOrders' | 'profileD
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'seller') navigate('/seller/dashboard');
       }}
       onLogoClick={() => navigate('/browse')}
-      loading={props.buyerOrdersLoading}
+      loading={buyerOrdersLoading}
     />
   );
 };
 
-const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'buyerOrders' | 'profileData' | 'cart' | 'userMode' | 'handleSignOut' | 'handleCancelOrder'>) => {
+const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCancelOrder'>) => {
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
-  const order = props.buyerOrders.find(o => o.id === parseInt(orderId || '0'));
+
+  // Get data from stores
+  const buyerOrders = useOrdersStore((state) => state.buyerOrders);
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
+
+  const order = buyerOrders.find(o => o.id === parseInt(orderId || '0'));
   const { sellerProfile } = useSellerProfile(order?.sellerId);
 
   if (!order) {
@@ -269,8 +324,8 @@ const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'buyerOrders' | 'profil
       sellerCashApp={sellerProfile?.sellerInfo?.paymentMethods?.cashApp}
       sellerVenmo={sellerProfile?.sellerInfo?.paymentMethods?.venmo}
       sellerZelle={sellerProfile?.sellerInfo?.paymentMethods?.zelle}
-      profileData={props.profileData}
-      cart={props.cart}
+      profileData={profileData}
+      cart={cart}
       onBackToOrders={() => navigate('/orders')}
       onCancelOrder={async (orderId) => {
         await props.handleCancelOrder(orderId);
@@ -282,23 +337,32 @@ const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'buyerOrders' | 'profil
         navigate('/');
       }}
       onProfileClick={() => navigate('/profile')}
-      userMode={props.userMode}
+      userMode={userMode}
       onLogoClick={() => navigate('/browse')}
     />
   );
 };
 
-const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' | 'listings' | 'sellerOrders' | 'userMode' | 'setUserMode' | 'handleSignOut'>) => {
+const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const listings = useListingsStore((state) => state.sellerListings);
+  const sellerOrders = useOrdersStore((state) => state.sellerOrders);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
   return (
     <SellerDashboard
-      profileData={props.profileData}
-      cart={props.cart}
-      listings={props.listings}
-      incomingOrders={props.sellerOrders}
-      userMode={props.userMode}
+      profileData={profileData}
+      cart={cart}
+      listings={listings}
+      incomingOrders={sellerOrders}
+      userMode={userMode}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'buyer') navigate('/browse');
       }}
       onCreateListing={() => navigate('/seller/listings/create')}
@@ -317,20 +381,27 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'car
   );
 };
 
-const CreateListingWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' | 'userMode' | 'setUserMode' | 'handleSignOut' | 'handleCreateListing'>) => {
+const CreateListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCreateListing'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
   return (
     <CreateListing
-      profileData={props.profileData}
-      cart={props.cart}
-      userMode={props.userMode}
+      profileData={profileData}
+      cart={cart}
+      userMode={userMode}
       onBackToDashboard={() => navigate('/seller/dashboard')}
       onCreateListing={async () => {
         await props.handleCreateListing();
         navigate('/seller/listings');
       }}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'buyer') navigate('/browse');
       }}
       onCartClick={() => navigate('/cart')}
@@ -346,23 +417,29 @@ const CreateListingWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart'
   );
 };
 
-const EditListingWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' | 'userMode' | 'setUserMode' | 'handleSignOut' | 'handleUpdateListing'>) => {
+const EditListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateListing'>) => {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   return (
     <EditListing
       listingId={listingId || ''}
-      profileData={props.profileData}
-      cart={props.cart}
-      userMode={props.userMode}
+      profileData={profileData}
+      cart={cart}
+      userMode={userMode}
       onBackToListings={() => navigate('/seller/listings')}
       onUpdateListing={async () => {
         await props.handleUpdateListing();
         navigate('/seller/listings');
       }}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'buyer') navigate('/browse');
       }}
       onCartClick={() => navigate('/cart')}
@@ -378,20 +455,28 @@ const EditListingWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' |
   );
 };
 
-const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' | 'listings' | 'userMode' | 'setUserMode' | 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>) => {
+const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const listings = useListingsStore((state) => state.sellerListings);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
   return (
     <SellerListings
-      profileData={props.profileData}
-      cart={props.cart}
-      listings={props.listings}
-      userMode={props.userMode}
+      profileData={profileData}
+      cart={cart}
+      listings={listings}
+      userMode={userMode}
       onBackToDashboard={() => navigate('/seller/dashboard')}
       onToggleAvailability={props.handleToggleAvailability}
       onDeleteListing={props.handleDeleteListing}
       onEditListing={(listingId) => navigate(`/seller/listings/${listingId}/edit`)}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'buyer') navigate('/browse');
       }}
       onCartClick={() => navigate('/cart')}
@@ -407,18 +492,27 @@ const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart
   );
 };
 
-const SellerOrdersWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' | 'sellerOrders' | 'userMode' | 'setUserMode' | 'handleSignOut' | 'handleUpdateOrderStatus' | 'sellerOrdersLoading'>) => {
+const SellerOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>) => {
   const navigate = useNavigate();
+
+  // Get data from stores
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const sellerOrders = useOrdersStore((state) => state.sellerOrders);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const sellerOrdersLoading = useOrdersStore((state) => state.sellerOrdersLoading);
+
   return (
     <SellerOrders
-      profileData={props.profileData}
-      cart={props.cart}
-      incomingOrders={props.sellerOrders}
-      userMode={props.userMode}
+      profileData={profileData}
+      cart={cart}
+      incomingOrders={sellerOrders}
+      userMode={userMode}
       onBackToDashboard={() => navigate('/seller/dashboard')}
       onUpdateOrderStatus={props.handleUpdateOrderStatus}
       onModeChange={(mode) => {
-        props.setUserMode(mode);
+        setUserMode(mode);
         if (mode === 'buyer') navigate('/browse');
       }}
       onCartClick={() => navigate('/cart')}
@@ -430,36 +524,36 @@ const SellerOrdersWrapper = (props: Pick<AppRoutesProps, 'profileData' | 'cart' 
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
-      loading={props.sellerOrdersLoading}
+      loading={sellerOrdersLoading}
     />
   );
 };
 
 export const AppRoutes = (props: AppRoutesProps) => {
-  const { user } = props;
+  const user = useAuthStore((state) => state.user);
 
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<HomeWrapper />} />
       <Route path="/login" element={<LoginWrapper handleLogin={props.handleLogin} />} />
-      <Route path="/signup" element={<SignupWrapper profileData={props.profileData} setProfileData={props.setProfileData} handleCreateProfile={props.handleCreateProfile} />} />
+      <Route path="/signup" element={<SignupWrapper setProfileData={props.setProfileData} handleCreateProfile={props.handleCreateProfile} />} />
 
       {/* Buyer routes */}
-      <Route path="/browse" element={<RequireAuth user={user}><BrowseWrapper {...props} /></RequireAuth>} />
-      <Route path="/profile" element={<RequireAuth user={user}><UserProfileWrapper {...props} /></RequireAuth>} />
-      <Route path="/seller/:sellerId" element={<RequireAuth user={user}><ViewSellerProfileWrapper {...props} /></RequireAuth>} />
-      <Route path="/cart" element={<RequireAuth user={user}><CartWrapper {...props} /></RequireAuth>} />
-      <Route path="/checkout" element={<RequireAuth user={user}><CheckoutWrapper {...props} /></RequireAuth>} />
-      <Route path="/orders" element={<RequireAuth user={user}><UserOrdersWrapper {...props} /></RequireAuth>} />
-      <Route path="/orders/:orderId" element={<RequireAuth user={user}><OrderDetailsWrapper {...props} /></RequireAuth>} />
+      <Route path="/browse" element={<RequireAuth user={user}><BrowseWrapper addToCart={props.addToCart} /></RequireAuth>} />
+      <Route path="/profile" element={<RequireAuth user={user}><UserProfileWrapper setProfileData={props.setProfileData} handleSaveProfile={props.handleSaveProfile} handleSignOut={props.handleSignOut} /></RequireAuth>} />
+      <Route path="/seller/:sellerId" element={<RequireAuth user={user}><ViewSellerProfileWrapper handleSignOut={props.handleSignOut} /></RequireAuth>} />
+      <Route path="/cart" element={<RequireAuth user={user}><CartWrapper updateCartQuantity={props.updateCartQuantity} removeFromCart={props.removeFromCart} handleSignOut={props.handleSignOut} /></RequireAuth>} />
+      <Route path="/checkout" element={<RequireAuth user={user}><CheckoutWrapper handlePlaceOrder={props.handlePlaceOrder} handleSignOut={props.handleSignOut} /></RequireAuth>} />
+      <Route path="/orders" element={<RequireAuth user={user}><UserOrdersWrapper handleSignOut={props.handleSignOut} /></RequireAuth>} />
+      <Route path="/orders/:orderId" element={<RequireAuth user={user}><OrderDetailsWrapper handleSignOut={props.handleSignOut} handleCancelOrder={props.handleCancelOrder} /></RequireAuth>} />
 
       {/* Seller routes */}
-      <Route path="/seller/dashboard" element={<RequireAuth user={user}><SellerDashboardWrapper {...props} /></RequireAuth>} />
-      <Route path="/seller/listings/create" element={<RequireAuth user={user}><CreateListingWrapper {...props} /></RequireAuth>} />
-      <Route path="/seller/listings/:listingId/edit" element={<RequireAuth user={user}><EditListingWrapper {...props} /></RequireAuth>} />
-      <Route path="/seller/listings" element={<RequireAuth user={user}><SellerListingsWrapper {...props} /></RequireAuth>} />
-      <Route path="/seller/orders" element={<RequireAuth user={user}><SellerOrdersWrapper {...props} /></RequireAuth>} />
+      <Route path="/seller/dashboard" element={<RequireAuth user={user}><SellerDashboardWrapper handleSignOut={props.handleSignOut} /></RequireAuth>} />
+      <Route path="/seller/listings/create" element={<RequireAuth user={user}><CreateListingWrapper handleSignOut={props.handleSignOut} handleCreateListing={props.handleCreateListing} /></RequireAuth>} />
+      <Route path="/seller/listings/:listingId/edit" element={<RequireAuth user={user}><EditListingWrapper handleSignOut={props.handleSignOut} handleUpdateListing={props.handleUpdateListing} /></RequireAuth>} />
+      <Route path="/seller/listings" element={<RequireAuth user={user}><SellerListingsWrapper handleSignOut={props.handleSignOut} handleToggleAvailability={props.handleToggleAvailability} handleDeleteListing={props.handleDeleteListing} /></RequireAuth>} />
+      <Route path="/seller/orders" element={<RequireAuth user={user}><SellerOrdersWrapper handleSignOut={props.handleSignOut} handleUpdateOrderStatus={props.handleUpdateOrderStatus} /></RequireAuth>} />
 
       {/* Fallback route */}
       <Route path="*" element={<Navigate to={user ? "/browse" : "/"} replace />} />

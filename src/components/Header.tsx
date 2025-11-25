@@ -75,33 +75,33 @@ const Header = ({
             {onModeChange && (
               <div className="relative flex items-center bg-[#252525] rounded-xl p-1">
                 <div
-                  className={`absolute top-1 bottom-1 w-24 bg-[#3A3A3A] rounded-lg shadow-md transition-all duration-1000 ease-out ${
-                    userMode === 'seller' ? 'left-[100px]' : 'left-1'
+                  className={`absolute top-1 bottom-1 left-1 w-24 bg-[#3A3A3A] rounded-lg shadow-md transition-transform duration-300 ease-out ${
+                    userMode === 'seller' ? 'translate-x-24' : 'translate-x-0'
                   }`}
                 />
 
                 <button
                   onClick={() => onModeChange('buyer')}
-                  className={`relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-1000 w-24 ${
+                  className={`relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300 w-24 ${
                     userMode === 'buyer'
                       ? 'text-[#CC0000]'
                       : 'text-[#888888] hover:text-[#B0B0B0]'
                   }`}
                   type="button"
                 >
-                  <ShoppingCart size={16} className={`transition-all duration-1000 ${userMode === 'buyer' ? 'scale-110' : ''}`} />
+                  <ShoppingCart size={16} className={`transition-all duration-300 ${userMode === 'buyer' ? 'scale-110' : ''}`} />
                   Buyer
                 </button>
                 <button
                   onClick={() => onModeChange('seller')}
-                  className={`relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-1000 w-24 ${
+                  className={`relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors duration-300 w-24 ${
                     userMode === 'seller'
                       ? 'text-[#CC0000]'
                       : 'text-[#888888] hover:text-[#B0B0B0]'
                   }`}
                   type="button"
                 >
-                  <Store size={16} className={`transition-all duration-1000 ${userMode === 'seller' ? 'scale-110' : ''}`} />
+                  <Store size={16} className={`transition-all duration-300 ${userMode === 'seller' ? 'scale-110' : ''}`} />
                   Seller
                 </button>
               </div>

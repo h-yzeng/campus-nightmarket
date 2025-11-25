@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useAuth } from './hooks/userAuth';
 import { useListings } from './hooks/useListings';
@@ -7,8 +7,15 @@ import { useCart } from './hooks/useCart';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useListingManagement } from './hooks/useListingManagement';
 import { AppRoutes } from './routes';
+import {
+  useAuthStore,
+  useCartStore,
+  useOrdersStore,
+  useListingsStore,
+} from './stores';
 
 function App() {
+  // Get data from hooks
   const {
     profileData,
     setProfileData,
@@ -27,10 +34,6 @@ function App() {
 
   const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('All Dorms');
-  const [userMode, setUserMode] = useState<'buyer' | 'seller'>('buyer');
-
   const { listings, handleCreateListing, handleToggleAvailability, handleDeleteListing, refreshSellerListings } =
     useListingManagement(user?.uid, refreshListings);
 
@@ -44,16 +47,71 @@ function App() {
     sellerOrders,
   });
 
-  const wrappedHandleSignOut = () => {
-    handleSignOut();
-    clearCart();
-    setSearchQuery('');
-    setSelectedLocation('All Dorms');
-    setUserMode('buyer');
-  };
+  // Get store actions
+  const setUser = useAuthStore((state) => state.setUser);
+  const setStoreProfileData = useAuthStore((state) => state.setProfileData);
+  const setCart = useCartStore((state) => state.setCart);
+  const setBuyerOrders = useOrdersStore((state) => state.setBuyerOrders);
+  const setSellerOrders = useOrdersStore((state) => state.setSellerOrders);
+  const setBuyerOrdersLoading = useOrdersStore((state) => state.setBuyerOrdersLoading);
+  const setSellerOrdersLoading = useOrdersStore((state) => state.setSellerOrdersLoading);
+  const setFoodItems = useListingsStore((state) => state.setFoodItems);
+  const setSellerListings = useListingsStore((state) => state.setSellerListings);
+  const setListingsLoading = useListingsStore((state) => state.setListingsLoading);
+  const setListingsError = useListingsStore((state) => state.setListingsError);
+
+  // Sync hook data into Zustand stores
+  useEffect(() => {
+    setUser(user);
+  }, [user, setUser]);
+
+  useEffect(() => {
+    setStoreProfileData(profileData);
+  }, [profileData, setStoreProfileData]);
+
+  useEffect(() => {
+    setCart(cart);
+  }, [cart, setCart]);
+
+  useEffect(() => {
+    setBuyerOrders(buyerOrders);
+  }, [buyerOrders, setBuyerOrders]);
+
+  useEffect(() => {
+    setSellerOrders(sellerOrders);
+  }, [sellerOrders, setSellerOrders]);
+
+  useEffect(() => {
+    setBuyerOrdersLoading(buyerOrdersLoading);
+  }, [buyerOrdersLoading, setBuyerOrdersLoading]);
+
+  useEffect(() => {
+    setSellerOrdersLoading(sellerOrdersLoading);
+  }, [sellerOrdersLoading, setSellerOrdersLoading]);
+
+  useEffect(() => {
+    setFoodItems(foodItems);
+  }, [foodItems, setFoodItems]);
+
+  useEffect(() => {
+    setSellerListings(listings);
+  }, [listings, setSellerListings]);
+
+  useEffect(() => {
+    setListingsLoading(listingsLoading);
+  }, [listingsLoading, setListingsLoading]);
+
+  useEffect(() => {
+    setListingsError(listingsError);
+  }, [listingsError, setListingsError]);
 
   // Dummy navigation function - navigation is now handled by React Router in the routes
   const noOpNavigation = () => {};
+
+  const wrappedHandleSignOut = () => {
+    handleSignOut();
+    clearCart();
+  };
 
   const wrappedHandleCreateListing = async () => {
     await handleCreateListing(noOpNavigation);
@@ -77,28 +135,7 @@ function App() {
     <BrowserRouter>
       <div className="app">
         <AppRoutes
-          profileData={profileData}
           setProfileData={setProfileData}
-          user={user}
-          cart={cart}
-          addToCart={addToCart}
-          updateCartQuantity={updateCartQuantity}
-          removeFromCart={removeFromCart}
-          clearCart={clearCart}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          userMode={userMode}
-          setUserMode={setUserMode}
-          buyerOrders={buyerOrders}
-          sellerOrders={sellerOrders}
-          buyerOrdersLoading={buyerOrdersLoading}
-          sellerOrdersLoading={sellerOrdersLoading}
-          listings={listings}
-          foodItems={foodItems}
-          listingsLoading={listingsLoading}
-          listingsError={listingsError}
           handleCreateProfile={handleCreateProfile}
           handleLogin={handleLogin}
           handleSaveProfile={handleSaveProfile}
@@ -110,6 +147,9 @@ function App() {
           handleDeleteListing={handleDeleteListing}
           handleUpdateListing={wrappedHandleUpdateListing}
           handleUpdateOrderStatus={handleUpdateOrderStatus}
+          addToCart={addToCart}
+          updateCartQuantity={updateCartQuantity}
+          removeFromCart={removeFromCart}
         />
       </div>
     </BrowserRouter>

@@ -13,6 +13,9 @@ interface CartProps {
   onContinueShopping: () => void;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onOrdersClick?: () => void;
+  onModeChange?: (mode: UserMode) => void;
+  onSellerDashboardClick?: () => void;
   onLogoClick?: () => void;
 }
 
@@ -26,6 +29,9 @@ const Cart = ({
   onContinueShopping,
   onSignOut,
   onProfileClick,
+  onOrdersClick,
+  onModeChange,
+  onSellerDashboardClick,
   onLogoClick
 }: CartProps) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -38,6 +44,9 @@ const Cart = ({
         onCartClick={() => {}}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onOrdersClick={onOrdersClick}
+        onModeChange={onModeChange}
+        onSellerDashboardClick={onSellerDashboardClick}
         onLogoClick={onLogoClick}
         showCart={false}
         userMode={userMode}
