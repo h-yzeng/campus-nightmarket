@@ -1,4 +1,4 @@
-import { Camera, Mail, User, IdCard, Eye, EyeOff, AlertCircle, Lock, DollarSign, MapPin } from 'lucide-react';
+import { Camera, Mail, User, IdCard, Eye, EyeOff, AlertCircle, Lock, DollarSign, MapPin, Phone } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import Header from '../components/Header';
@@ -80,6 +80,19 @@ const UserProfile = ({
           ...profileData.sellerInfo?.paymentMethods,
           [field]: value
         },
+        preferredLocations: profileData.sellerInfo?.preferredLocations || []
+      }
+    });
+    setHasChanges(true);
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setProfileData({
+      ...profileData,
+      sellerInfo: {
+        ...profileData.sellerInfo,
+        phone: value,
+        paymentMethods: profileData.sellerInfo?.paymentMethods || {},
         preferredLocations: profileData.sellerInfo?.preferredLocations || []
       }
     });
@@ -436,11 +449,26 @@ const UserProfile = ({
             <div className="bg-[#0A2A0A] rounded-xl p-6 border-2 border-[#1A4A1A]">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign size={20} className="text-green-400" />
-                <h2 className="text-xl font-bold text-[#E0E0E0]">Payment Information</h2>
+                <h2 className="text-xl font-bold text-[#E0E0E0]">Seller Contact & Payment</h2>
               </div>
-              <p className="text-sm text-[#90C090] mb-4">Add your payment methods so buyers can easily pay you</p>
+              <p className="text-sm text-[#90C090] mb-4">Add your contact info and payment methods so buyers can reach you and pay you</p>
 
               <div className="space-y-4">
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold mb-2 text-[#E0E0E0]">
+                    <Phone size={16} />
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={profileData.sellerInfo?.phone || ''}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-[#2A4A2A] rounded-xl text-base text-[#E0E0E0] placeholder-[#5A7A5A] focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all bg-[#1A3A1A]"
+                    placeholder="(123) 456-7890"
+                  />
+                  <p className="text-xs text-[#90C090] mt-1">Buyers will see your phone number after placing an order</p>
+                </div>
+
                 <div>
                   <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
                     💸 CashApp Username
@@ -483,7 +511,7 @@ const UserProfile = ({
                 <div className="flex gap-3 p-3 rounded-lg bg-[#0A1A2A] border border-[#1A3A4A]">
                   <AlertCircle size={16} className="text-blue-400 shrink-0 mt-0.5" />
                   <p className="text-xs text-[#90A0C0]">
-                    Add at least one payment method if you plan to sell food. Buyers will see these details after placing an order.
+                    Add your phone number and at least one payment method if you plan to sell food. Buyers will see these details after placing an order.
                   </p>
                 </div>
               </div>
@@ -496,7 +524,7 @@ const UserProfile = ({
                 <p className="text-sm font-semibold text-[#E0E0E0] mb-1">Privacy Note</p>
                 <p className="text-sm text-[#90A0C0]">
                   Your name, student ID, profile photo, and bio are visible to other verified students.
-                  Your email, password, and payment information remain private.
+                  Your phone number, email, and payment information are only shared with buyers after they place an order with you.
                 </p>
               </div>
             </div>

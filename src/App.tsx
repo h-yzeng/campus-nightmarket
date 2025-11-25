@@ -23,9 +23,9 @@ function App() {
 
   const { foodItems, loading: listingsLoading, error: listingsError, refreshListings } = useListings();
 
-  const { orders: buyerOrders, loading: buyerOrdersLoading, createOrder } = useOrders(user?.uid, 'buyer');
+  const { orders: buyerOrders, loading: buyerOrdersLoading, createOrder, cancelOrder } = useOrders(user?.uid, 'buyer');
 
-  const { orders: sellerOrders, loading: sellerOrdersLoading } = useOrders(user?.uid, 'seller');
+  const { orders: sellerOrders, loading: sellerOrdersLoading, updateStatus } = useOrders(user?.uid, 'seller');
 
   const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
 
@@ -50,9 +50,12 @@ function App() {
 
   const { handlePlaceOrder, handleCancelOrder, handleUpdateOrderStatus } = useOrderManagement({
     createOrder,
+    cancelOrder,
+    updateStatus,
     user,
     profileData,
     buyerOrders,
+    sellerOrders,
   });
 
   const handleGetStarted = () => setCurrentPage('signup');

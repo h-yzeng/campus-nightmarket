@@ -1,4 +1,4 @@
-import { Search, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Loader2, AlertCircle, Star } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -179,7 +179,10 @@ const Browse = ({
                     <MapPin size={14} className="text-[#888888]" />
                     <span className="text-xs text-[#B0B0B0]">{item.location}</span>
                     {item.rating !== 'N/A' && (
-                      <span className="ml-auto text-xs text-[#B0B0B0]">⭐ {item.rating}</span>
+                      <div className="ml-auto flex items-center gap-1">
+                        <Star size={14} className="fill-[#FFD700] text-[#FFD700]" />
+                        <span className="text-xs font-semibold text-[#E0E0E0]">{item.rating}</span>
+                      </div>
                     )}
                   </div>
 

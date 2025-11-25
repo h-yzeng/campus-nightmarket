@@ -29,6 +29,8 @@ export interface FirebaseSellerInfo {
     zelle?: string;
   };
   preferredLocations: string[];
+  rating?: number;
+  reviewCount?: number;
 }
 
 export interface FirebaseListing {
@@ -70,6 +72,8 @@ export interface FirebaseOrder {
   status: OrderStatus;
   pickupTime: string;
   notes?: string;
+  reviewId?: string;
+  hasReview?: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -81,10 +85,10 @@ export interface FirebaseReview {
   buyerName: string;
   sellerId: string;
   sellerName: string;
-  itemName: string;
-  price: number;
   rating: number;
-  review?: string;
+  comment?: string;
+  itemNames: string[];
+  listingIds: string[];
   createdAt: Timestamp;
 }
 

@@ -1,4 +1,4 @@
-import { Clock, MapPin, Package, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react';
+import { Clock, MapPin, Package, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem } from '../../types';
 import Header from '../../components/Header';
@@ -41,7 +41,10 @@ const UserOrders = ({
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
-  const pendingOrders = orders.filter(order => order.status === 'pending');
+  // Pending includes: pending, confirmed, and ready (all active statuses from buyer's perspective)
+  const pendingOrders = orders.filter(order =>
+    order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready'
+  );
   const completedOrders = orders.filter(order => order.status === 'completed' || order.status === 'cancelled');
 
   const displayOrders = activeTab === 'pending' ? pendingOrders : completedOrders;
@@ -50,6 +53,10 @@ const UserOrders = ({
     switch (status) {
       case 'pending':
         return 'bg-[#2A2A0A] text-[#FFD700] border-[#4A4A1A]';
+      case 'confirmed':
+        return 'bg-[#0A1A2A] text-[#88CCFF] border-[#1A3A4A]';
+      case 'ready':
+        return 'bg-[#1A0A2A] text-[#CC88FF] border-[#3A1A4A]';
       case 'completed':
         return 'bg-[#0A2A0A] text-[#88FF88] border-[#1A4A1A]';
       case 'cancelled':
@@ -63,12 +70,16 @@ const UserOrders = ({
     switch (status) {
       case 'pending':
         return <Clock size={16} />;
+      case 'confirmed':
+        return <CheckCircle size={16} />;
+      case 'ready':
+        return <Package size={16} />;
       case 'completed':
         return <CheckCircle size={16} />;
       case 'cancelled':
         return <XCircle size={16} />;
       default:
-        return <Package size={16} />;
+        return <AlertCircle size={16} />;
     }
   };
 
@@ -186,9 +197,17 @@ const UserOrders = ({
                     {order.items.slice(0, 3).map((item, index) => (
                       <div
                         key={index}
-                        className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center"
+                        className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center overflow-hidden"
                       >
-                        <span className="text-xl">{item.image}</span>
+                        {item.image.startsWith('http') ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xl">{item.image}</span>
+                        )}
                       </div>
                     ))}
                     {order.items.length > 3 && (

@@ -1,7 +1,8 @@
 import { User, IdCard, Star, MapPin, Calendar, ShoppingBag } from 'lucide-react';
-import type { Transaction, ProfileData, CartItem } from '../../types';
+import type { Transaction, ProfileData, CartItem, Review } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import ReviewsList from '../../components/ReviewsList';
 import type { UserMode } from '../../types';
 
 interface ViewProfileProps {
@@ -11,6 +12,8 @@ interface ViewProfileProps {
   sellerBio: string;
   sellerLocation: string;
   transactions: Transaction[];
+  reviews?: Review[];
+  reviewsLoading?: boolean;
   currentUserProfile: ProfileData;
   cart: CartItem[];
   userMode: UserMode;
@@ -28,6 +31,8 @@ const ViewProfile = ({
   sellerBio,
   sellerLocation,
   transactions,
+  reviews = [],
+  reviewsLoading = false,
   currentUserProfile,
   cart,
   userMode,
@@ -118,16 +123,31 @@ const ViewProfile = ({
             </div>
           )}
 
-          <div className="border-t-2 border-neutral-700 pt-6">
+          {/* Reviews Section */}
+          <div className="border-t-2 border-neutral-700 pt-6 mb-6">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <Star size={20} className="text-[#CC0000]" />
-              Transaction History ({transactions.length})
+              Customer Reviews ({reviews.length})
             </h2>
 
-            {transactions.length > 0 ? (
+            <ReviewsList
+              reviews={reviews}
+              loading={reviewsLoading}
+              emptyMessage="No reviews yet. Be the first to order and leave a review!"
+            />
+          </div>
+
+          {/* Transaction History */}
+          {transactions.length > 0 && (
+            <div className="border-t-2 border-neutral-700 pt-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <ShoppingBag size={20} className="text-[#CC0000]" />
+                Recent Transactions ({transactions.length})
+              </h2>
+
               <div className="space-y-4">
-                {transactions.map((transaction) => (
-                  <div 
+                {transactions.slice(0, 5).map((transaction) => (
+                  <div
                     key={transaction.id}
                     className="p-4 bg-[#FAFAFA] rounded-xl border-2 border-neutral-700 hover:border-neutral-600 transition-colors"
                   >
@@ -144,7 +164,7 @@ const ViewProfile = ({
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
                       <Calendar size={12} />
                       <span>{transaction.date}</span>
@@ -158,12 +178,8 @@ const ViewProfile = ({
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No transaction history yet</p>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </main>
 

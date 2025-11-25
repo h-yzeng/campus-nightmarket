@@ -1,5 +1,6 @@
 import type { ProfileData, CartItem, Order, ListingWithFirebaseId, UserMode } from '../types';
 import type { PageType } from '../hooks/useNavigation';
+import { useSellerProfile } from '../hooks/useSellerProfile';
 import Home from '../pages/Home';
 import Signup from '../pages/Signup';
 import Login from '../pages/Login';
@@ -129,6 +130,14 @@ export const AppRouter = ({
   handleUpdateListing,
   handleUpdateOrderStatus,
 }: AppRouterProps) => {
+  // Get the current order if viewing order details
+  const currentOrder = currentPage === 'orderDetails'
+    ? buyerOrders.find(o => o.id === selectedOrderId)
+    : undefined;
+
+  // Fetch seller profile for order details page
+  const { sellerProfile } = useSellerProfile(currentOrder?.sellerId);
+
   return (
     <>
       {currentPage === 'home' && <Home onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />}
@@ -243,14 +252,14 @@ export const AppRouter = ({
         />
       )}
 
-      {currentPage === 'orderDetails' && (
+      {currentPage === 'orderDetails' && currentOrder && (
         <OrderDetails
-          order={buyerOrders.find(o => o.id === selectedOrderId)!}
-          sellerPhone={undefined}
-          sellerEmail={undefined}
-          sellerCashApp={undefined}
-          sellerVenmo={undefined}
-          sellerZelle={undefined}
+          order={currentOrder}
+          sellerPhone={sellerProfile?.sellerInfo?.phone}
+          sellerEmail={sellerProfile?.email}
+          sellerCashApp={sellerProfile?.sellerInfo?.paymentMethods?.cashApp}
+          sellerVenmo={sellerProfile?.sellerInfo?.paymentMethods?.venmo}
+          sellerZelle={sellerProfile?.sellerInfo?.paymentMethods?.zelle}
           profileData={profileData}
           cart={cart}
           onBackToOrders={handleGoToOrders}

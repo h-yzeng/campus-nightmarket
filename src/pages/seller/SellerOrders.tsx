@@ -21,7 +21,7 @@ interface SellerOrdersProps {
   loading?: boolean;
 }
 
-type OrderTab = 'pending' | 'completed';
+type OrderTab = 'active' | 'completed';
 
 const SellerOrders = ({
   profileData,
@@ -39,20 +39,29 @@ const SellerOrders = ({
   onLogoClick,
   loading = false
 }: SellerOrdersProps) => {
-  const [activeTab, setActiveTab] = useState<OrderTab>('pending');
+  const [activeTab, setActiveTab] = useState<OrderTab>('active');
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
   const pendingOrders = incomingOrders.filter(order => order.status === 'pending');
-  const completedOrders = incomingOrders.filter(order => 
+  const confirmedOrders = incomingOrders.filter(order => order.status === 'confirmed');
+  const readyOrders = incomingOrders.filter(order => order.status === 'ready');
+  const activeOrders = incomingOrders.filter(order =>
+    order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready'
+  );
+  const completedOrders = incomingOrders.filter(order =>
     order.status === 'completed' || order.status === 'cancelled'
   );
 
-  const displayOrders = activeTab === 'pending' ? pendingOrders : completedOrders;
+  const displayOrders = activeTab === 'active' ? activeOrders : completedOrders;
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
         return 'bg-[#2A2A0A] text-[#FFD700] border-[#4A4A1A]';
+      case 'confirmed':
+        return 'bg-[#0A1A2A] text-[#88CCFF] border-[#1A3A4A]';
+      case 'ready':
+        return 'bg-[#1A0A2A] text-[#CC88FF] border-[#3A1A4A]';
       case 'completed':
         return 'bg-[#0A2A0A] text-[#88FF88] border-[#1A4A1A]';
       case 'cancelled':
@@ -66,12 +75,16 @@ const SellerOrders = ({
     switch (status) {
       case 'pending':
         return <Clock size={16} />;
+      case 'confirmed':
+        return <CheckCircle size={16} />;
+      case 'ready':
+        return <Package size={16} />;
       case 'completed':
         return <CheckCircle size={16} />;
       case 'cancelled':
         return <XCircle size={16} />;
       default:
-        return <Package size={16} />;
+        return <AlertCircle size={16} />;
     }
   };
 
@@ -144,14 +157,14 @@ const SellerOrders = ({
         {/* Tabs */}
         <div className="flex gap-4 mb-6 border-b-2 border-[#3A3A3A]">
           <button
-            onClick={() => setActiveTab('pending')}
+            onClick={() => setActiveTab('active')}
             className={`px-6 py-3 font-semibold transition-all ${
-              activeTab === 'pending'
+              activeTab === 'active'
                 ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
                 : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
-            Pending ({pendingOrders.length})
+            Active ({activeOrders.length})
           </button>
           <button
             onClick={() => setActiveTab('completed')}
@@ -174,13 +187,13 @@ const SellerOrders = ({
         ) : displayOrders.length === 0 ? (
           <div className="text-center py-16 bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A]">
             <div className="text-7xl mb-4">
-              {activeTab === 'pending' ? '📦' : '✅'}
+              {activeTab === 'active' ? '📦' : '✅'}
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">
-              {activeTab === 'pending' ? 'No pending orders' : 'No completed orders yet'}
+              {activeTab === 'active' ? 'No active orders' : 'No completed orders yet'}
             </h2>
             <p className="text-[#A0A0A0] mb-6">
-              {activeTab === 'pending'
+              {activeTab === 'active'
                 ? 'New orders will appear here when customers place them'
                 : 'Completed orders will appear here'}
             </p>
@@ -227,9 +240,17 @@ const SellerOrders = ({
                         {order.items.slice(0, 3).map((item, index) => (
                           <div
                             key={index}
-                            className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center"
+                            className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center overflow-hidden"
                           >
-                            <span className="text-xl">{item.image}</span>
+                            {item.image.startsWith('http') ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-xl">{item.image}</span>
+                            )}
                           </div>
                         ))}
                         {order.items.length > 3 && (
@@ -292,8 +313,16 @@ const SellerOrders = ({
                           {order.items.map((item, index) => (
                             <div key={index} className="flex justify-between items-center p-3 bg-[#1E1E1E] rounded-xl">
                               <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center">
-                                  <span className="text-2xl">{item.image}</span>
+                                <div className="w-12 h-12 rounded-xl bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center overflow-hidden">
+                                  {item.image.startsWith('http') ? (
+                                    <img
+                                      src={item.image}
+                                      alt={item.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="text-2xl">{item.image}</span>
+                                  )}
                                 </div>
                                 <div>
                                   <p className="font-semibold text-[#E0E0E0]">{item.name}</p>
@@ -377,11 +406,11 @@ const SellerOrders = ({
                       {order.status === 'pending' && (
                         <div className="flex gap-3">
                           <button
-                            onClick={() => onUpdateOrderStatus(order.id, 'completed')}
-                            className="flex-1 py-3 bg-green-600 text-white text-base font-bold rounded-xl hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                            onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
+                            className="flex-1 py-3 bg-blue-600 text-white text-base font-bold rounded-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                           >
                             <CheckCircle size={20} />
-                            Mark as Completed
+                            Confirm Order
                           </button>
                           <button
                             onClick={() => onUpdateOrderStatus(order.id, 'cancelled')}
@@ -390,6 +419,40 @@ const SellerOrders = ({
                             <XCircle size={20} />
                             Cancel Order
                           </button>
+                        </div>
+                      )}
+
+                      {order.status === 'confirmed' && (
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => onUpdateOrderStatus(order.id, 'ready')}
+                            className="flex-1 py-3 bg-purple-600 text-white text-base font-bold rounded-xl hover:bg-purple-700 transition-all flex items-center justify-center gap-2"
+                          >
+                            <Package size={20} />
+                            Mark as Ready for Pickup
+                          </button>
+                          <button
+                            onClick={() => onUpdateOrderStatus(order.id, 'cancelled')}
+                            className="flex-1 py-3 bg-red-600 text-white text-base font-bold rounded-xl hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+                          >
+                            <XCircle size={20} />
+                            Cancel Order
+                          </button>
+                        </div>
+                      )}
+
+                      {order.status === 'ready' && (
+                        <div>
+                          <button
+                            onClick={() => onUpdateOrderStatus(order.id, 'completed')}
+                            className="w-full py-3 bg-green-600 text-white text-base font-bold rounded-xl hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+                          >
+                            <CheckCircle size={20} />
+                            Mark as Completed
+                          </button>
+                          <p className="text-xs text-[#A0A0A0] text-center mt-2">
+                            💡 Only mark as completed after buyer has picked up and paid
+                          </p>
                         </div>
                       )}
 

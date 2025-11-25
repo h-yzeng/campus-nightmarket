@@ -35,6 +35,8 @@ export interface SellerInfo {
     zelle?: string;
   };
   preferredLocations: string[];
+  rating?: number;
+  reviewCount?: number;
 }
 
 export interface Listing {
@@ -69,6 +71,7 @@ export type OrderStatus = 'pending' | 'confirmed' | 'ready' | 'completed' | 'can
 
 export interface Order {
   id: number;
+  firebaseId: string;
   items: CartItem[];
   sellerId: string;
   sellerName: string;
@@ -81,6 +84,22 @@ export interface Order {
   notes?: string;
   buyerId?: string;
   buyerName?: string;
+  reviewId?: string;
+  hasReview?: boolean;
+}
+
+export interface Review {
+  id: string;
+  orderId: string;
+  sellerId: string;
+  sellerName: string;
+  buyerId: string;
+  buyerName: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  listingIds: number[];
+  itemNames: string[];
 }
 
 export type UserMode = 'buyer' | 'seller';

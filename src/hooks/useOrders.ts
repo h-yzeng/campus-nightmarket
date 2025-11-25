@@ -9,9 +9,20 @@ import {
 import type { FirebaseOrder, CreateOrder } from '../types/firebase';
 import type { Order, CartItem, OrderStatus } from '../types';
 
+// Simple hash function to convert Firebase ID string to a consistent number
+const hashStringToNumber = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash);
+};
+
 const convertFirebaseOrderToApp = (firebaseOrder: FirebaseOrder): Order => {
   const items: CartItem[] = firebaseOrder.items.map(item => ({
-    id: parseInt(item.listingId.substring(0, 8), 16),
+    id: hashStringToNumber(item.listingId),
     name: item.name,
     price: item.price,
     quantity: item.quantity,
@@ -24,7 +35,8 @@ const convertFirebaseOrderToApp = (firebaseOrder: FirebaseOrder): Order => {
   }));
 
   return {
-    id: parseInt(firebaseOrder.id.substring(0, 8), 16),
+    id: hashStringToNumber(firebaseOrder.id),
+    firebaseId: firebaseOrder.id,
     items,
     sellerId: firebaseOrder.sellerId,
     sellerName: firebaseOrder.sellerName,
@@ -54,6 +66,7 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
 
   const loadOrders = useCallback(async () => {
     if (!userId) {
+      console.log('[useOrders] No userId, clearing orders. Mode:', mode);
       setOrders([]);
       setLoading(false);
       return;
@@ -62,15 +75,19 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
     try {
       setLoading(true);
       setError(null);
+      console.log(`[useOrders] ===== Loading ${mode} orders for userId: ${userId} =====`);
 
       const firebaseOrders = mode === 'buyer'
         ? await getBuyerOrders(userId)
         : await getSellerOrders(userId);
 
+      console.log(`[useOrders] Fetched ${firebaseOrders.length} Firebase ${mode} orders:`, firebaseOrders);
+
       const convertedOrders = firebaseOrders.map(convertFirebaseOrderToApp);
+      console.log(`[useOrders] Converted to ${convertedOrders.length} app orders for ${mode}:`, convertedOrders);
       setOrders(convertedOrders);
     } catch (err) {
-      console.error('Error loading orders:', err);
+      console.error(`[useOrders] Error loading ${mode} orders:`, err);
       setError(err instanceof Error ? err.message : 'Failed to load orders');
     } finally {
       setLoading(false);
@@ -83,11 +100,14 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
 
   const createOrder = async (orderData: CreateOrder): Promise<string> => {
     try {
+      console.log('[useOrders] Creating order:', orderData);
       const orderId = await createOrderService(orderData);
+      console.log('[useOrders] Order created with ID:', orderId);
+      console.log('[useOrders] Refreshing orders list...');
       await loadOrders();
       return orderId;
     } catch (err) {
-      console.error('Error creating order:', err);
+      console.error('[useOrders] Error creating order:', err);
       throw err;
     }
   };

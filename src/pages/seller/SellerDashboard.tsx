@@ -205,9 +205,17 @@ const SellerDashboard = ({
                       {order.items.slice(0, 2).map((item, index) => (
                         <div
                           key={index}
-                          className="w-10 h-10 rounded-full bg-[#1E1E1E] border-2 border-[#3A3A3A] flex items-center justify-center"
+                          className="w-10 h-10 rounded-full bg-[#1E1E1E] border-2 border-[#3A3A3A] flex items-center justify-center overflow-hidden"
                         >
-                          <span className="text-lg">{item.image}</span>
+                          {item.image.startsWith('http') ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-lg">{item.image}</span>
+                          )}
                         </div>
                       ))}
                       {order.items.length > 2 && (

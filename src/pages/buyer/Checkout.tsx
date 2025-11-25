@@ -125,30 +125,40 @@ const Checkout = ({
               
               return (
                 <div key={seller} className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-                  <div className="mb-4 pb-4 border-b-2 border-gray-200">
+                  <div className="mb-4 pb-4 border-b-2 border-[#3A3A3A]">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin size={20} className="text-[#CC0000]" />
-                      <h2 className="text-xl font-bold text-white">
+                      <h2 className="text-xl font-bold text-[#E0E0E0]">
                         {seller}
                       </h2>
                     </div>
-                    <p className="text-sm text-gray-600">{items[0].location}</p>
+                    <p className="text-sm text-[#A0A0A0]">{items[0].location}</p>
                   </div>
 
                   {/* Items List */}
                   <div className="mb-6">
-                    <h3 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#B0B0B0] mb-3 flex items-center gap-2">
                       <ShoppingBag size={16} />
                       Items ({items.length})
                     </h3>
                     <div className="space-y-3">
                       {items.map((item) => (
-                        <div key={item.id} className="flex justify-between items-center p-3 bg-[#FAFAFA] rounded-xl">
+                        <div key={item.id} className="flex justify-between items-center p-3 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
                           <div className="flex items-center gap-3">
-                            <span className="text-2xl">{item.image}</span>
+                            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-[#1E1E1E] border border-[#3A3A3A] overflow-hidden">
+                              {item.image.startsWith('http') ? (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-2xl">{item.image}</span>
+                              )}
+                            </div>
                             <div>
-                              <p className="font-semibold text-white">{item.name}</p>
-                              <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                              <p className="font-semibold text-[#E0E0E0]">{item.name}</p>
+                              <p className="text-sm text-[#A0A0A0]">Quantity: {item.quantity}</p>
                             </div>
                           </div>
                           <p className="font-bold text-[#CC0000]">
@@ -157,19 +167,19 @@ const Checkout = ({
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 pt-3 border-t-2 border-neutral-700 flex justify-between items-center">
-                      <span className="font-bold text-white">Subtotal</span>
+                    <div className="mt-3 pt-3 border-t-2 border-[#3A3A3A] flex justify-between items-center">
+                      <span className="font-bold text-[#E0E0E0]">Subtotal</span>
                       <span className="font-bold text-[#CC0000]">${sellerTotal.toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Pickup Time Selection */}
                   <div>
-                    <h3 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#B0B0B0] mb-3 flex items-center gap-2">
                       <Clock size={16} />
                       Select Pickup Time
                     </h3>
-                    
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
                       {timeSlots.slice(0, 16).map((time) => (
                         <button
@@ -178,7 +188,7 @@ const Checkout = ({
                           className={`px-3 py-2 rounded-xl text-sm font-semibold border-2 transition-all ${
                             pickupTimesBySeller[seller] === time
                               ? 'bg-[#CC0000] text-white border-[#CC0000]'
-                              : 'bg-neutral-800 text-gray-300 border-neutral-600 hover:border-[#CC0000]'
+                              : 'bg-[#2A2A2A] text-[#E0E0E0] border-[#4A4A4A] hover:border-[#CC0000]'
                           }`}
                         >
                           {time}
@@ -187,16 +197,16 @@ const Checkout = ({
                     </div>
 
                     {!pickupTimesBySeller[seller] && (
-                      <div className="p-3 bg-yellow-50 rounded-xl border-2 border-yellow-200">
-                        <p className="text-sm text-gray-700">
+                      <div className="p-3 bg-[#2A1A0A] rounded-xl border-2 border-[#4A2A1A]">
+                        <p className="text-sm text-[#FFD699]">
                           ⚠️ Please select a pickup time for this seller
                         </p>
                       </div>
                     )}
 
                     {pickupTimesBySeller[seller] && (
-                      <div className="p-3 bg-green-950 rounded-xl border-2 border-green-800">
-                        <p className="text-sm text-gray-700">
+                      <div className="p-3 bg-[#0A2A0A] rounded-xl border-2 border-[#1A4A1A]">
+                        <p className="text-sm text-[#88FF88]">
                           ✅ Pickup scheduled for <span className="font-bold">{pickupTimesBySeller[seller]}</span>
                         </p>
                       </div>
@@ -208,11 +218,11 @@ const Checkout = ({
 
             {/* Payment Method */}
             <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <h2 className="text-xl font-bold text-[#E0E0E0] mb-4 flex items-center gap-2">
                 <Wallet size={20} />
                 Payment Method
               </h2>
-              
+
               <div className="grid grid-cols-2 gap-3 mb-4">
                 {paymentMethods.map((method) => (
                   <button
@@ -221,7 +231,7 @@ const Checkout = ({
                     className={`px-4 py-4 rounded-xl text-sm font-semibold border-2 transition-all ${
                       selectedPayment === method
                         ? 'bg-[#CC0000] text-white border-[#CC0000]'
-                        : 'bg-neutral-800 text-gray-300 border-neutral-600 hover:border-[#CC0000]'
+                        : 'bg-[#2A2A2A] text-[#E0E0E0] border-[#4A4A4A] hover:border-[#CC0000]'
                     }`}
                   >
                     {method === 'Cash' ? '💵' : method === 'CashApp' ? '💸' : method === 'Venmo' ? '💳' : '🏦'} {method}
@@ -229,9 +239,9 @@ const Checkout = ({
                 ))}
               </div>
 
-              <div className="p-4 bg-blue-950 rounded-xl border-2 border-blue-800">
-                <p className="text-sm text-gray-700">
-                  {selectedPayment === 'Cash' 
+              <div className="p-4 bg-[#0A1A2A] rounded-xl border-2 border-[#1A3A4A]">
+                <p className="text-sm text-[#88CCFF]">
+                  {selectedPayment === 'Cash'
                     ? '💵 Pay each seller in person when you pick up your orders'
                     : `💳 After placing your order, each seller will share their ${selectedPayment} details for payment`}
                 </p>
@@ -240,15 +250,15 @@ const Checkout = ({
 
             {/* Special Instructions */}
             <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4">
+              <h2 className="text-xl font-bold text-[#E0E0E0] mb-4">
                 Special Instructions (Optional)
               </h2>
-              
+
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Add any special requests or dietary restrictions..."
-                className="w-full px-4 py-3 border-2 border-[#E0E0E0] rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all resize-none bg-neutral-800 min-h-[100px]"
+                className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all resize-none bg-[#2A2A2A] min-h-[100px]"
               />
             </div>
           </div>
@@ -256,34 +266,34 @@ const Checkout = ({
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-white mb-4">
+              <h2 className="text-xl font-bold text-[#E0E0E0] mb-4">
                 Order Summary
               </h2>
 
-              <div className="space-y-3 mb-4 pb-4 border-b-2 border-gray-200">
-                <div className="flex justify-between text-gray-700">
+              <div className="space-y-3 mb-4 pb-4 border-b-2 border-[#3A3A3A]">
+                <div className="flex justify-between text-[#B0B0B0]">
                   <span>Items ({cart.length})</span>
-                  <span className="font-semibold">${total.toFixed(2)}</span>
+                  <span className="font-semibold text-[#E0E0E0]">${total.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-[#B0B0B0]">
                   <span>Sellers</span>
-                  <span className="font-semibold">{sellers.length}</span>
+                  <span className="font-semibold text-[#E0E0E0]">{sellers.length}</span>
                 </div>
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between text-[#B0B0B0]">
                   <span>Payment</span>
-                  <span className="font-semibold">{selectedPayment}</span>
+                  <span className="font-semibold text-[#E0E0E0]">{selectedPayment}</span>
                 </div>
               </div>
 
               {/* Pickup Times Summary */}
               {sellers.length > 0 && (
-                <div className="mb-4 pb-4 border-b-2 border-gray-200">
-                  <p className="text-sm font-bold text-gray-300 mb-2">Pickup Times:</p>
+                <div className="mb-4 pb-4 border-b-2 border-[#3A3A3A]">
+                  <p className="text-sm font-bold text-[#B0B0B0] mb-2">Pickup Times:</p>
                   <div className="space-y-2">
                     {sellers.map(seller => (
                       <div key={seller} className="text-sm">
-                        <p className="font-semibold text-white">{seller}</p>
-                        <p className={`text-xs ${pickupTimesBySeller[seller] ? 'text-green-600' : 'text-red-600'}`}>
+                        <p className="font-semibold text-[#E0E0E0]">{seller}</p>
+                        <p className={`text-xs ${pickupTimesBySeller[seller] ? 'text-[#88FF88]' : 'text-[#FF8888]'}`}>
                           {pickupTimesBySeller[seller] || 'Not selected'}
                         </p>
                       </div>
@@ -292,7 +302,7 @@ const Checkout = ({
                 </div>
               )}
 
-              <div className="flex justify-between text-xl font-bold text-white mb-6">
+              <div className="flex justify-between text-xl font-bold text-[#E0E0E0] mb-6">
                 <span>Total</span>
                 <span className="text-[#CC0000]">${total.toFixed(2)}</span>
               </div>
@@ -303,7 +313,7 @@ const Checkout = ({
                 className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg transition-all transform ${
                   allTimesSelected
                     ? 'bg-[#CC0000] hover:shadow-xl hover:scale-102 active:scale-98'
-                    : 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-[#666666] cursor-not-allowed'
                 }`}
               >
                 {allTimesSelected ? (
@@ -316,8 +326,8 @@ const Checkout = ({
                 )}
               </button>
 
-              <div className="mt-6 p-4 bg-[#F5F5F5] rounded-xl">
-                <p className="text-xs text-gray-400 text-center">
+              <div className="mt-6 p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
+                <p className="text-xs text-[#A0A0A0] text-center">
                   🎓 Student-to-Student · Campus pickup only
                 </p>
               </div>

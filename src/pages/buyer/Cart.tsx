@@ -79,19 +79,27 @@ const Cart = ({
                 >
                   <div className="flex gap-4">
                     {/* Item Image */}
-                    <div className="shrink-0 w-24 h-24 rounded-xl flex items-center justify-center bg-[#FAFAFA]">
-                      <span className="text-5xl">{item.image}</span>
+                    <div className="shrink-0 w-24 h-24 rounded-xl flex items-center justify-center bg-[#2A2A2A] border-2 border-[#3A3A3A] overflow-hidden">
+                      {item.image.startsWith('http') ? (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-5xl">{item.image}</span>
+                      )}
                     </div>
 
                     {/* Item Details */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-lg text-white mb-1">
+                      <h3 className="font-bold text-lg text-[#E0E0E0] mb-1">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-gray-400 mb-1">
+                      <p className="text-sm text-[#B0B0B0] mb-1">
                         by {item.seller.split(' ')[0]}
                       </p>
-                      <p className="text-sm text-gray-500 mb-3">
+                      <p className="text-sm text-[#888888] mb-3">
                         {item.location}
                       </p>
 
@@ -100,23 +108,23 @@ const Cart = ({
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-neutral-600 hover:border-[#CC0000] hover:bg-red-50 transition-colors"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-[#4A4A4A] hover:border-[#CC0000] hover:bg-[#2A0A0A] transition-colors disabled:opacity-50"
                             disabled={item.quantity <= 1}
                             title="Decrease quantity"
                           >
-                            <Minus size={16} className="text-gray-700" />
+                            <Minus size={16} className="text-[#E0E0E0]" />
                           </button>
-                          
-                          <span className="w-12 text-center font-bold text-white">
+
+                          <span className="w-12 text-center font-bold text-[#E0E0E0]">
                             {item.quantity}
                           </span>
-                          
+
                           <button
                             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                            className="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-neutral-600 hover:border-[#CC0000] hover:bg-red-50 transition-colors"
+                            className="w-8 h-8 rounded-lg flex items-center justify-center border-2 border-[#4A4A4A] hover:border-[#CC0000] hover:bg-[#2A0A0A] transition-colors"
                             title="Increase quantity"
                           >
-                            <Plus size={16} className="text-gray-700" />
+                            <Plus size={16} className="text-[#E0E0E0]" />
                           </button>
                         </div>
 
@@ -125,7 +133,7 @@ const Cart = ({
                           <p className="text-2xl font-bold text-[#CC0000]">
                             ${(item.price * item.quantity).toFixed(2)}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-[#888888]">
                             ${item.price} each
                           </p>
                         </div>
@@ -135,10 +143,10 @@ const Cart = ({
                     {/* Remove Button */}
                     <button
                       onClick={() => onRemoveItem(item.id)}
-                      className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors"
+                      className="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center hover:bg-[#2A0A0A] transition-colors"
                       title="Remove item"
                     >
-                      <Trash2 size={20} className="text-gray-400 hover:text-[#CC0000]" />
+                      <Trash2 size={20} className="text-[#888888] hover:text-[#CC0000]" />
                     </button>
                   </div>
                 </div>
@@ -148,19 +156,19 @@ const Cart = ({
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6 sticky top-24">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <h2 className="text-xl font-bold text-[#E0E0E0] mb-4 flex items-center gap-2">
                   <ShoppingBag size={20} />
                   Order Summary
                 </h2>
 
-                <div className="space-y-3 mb-6 pb-6 border-b-2 border-gray-200">
-                  <div className="flex justify-between text-gray-700">
+                <div className="space-y-3 mb-6 pb-6 border-b-2 border-[#3A3A3A]">
+                  <div className="flex justify-between text-[#B0B0B0]">
                     <span>Total ({cart.length} {cart.length === 1 ? 'item' : 'items'})</span>
-                    <span className="font-semibold">${total.toFixed(2)}</span>
+                    <span className="font-semibold text-[#E0E0E0]">${total.toFixed(2)}</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between text-xl font-bold text-white mb-6">
+                <div className="flex justify-between text-xl font-bold text-[#E0E0E0] mb-6">
                   <span>Total</span>
                   <span className="text-[#CC0000]">${total.toFixed(2)}</span>
                 </div>
@@ -174,13 +182,13 @@ const Cart = ({
 
                 <button
                   onClick={onContinueShopping}
-                  className="w-full py-3 text-[#CC0000] text-base font-semibold rounded-xl border-2 border-[#CC0000] hover:bg-red-50 transition-colors"
+                  className="w-full py-3 text-[#CC0000] text-base font-semibold rounded-xl border-2 border-[#CC0000] hover:bg-[#2A0A0A] transition-colors"
                 >
                   Continue Shopping
                 </button>
 
-                <div className="mt-6 p-4 bg-[#F5F5F5] rounded-xl">
-                  <p className="text-xs text-gray-400 text-center">
+                <div className="mt-6 p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
+                  <p className="text-xs text-[#A0A0A0] text-center">
                     🎓 Student-to-Student · Campus pickup only
                   </p>
                 </div>
