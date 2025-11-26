@@ -9,7 +9,11 @@ import {
   query,
   where,
   serverTimestamp,
+  orderBy,
+  limit,
+  startAfter,
   type Timestamp,
+  type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import {
@@ -84,6 +88,55 @@ export const getAllListings = async (onlyAvailable = false): Promise<FirebaseLis
     });
   } catch (error) {
     console.error('Error getting all listings:', error);
+    throw new Error('Failed to get listings');
+  }
+};
+
+export const getPaginatedListings = async (
+  pageSize: number = 20,
+  lastDoc?: QueryDocumentSnapshot | null,
+  onlyAvailable = true
+): Promise<{ listings: FirebaseListing[]; lastDoc: QueryDocumentSnapshot | null; hasMore: boolean }> => {
+  try {
+    const listingsRef = collection(db, COLLECTIONS.LISTINGS);
+
+    let q = query(
+      listingsRef,
+      ...(onlyAvailable ? [where('isAvailable', '==', true)] : []),
+      orderBy('createdAt', 'desc'),
+      limit(pageSize + 1) // Fetch one extra to check if there are more
+    );
+
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
+
+    const querySnapshot = await getDocs(q);
+    const listings: FirebaseListing[] = [];
+    const docs: QueryDocumentSnapshot[] = [];
+
+    querySnapshot.forEach((doc) => {
+      docs.push(doc as QueryDocumentSnapshot);
+      listings.push({
+        id: doc.id,
+        ...doc.data(),
+      } as FirebaseListing);
+    });
+
+    // Check if there are more results
+    const hasMore = listings.length > pageSize;
+
+    // Remove the extra document if we have more
+    if (hasMore) {
+      listings.pop();
+      docs.pop();
+    }
+
+    const newLastDoc = docs[docs.length - 1] || null;
+
+    return { listings, lastDoc: newLastDoc, hasMore };
+  } catch (error) {
+    console.error('Error getting paginated listings:', error);
     throw new Error('Failed to get listings');
   }
 };

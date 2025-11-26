@@ -1,11 +1,26 @@
-import { useQuery } from '@tanstack/react-query';
-import { getAllListings } from '../../services/listings/listingService';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { getAllListings, getPaginatedListings } from '../../services/listings/listingService';
 import type { FirebaseListing } from '../../types/firebase';
 import type { FoodItem, ListingWithFirebaseId } from '../../types';
 
+/**
+ * Converts a Firebase string ID to a numeric ID using a simple hash function
+ * This ensures we always get a valid number (never NaN)
+ */
+const firebaseIdToNumericId = (firebaseId: string): number => {
+  let hash = 0;
+  for (let i = 0; i < firebaseId.length; i++) {
+    const char = firebaseId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  // Return absolute value to ensure positive number
+  return Math.abs(hash);
+};
+
 const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem => {
   return {
-    id: parseInt(listing.id.substring(0, 8), 16),
+    id: firebaseIdToNumericId(listing.id),
     name: listing.name,
     seller: listing.sellerName,
     sellerId: listing.sellerId,
@@ -19,7 +34,7 @@ const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem =>
 
 const convertFirebaseListingToListingWithId = (listing: FirebaseListing): ListingWithFirebaseId => {
   return {
-    id: parseInt(listing.id.substring(0, 8), 16),
+    id: firebaseIdToNumericId(listing.id),
     name: listing.name,
     description: listing.description,
     price: listing.price,
@@ -54,5 +69,23 @@ export const useSellerListingsQuery = (sellerId: string | undefined) => {
       return listings.map(convertFirebaseListingToListingWithId);
     },
     enabled: !!sellerId,
+  });
+};
+
+export const useInfiniteListingsQuery = (pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: ['listings', 'infinite', pageSize],
+    queryFn: async ({ pageParam }: { pageParam: any }) => {
+      const result = await getPaginatedListings(pageSize, pageParam || null, true);
+      return {
+        listings: result.listings.map(convertFirebaseListingToFoodItem),
+        lastDoc: result.lastDoc,
+        hasMore: result.hasMore,
+      };
+    },
+    initialPageParam: null as any,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasMore ? lastPage.lastDoc : undefined;
+    },
   });
 };

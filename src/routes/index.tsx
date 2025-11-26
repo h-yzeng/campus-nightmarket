@@ -133,7 +133,9 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
       onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'seller') navigate('/seller/dashboard');
+        if (mode === 'seller') {
+          setTimeout(() => navigate('/seller/dashboard'), 300);
+        }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
@@ -166,7 +168,9 @@ const UserProfileWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'hand
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'seller') navigate('/seller/dashboard');
+        if (mode === 'seller') {
+          setTimeout(() => navigate('/seller/dashboard'), 300);
+        }
       }}
       onLogoClick={() => navigate('/browse')}
     />
@@ -225,7 +229,9 @@ const CartWrapper = (props: Pick<AppRoutesProps, 'updateCartQuantity' | 'removeF
       onOrdersClick={() => navigate('/orders')}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'seller') navigate('/seller/dashboard');
+        if (mode === 'seller') {
+          setTimeout(() => navigate('/seller/dashboard'), 300);
+        }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       userMode={userMode}
@@ -293,7 +299,9 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'seller') navigate('/seller/dashboard');
+        if (mode === 'seller') {
+          setTimeout(() => navigate('/seller/dashboard'), 300);
+        }
       }}
       onLogoClick={() => navigate('/browse')}
       loading={buyerOrdersLoading}
@@ -371,7 +379,9 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       userMode={userMode}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'buyer') navigate('/browse');
+        if (mode === 'buyer') {
+          setTimeout(() => navigate('/browse'), 300);
+        }
       }}
       onCreateListing={() => navigate('/seller/listings/create')}
       onViewListings={() => navigate('/seller/listings')}
@@ -410,7 +420,9 @@ const CreateListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'han
       }}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'buyer') navigate('/browse');
+        if (mode === 'buyer') {
+          setTimeout(() => navigate('/browse'), 300);
+        }
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
@@ -448,7 +460,9 @@ const EditListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handl
       }}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'buyer') navigate('/browse');
+        if (mode === 'buyer') {
+          setTimeout(() => navigate('/browse'), 300);
+        }
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
@@ -488,7 +502,9 @@ const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'ha
       onEditListing={(listingId) => navigate(`/seller/listings/${listingId}/edit`)}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'buyer') navigate('/browse');
+        if (mode === 'buyer') {
+          setTimeout(() => navigate('/browse'), 300);
+        }
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
@@ -526,7 +542,9 @@ const SellerOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'hand
       onUpdateOrderStatus={props.handleUpdateOrderStatus}
       onModeChange={(mode) => {
         setUserMode(mode);
-        if (mode === 'buyer') navigate('/browse');
+        if (mode === 'buyer') {
+          setTimeout(() => navigate('/browse'), 300);
+        }
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {

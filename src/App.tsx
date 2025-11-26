@@ -9,7 +9,6 @@ import { useDeleteListingMutation, useToggleListingAvailabilityMutation } from '
 import { AppRoutes } from './routes';
 import {
   useAuthStore,
-  useCartStore,
   useNotificationStore,
 } from './stores';
 
@@ -42,10 +41,9 @@ function App() {
   // Notifications
   const notifications = useNotifications(user?.uid);
 
-  // Sync only auth, cart, and notifications to stores (data now comes from React Query)
+  // Sync only auth and notifications to stores (data now comes from React Query, cart uses Zustand directly)
   const setUser = useAuthStore((state) => state.setUser);
   const setStoreProfileData = useAuthStore((state) => state.setProfileData);
-  const setCart = useCartStore((state) => state.setCart);
   const setNotifications = useNotificationStore((state) => state.setNotifications);
   const setNotificationHandlers = useNotificationStore((state) => state.setHandlers);
 
@@ -56,10 +54,6 @@ function App() {
   useEffect(() => {
     setStoreProfileData(profileData);
   }, [profileData, setStoreProfileData]);
-
-  useEffect(() => {
-    setCart(cart);
-  }, [cart, setCart]);
 
   useEffect(() => {
     setNotifications(notifications.notifications, notifications.unreadCount);

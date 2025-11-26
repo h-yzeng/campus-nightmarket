@@ -1,22 +1,26 @@
+import { lazy, Suspense } from 'react';
 import type { ProfileData, CartItem, Order, ListingWithFirebaseId, UserMode } from '../types';
 import type { PageType } from '../hooks/useNavigation';
 import { useSellerProfile } from '../hooks/useSellerProfile';
-import Home from '../pages/Home';
-import Signup from '../pages/Signup';
-import Login from '../pages/Login';
-import Browse from '../pages/buyer/Browse';
-import UserProfile from '../pages/UserProfile';
-import Cart from '../pages/buyer/Cart';
-import Checkout from '../pages/buyer/Checkout';
-import UserOrders from '../pages/buyer/UserOrders';
-import OrderDetails from '../pages/buyer/OrderDetails';
-import SellerDashboard from '../pages/seller/SellerDashboard';
-import CreateListing from '../pages/seller/CreateListing';
-import EditListing from '../pages/seller/EditListing';
-import SellerListings from '../pages/seller/SellerListings';
-import SellerOrders from '../pages/seller/SellerOrders';
-import ViewProfileWrapper from '../pages/buyer/ViewProfileWrapper';
 import type { FoodItem } from '../types';
+import LoadingSpinner from './LoadingSpinner';
+
+// Code splitting: Lazy load all page components
+const Home = lazy(() => import('../pages/Home'));
+const Signup = lazy(() => import('../pages/Signup'));
+const Login = lazy(() => import('../pages/Login'));
+const Browse = lazy(() => import('../pages/buyer/Browse'));
+const UserProfile = lazy(() => import('../pages/UserProfile'));
+const Cart = lazy(() => import('../pages/buyer/Cart'));
+const Checkout = lazy(() => import('../pages/buyer/Checkout'));
+const UserOrders = lazy(() => import('../pages/buyer/UserOrders'));
+const OrderDetails = lazy(() => import('../pages/buyer/OrderDetails'));
+const SellerDashboard = lazy(() => import('../pages/seller/SellerDashboard'));
+const CreateListing = lazy(() => import('../pages/seller/CreateListing'));
+const EditListing = lazy(() => import('../pages/seller/EditListing'));
+const SellerListings = lazy(() => import('../pages/seller/SellerListings'));
+const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
+const ViewProfileWrapper = lazy(() => import('../pages/buyer/ViewProfileWrapper'));
 
 interface AppRouterProps {
   currentPage: PageType;
@@ -139,7 +143,7 @@ export const AppRouter = ({
   const { sellerProfile } = useSellerProfile(currentOrder?.sellerId);
 
   return (
-    <>
+    <Suspense fallback={<LoadingSpinner fullScreen text="Loading..." />}>
       {currentPage === 'home' && <Home onGetStarted={handleGetStarted} onLogin={handleGoToLogin} />}
 
       {currentPage === 'login' && <Login onLogin={handleLogin} onGoToSignup={handleGoToSignup} />}
@@ -365,6 +369,6 @@ export const AppRouter = ({
           loading={sellerOrdersLoading}
         />
       )}
-    </>
+    </Suspense>
   );
 };

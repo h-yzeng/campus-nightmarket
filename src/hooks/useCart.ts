@@ -1,41 +1,27 @@
-import { useState } from 'react';
-import type { CartItem, FoodItem } from '../types';
+import { useCartStore } from '../stores/cartStore';
+import type { FoodItem } from '../types';
 
 export const useCart = () => {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const cart = useCartStore((state) => state.cart);
+  const addToCartStore = useCartStore((state) => state.addToCart);
+  const updateCartQuantityStore = useCartStore((state) => state.updateCartQuantity);
+  const removeFromCartStore = useCartStore((state) => state.removeFromCart);
+  const clearCartStore = useCartStore((state) => state.clearCart);
 
   const addToCart = (item: FoodItem) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
-
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-      }
-
-      return [...prevCart, { ...item, quantity: 1 }];
-    });
+    addToCartStore(item);
   };
 
   const updateCartQuantity = (itemId: number, newQuantity: number) => {
-    setCart(prevCart =>
-      prevCart.map(item =>
-        item.id === itemId
-          ? { ...item, quantity: newQuantity }
-          : item
-      )
-    );
+    updateCartQuantityStore(itemId, newQuantity);
   };
 
   const removeFromCart = (itemId: number) => {
-    setCart(prevCart => prevCart.filter(item => item.id !== itemId));
+    removeFromCartStore(itemId);
   };
 
   const clearCart = () => {
-    setCart([]);
+    clearCartStore();
   };
 
   return {
