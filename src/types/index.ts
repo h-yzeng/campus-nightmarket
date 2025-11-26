@@ -122,3 +122,6 @@ export type PageType =
   | 'editListing'
   | 'sellerListings'
   | 'sellerOrders';
+
+// Re-export Firebase types
+export type { CreateOrder, CreateListing, UpdateOrder, UpdateListing } from './firebase';

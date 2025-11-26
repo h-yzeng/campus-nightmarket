@@ -1,12 +1,12 @@
 import { Package, DollarSign, Clock, Plus, List, ShoppingBag, TrendingUp, AlertCircle } from 'lucide-react';
-import type { ProfileData, CartItem, Order, Listing } from '../../types';
+import type { ProfileData, CartItem, Order, ListingWithFirebaseId } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 interface SellerDashboardProps {
   profileData: ProfileData;
   cart: CartItem[];
-  listings: Listing[];
+  listings: ListingWithFirebaseId[];
   incomingOrders: Order[];
   userMode: 'buyer' | 'seller';
   onModeChange: (mode: 'buyer' | 'seller') => void;

@@ -4,7 +4,8 @@ import {
   updateOrderStatus,
   cancelOrder as cancelOrderService,
 } from '../../services/orders/orderService';
-import type { CreateOrder, OrderStatus } from '../../types';
+import type { CreateOrder } from '../../types/firebase';
+import type { OrderStatus } from '../../types';
 
 export const useCreateOrderMutation = () => {
   const queryClient = useQueryClient();

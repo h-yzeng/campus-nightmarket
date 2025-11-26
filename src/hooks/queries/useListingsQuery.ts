@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getAllListings } from '../../services/listings/listingService';
 import type { FirebaseListing } from '../../types/firebase';
-import type { FoodItem } from '../../types';
+import type { FoodItem, ListingWithFirebaseId } from '../../types';
 
 const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem => {
   return {
@@ -14,6 +14,23 @@ const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem =>
     location: listing.location,
     rating: 'N/A',
     description: listing.description,
+  };
+};
+
+const convertFirebaseListingToListingWithId = (listing: FirebaseListing): ListingWithFirebaseId => {
+  return {
+    id: parseInt(listing.id.substring(0, 8), 16),
+    name: listing.name,
+    description: listing.description,
+    price: listing.price,
+    image: listing.imageURL,
+    location: listing.location,
+    sellerId: listing.sellerId,
+    sellerName: listing.sellerName,
+    isAvailable: listing.isAvailable,
+    category: listing.category,
+    datePosted: listing.createdAt.toDate().toISOString(),
+    firebaseId: listing.id,
   };
 };
 
@@ -34,7 +51,7 @@ export const useSellerListingsQuery = (sellerId: string | undefined) => {
       if (!sellerId) return [];
       const { getListingsBySeller } = await import('../../services/listings/listingService');
       const listings = await getListingsBySeller(sellerId);
-      return listings.map(convertFirebaseListingToFoodItem);
+      return listings.map(convertFirebaseListingToListingWithId);
     },
     enabled: !!sellerId,
   });

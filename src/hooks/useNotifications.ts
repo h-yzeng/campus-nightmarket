@@ -16,6 +16,14 @@ export interface Notification {
   read: boolean;
 }
 
+interface FCMPayload {
+  notification?: {
+    title?: string;
+    body?: string;
+  };
+  data?: Record<string, string>;
+}
+
 export const useNotifications = (userId: string | undefined) => {
   const queryClient = useQueryClient();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -51,12 +59,15 @@ export const useNotifications = (userId: string | undefined) => {
     const unsubscribe = onForegroundMessage((payload) => {
       console.log('Received foreground notification:', payload);
 
+      // Cast payload to FCMPayload type
+      const fcmPayload = payload as FCMPayload;
+
       // Add notification to list
       const newNotification: Notification = {
         id: Date.now().toString(),
-        title: payload.notification?.title || 'Notification',
-        body: payload.notification?.body || '',
-        data: payload.data,
+        title: fcmPayload.notification?.title || 'Notification',
+        body: fcmPayload.notification?.body || '',
+        data: fcmPayload.data,
         timestamp: new Date(),
         read: false,
       };
@@ -73,7 +84,7 @@ export const useNotifications = (userId: string | undefined) => {
       }
 
       // Invalidate relevant queries based on notification type
-      if (payload.data?.type === 'order_update' || payload.data?.type === 'new_order') {
+      if (fcmPayload.data?.type === 'order_update' || fcmPayload.data?.type === 'new_order') {
         queryClient.invalidateQueries({ queryKey: ['orders'] });
       }
     });
