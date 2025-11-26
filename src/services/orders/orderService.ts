@@ -7,6 +7,7 @@ import {
   updateDoc,
   query,
   where,
+  orderBy,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -58,12 +59,10 @@ export const getOrder = async (orderId: string): Promise<FirebaseOrder | null> =
 export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> => {
   try {
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
-    // Temporarily removed orderBy to avoid index requirement
-    // TODO: Re-enable after creating Firestore index for (buyerId, createdAt)
     const q = query(
       ordersRef,
-      where('buyerId', '==', buyerId)
-      // orderBy('createdAt', 'desc') // Commented out until index is created
+      where('buyerId', '==', buyerId),
+      orderBy('createdAt', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
@@ -74,13 +73,6 @@ export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> 
         id: doc.id,
         ...doc.data(),
       } as FirebaseOrder);
-    });
-
-    // Sort in memory instead
-    orders.sort((a, b) => {
-      const aTime = a.createdAt?.toMillis?.() || 0;
-      const bTime = b.createdAt?.toMillis?.() || 0;
-      return bTime - aTime;
     });
 
     return orders;
@@ -94,12 +86,10 @@ export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]
   try {
     console.log('[getSellerOrders] ===== Querying orders for sellerId:', sellerId, '=====');
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
-    // Temporarily removed orderBy to avoid index requirement
-    // TODO: Re-enable after creating Firestore index for (sellerId, createdAt)
     const q = query(
       ordersRef,
-      where('sellerId', '==', sellerId)
-      // orderBy('createdAt', 'desc') // Commented out until index is created
+      where('sellerId', '==', sellerId),
+      orderBy('createdAt', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
@@ -113,13 +103,6 @@ export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]
         id: doc.id,
         ...orderData,
       } as FirebaseOrder);
-    });
-
-    // Sort in memory instead
-    orders.sort((a, b) => {
-      const aTime = a.createdAt?.toMillis?.() || 0;
-      const bTime = b.createdAt?.toMillis?.() || 0;
-      return bTime - aTime;
     });
 
     console.log('[getSellerOrders] Returning', orders.length, 'sorted orders');
@@ -136,13 +119,11 @@ export const getBuyerOrdersByStatus = async (
 ): Promise<FirebaseOrder[]> => {
   try {
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
-    // Temporarily removed orderBy to avoid index requirement
-    // TODO: Re-enable after creating Firestore index for (buyerId, status, createdAt)
     const q = query(
       ordersRef,
       where('buyerId', '==', buyerId),
-      where('status', '==', status)
-      // orderBy('createdAt', 'desc') // Commented out until index is created
+      where('status', '==', status),
+      orderBy('createdAt', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
@@ -153,13 +134,6 @@ export const getBuyerOrdersByStatus = async (
         id: doc.id,
         ...doc.data(),
       } as FirebaseOrder);
-    });
-
-    // Sort in memory instead
-    orders.sort((a, b) => {
-      const aTime = a.createdAt?.toMillis?.() || 0;
-      const bTime = b.createdAt?.toMillis?.() || 0;
-      return bTime - aTime;
     });
 
     return orders;
@@ -175,13 +149,11 @@ export const getSellerOrdersByStatus = async (
 ): Promise<FirebaseOrder[]> => {
   try {
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
-    // Temporarily removed orderBy to avoid index requirement
-    // TODO: Re-enable after creating Firestore index for (sellerId, status, createdAt)
     const q = query(
       ordersRef,
       where('sellerId', '==', sellerId),
-      where('status', '==', status)
-      // orderBy('createdAt', 'desc') // Commented out until index is created
+      where('status', '==', status),
+      orderBy('createdAt', 'desc')
     );
 
     const querySnapshot = await getDocs(q);
@@ -192,13 +164,6 @@ export const getSellerOrdersByStatus = async (
         id: doc.id,
         ...doc.data(),
       } as FirebaseOrder);
-    });
-
-    // Sort in memory instead
-    orders.sort((a, b) => {
-      const aTime = a.createdAt?.toMillis?.() || 0;
-      const bTime = b.createdAt?.toMillis?.() || 0;
-      return bTime - aTime;
     });
 
     return orders;

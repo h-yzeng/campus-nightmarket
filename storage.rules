@@ -1,0 +1,63 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules for Campus Night-Market
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isUnder5MB() {
+      return request.resource.size < 5 * 1024 * 1024; // 5 MB limit
+    }
+
+    // Listing images (food photos)
+    match /listings/{userId}/{imageName} {
+      // Anyone can read listing images (public)
+      allow read: if true;
+
+      // Only authenticated users can upload images to their own folder
+      allow create: if isAuthenticated()
+        && request.auth.uid == userId
+        && isImage()
+        && isUnder5MB();
+
+      // Only the owner can update their images
+      allow update: if isAuthenticated()
+        && request.auth.uid == userId
+        && isImage()
+        && isUnder5MB();
+
+      // Only the owner can delete their images
+      allow delete: if isAuthenticated()
+        && request.auth.uid == userId;
+    }
+
+    // Profile images (user avatars)
+    match /profiles/{userId}/{imageName} {
+      // Anyone can read profile images (public)
+      allow read: if true;
+
+      // Only the user can upload/update their profile image
+      allow create, update: if isAuthenticated()
+        && request.auth.uid == userId
+        && isImage()
+        && isUnder5MB();
+
+      // Only the user can delete their profile image
+      allow delete: if isAuthenticated()
+        && request.auth.uid == userId;
+    }
+
+    // Deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

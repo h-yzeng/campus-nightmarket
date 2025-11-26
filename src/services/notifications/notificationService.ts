@@ -35,8 +35,14 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
     }
 
     // Get FCM token
+    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+    if (!vapidKey) {
+      console.error('VAPID key not configured. Add VITE_FIREBASE_VAPID_KEY to your .env.local file');
+      return null;
+    }
+
     const token = await getToken(messaging, {
-      vapidKey: 'BGVKgt-0hH0b88RFe1lTM2TiNU2iGCqUBJghK454YRNO-c_DViWBsd7Yc2UNFDfHWZzPBzXzBfnPP7PTQrs8iVo', // TODO: Generate this in Firebase Console
+      vapidKey,
     });
 
     console.log('FCM Token:', token);

@@ -4,6 +4,13 @@ import * as admin from 'firebase-admin';
 
 admin.initializeApp();
 
+// Type for order items
+interface OrderItem {
+  quantity: number;
+  name: string;
+  price: number;
+}
+
 /**
  * Send notification to buyer when order status changes
  */
@@ -110,7 +117,7 @@ export const sendNewOrderNotification = onDocumentCreated('orders/{orderId}', as
     }
 
     // Calculate total items
-    const totalItems = order.items?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
+    const totalItems = order.items?.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) || 0;
 
     // Send notification
     await admin.messaging().send({
@@ -200,7 +207,7 @@ export const sendOrderCancelledNotification = onDocumentUpdated('orders/{orderId
  * Clean up expired FCM tokens
  * Runs daily to remove tokens older than 60 days
  */
-export const cleanupExpiredTokens = onSchedule('every 24 hours', async (event) => {
+export const cleanupExpiredTokens = onSchedule('every 24 hours', async (_event) => {
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 

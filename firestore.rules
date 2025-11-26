@@ -1,0 +1,150 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isIITEmail(email) {
+      return email.matches('.*@hawk\\.illinoistech\\.edu$');
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // ====================
+    // USERS COLLECTION
+    // ====================
+    match /users/{userId} {
+      // Anyone authenticated can read user profiles (for viewing seller info)
+      allow read: if isAuthenticated();
+
+      // Users can create their own profile
+      allow create: if isOwner(userId)
+        && isIITEmail(request.resource.data.email)
+        && request.resource.data.uid == userId;
+
+      // Users can only update their own profile
+      allow update: if isOwner(userId)
+        // Prevent changing uid and email
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email;
+
+      // Users can delete their own profile
+      allow delete: if isOwner(userId);
+    }
+
+    // ====================
+    // LISTINGS COLLECTION
+    // ====================
+    match /listings/{listingId} {
+      // Anyone authenticated can read listings
+      allow read: if isAuthenticated();
+
+      // Only authenticated sellers can create listings
+      allow create: if isAuthenticated()
+        && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.sellerName.size() > 0
+        && request.resource.data.name.size() > 0
+        && request.resource.data.price > 0
+        && request.resource.data.location.size() > 0;
+
+      // Only listing owner (seller) can update their listing
+      allow update: if isAuthenticated()
+        && resource.data.sellerId == request.auth.uid
+        // Prevent changing the seller
+        && request.resource.data.sellerId == resource.data.sellerId;
+
+      // Only listing owner can delete their listing
+      allow delete: if isAuthenticated()
+        && resource.data.sellerId == request.auth.uid;
+    }
+
+    // ====================
+    // ORDERS COLLECTION
+    // ====================
+    match /orders/{orderId} {
+      // Only buyer or seller involved in the order can read it
+      allow read: if isAuthenticated()
+        && (resource.data.buyerId == request.auth.uid
+            || resource.data.sellerId == request.auth.uid);
+
+      // Only authenticated buyers can create orders
+      allow create: if isAuthenticated()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.buyerName.size() > 0
+        && request.resource.data.buyerEmail.size() > 0
+        && request.resource.data.sellerId.size() > 0
+        && request.resource.data.items.size() > 0
+        && request.resource.data.total > 0
+        && request.resource.data.status == 'pending'
+        && request.resource.data.paymentMethod in ['cashApp', 'venmo', 'zelle'];
+
+      // Buyer can update their order (cancel it)
+      // Seller can update order status
+      allow update: if isAuthenticated()
+        && (
+          // Buyer can only cancel their own orders
+          (resource.data.buyerId == request.auth.uid
+            && request.resource.data.status == 'cancelled')
+          ||
+          // Seller can update order status
+          (resource.data.sellerId == request.auth.uid
+            && request.resource.data.status in ['pending', 'confirmed', 'ready', 'completed', 'cancelled']
+            // Prevent seller from changing order details
+            && request.resource.data.buyerId == resource.data.buyerId
+            && request.resource.data.sellerId == resource.data.sellerId
+            && request.resource.data.total == resource.data.total)
+        );
+
+      // Orders should not be deleted, only cancelled
+      allow delete: if false;
+    }
+
+    // ====================
+    // REVIEWS COLLECTION
+    // ====================
+    match /reviews/{reviewId} {
+      // Anyone authenticated can read reviews
+      allow read: if isAuthenticated();
+
+      // Only buyers can create reviews for their completed orders
+      allow create: if isAuthenticated()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        // Verify the order exists and is completed
+        && exists(/databases/$(database)/documents/orders/$(request.resource.data.orderId))
+        && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'completed'
+        && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.buyerId == request.auth.uid;
+
+      // Review author can update their own review
+      allow update: if isAuthenticated()
+        && resource.data.buyerId == request.auth.uid
+        // Prevent changing critical fields
+        && request.resource.data.buyerId == resource.data.buyerId
+        && request.resource.data.sellerId == resource.data.sellerId
+        && request.resource.data.orderId == resource.data.orderId;
+
+      // Review author can delete their own review
+      allow delete: if isAuthenticated()
+        && resource.data.buyerId == request.auth.uid;
+    }
+
+    // ====================
+    // DENY ALL OTHER COLLECTIONS
+    // ====================
+    // Explicitly deny access to any other collections not defined above
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
