@@ -39,21 +39,29 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
+      try {
+        setUser(firebaseUser);
 
-      if (firebaseUser) {
-        try {
-          const userProfile = await getUserProfile(firebaseUser.uid);
-          setProfile(userProfile);
-        } catch (err) {
-          console.error('Error loading user profile:', err);
-          setError('Failed to load user profile');
+        if (firebaseUser) {
+          try {
+            const userProfile = await getUserProfile(firebaseUser.uid);
+            setProfile(userProfile);
+          } catch (err) {
+            console.error('Error loading user profile:', err);
+            setError('Failed to load user profile');
+            setProfile(null);
+          }
+        } else {
+          setProfile(null);
         }
-      } else {
+      } catch (err) {
+        console.error('Error in auth state change handler:', err);
+        setError('Authentication error occurred');
+        setUser(null);
         setProfile(null);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
     return () => unsubscribe();

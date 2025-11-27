@@ -29,8 +29,6 @@ export const getInitialUser = (): { profile: ProfileData; page: PageType } => {
   return {
     profile: {
       email: '',
-      password: '', 
-      confirmPassword: '',
       firstName: '',
       lastName: '',
       studentId: '',

@@ -16,8 +16,6 @@ interface AuthState {
 
 const initialProfileData: ProfileData = {
   email: '',
-  password: '',
-  confirmPassword: '',
   firstName: '',
   lastName: '',
   studentId: '',

@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/userAuth';
 interface SignupProps {
   profileData: ProfileData;
   setProfileData: (data: ProfileData) => void;
-  onCreateProfile: () => Promise<void>;
+  onCreateProfile: (password: string) => Promise<void>;
   onGoToLogin?: () => void;
 }
 
@@ -21,6 +21,10 @@ const Signup = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Password state managed locally (not in store)
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [securityQuestion1, setSecurityQuestion1] = useState('');
   const [securityAnswer1, setSecurityAnswer1] = useState('');
@@ -47,7 +51,7 @@ const Signup = ({
   };
   
   const passwordsMatch = (): boolean => {
-    return profileData.password === profileData.confirmPassword && profileData.password.length > 0;
+    return password === confirmPassword && password.length > 0;
   };
   
   const getNameBorderColor = (value: string): string => {
@@ -75,7 +79,7 @@ const Signup = ({
   };
   
   const getConfirmPasswordBorderColor = (): string => {
-    if (!profileData.confirmPassword) return 'border-[#D0D0D0] focus:ring-gray-200';
+    if (!confirmPassword) return 'border-[#D0D0D0] focus:ring-gray-200';
     if (passwordsMatch()) return 'border-[#000000] focus:ring-gray-200';
     return 'border-[#CC0000] focus:ring-red-200';
   };
@@ -83,9 +87,9 @@ const Signup = ({
   const isFormValid =
     profileData.email &&
     isValidEmail(profileData.email) &&
-    profileData.password &&
-    isValidPassword(profileData.password) &&
-    profileData.confirmPassword &&
+    password &&
+    isValidPassword(password) &&
+    confirmPassword &&
     passwordsMatch() &&
     profileData.firstName &&
     isValidName(profileData.firstName) &&
@@ -160,7 +164,7 @@ const Signup = ({
     }
 
     try {
-      await onCreateProfile();
+      await onCreateProfile(password);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       if (user?.uid) {
@@ -307,13 +311,13 @@ const Signup = ({
                   <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
                   <input
                     type="password"
-                    value={profileData.password}
-                    onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
-                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getPasswordBorderColor(profileData.password)}`}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getPasswordBorderColor(password)}`}
                     placeholder="••••••••"
                   />
                 </div>
-                {profileData.password && !isValidPassword(profileData.password) && (
+                {password && !isValidPassword(password) && (
                   <p className="text-xs text-[#CC0000] mt-1">8+ chars, uppercase, lowercase, number</p>
                 )}
               </div>
@@ -326,13 +330,13 @@ const Signup = ({
                   <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
                   <input
                     type="password"
-                    value={profileData.confirmPassword}
-                    onChange={(e) => setProfileData({ ...profileData, confirmPassword: e.target.value })}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getConfirmPasswordBorderColor()}`}
                     placeholder="••••••••"
                   />
                 </div>
-                {profileData.confirmPassword && !passwordsMatch() && (
+                {confirmPassword && !passwordsMatch() && (
                   <p className="text-xs text-[#CC0000] mt-1">Passwords do not match</p>
                 )}
               </div>

@@ -19,8 +19,8 @@ service firebase.storage {
 
     // Listing images (food photos)
     match /listings/{userId}/{imageName} {
-      // Anyone can read listing images (public)
-      allow read: if true;
+      // Only authenticated users can read listing images
+      allow read: if isAuthenticated();
 
       // Only authenticated users can upload images to their own folder
       allow create: if isAuthenticated()
@@ -41,8 +41,8 @@ service firebase.storage {
 
     // Profile images (user avatars)
     match /profiles/{userId}/{imageName} {
-      // Anyone can read profile images (public)
-      allow read: if true;
+      // Only authenticated users can read profile images
+      allow read: if isAuthenticated();
 
       // Only the user can upload/update their profile image
       allow create, update: if isAuthenticated()

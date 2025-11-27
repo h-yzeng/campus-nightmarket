@@ -1,4 +1,5 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import { getAllListings, getPaginatedListings } from '../../services/listings/listingService';
 import type { FirebaseListing } from '../../types/firebase';
 import type { FoodItem, ListingWithFirebaseId } from '../../types';
@@ -75,7 +76,7 @@ export const useSellerListingsQuery = (sellerId: string | undefined) => {
 export const useInfiniteListingsQuery = (pageSize: number = 20) => {
   return useInfiniteQuery({
     queryKey: ['listings', 'infinite', pageSize],
-    queryFn: async ({ pageParam }: { pageParam: any }) => {
+    queryFn: async ({ pageParam }: { pageParam: QueryDocumentSnapshot | null }) => {
       const result = await getPaginatedListings(pageSize, pageParam || null, true);
       return {
         listings: result.listings.map(convertFirebaseListingToFoodItem),
@@ -83,7 +84,7 @@ export const useInfiniteListingsQuery = (pageSize: number = 20) => {
         hasMore: result.hasMore,
       };
     },
-    initialPageParam: null as any,
+    initialPageParam: null as QueryDocumentSnapshot | null,
     getNextPageParam: (lastPage) => {
       return lastPage.hasMore ? lastPage.lastDoc : undefined;
     },

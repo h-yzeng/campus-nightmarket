@@ -38,7 +38,7 @@ interface AppRoutesProps {
   removeFromCart: (itemId: number) => void;
 
   // Auth handlers
-  handleCreateProfile: () => Promise<void>;
+  handleCreateProfile: (password: string) => Promise<void>;
   handleLogin: (email: string, password: string) => Promise<boolean>;
   handleSaveProfile: () => Promise<void>;
   handleSignOut: () => void;
@@ -86,8 +86,8 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCre
   const navigate = useNavigate();
   const profileData = useAuthStore((state) => state.profileData);
 
-  const handleSignupWithNavigation = async () => {
-    await props.handleCreateProfile();
+  const handleSignupWithNavigation = async (password: string) => {
+    await props.handleCreateProfile(password);
     navigate('/browse');
   };
 

@@ -10,8 +10,6 @@ const convertFirebaseProfileToApp = (
   if (!firebaseProfile) {
     return {
       email: '',
-      password: '',
-      confirmPassword: '',
       firstName: '',
       lastName: '',
       studentId: '',
@@ -23,8 +21,6 @@ const convertFirebaseProfileToApp = (
 
   return {
     email: firebaseProfile.email,
-    password: '',
-    confirmPassword: '',
     firstName: firebaseProfile.firstName,
     lastName: firebaseProfile.lastName,
     studentId: firebaseProfile.studentId,
@@ -71,11 +67,11 @@ export const useAuth = () => {
     }
   }, [firebaseProfile, loading, currentPage]);
 
-  const handleCreateProfile = async () => {
+  const handleCreateProfile = async (password: string) => {
     try {
       const signupData: SignupData = {
         email: profileData.email,
-        password: profileData.password,
+        password: password,
         firstName: profileData.firstName,
         lastName: profileData.lastName,
         studentId: profileData.studentId,

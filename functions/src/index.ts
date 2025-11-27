@@ -5,6 +5,10 @@ import * as admin from 'firebase-admin';
 
 admin.initializeApp();
 
+// App URL for notifications - configure via Firebase Functions config:
+// firebase functions:config:set app.url="https://your-domain.com"
+const APP_URL = process.env.APP_URL || 'https://campus-night-market.web.app';
+
 // Type for order items
 interface OrderItem {
   quantity: number;
@@ -29,15 +33,12 @@ export const sendOrderStatusNotification = onDocumentUpdated('orders/{orderId}',
     return null;
   }
 
-  console.log(`Order ${orderId} status changed from ${before.status} to ${after.status}`);
-
   // Get buyer's FCM token
   try {
     const buyerDoc = await admin.firestore().doc(`users/${after.buyerId}`).get();
     const buyerData = buyerDoc.data();
 
     if (!buyerData?.fcmToken) {
-      console.log(`No FCM token found for buyer ${after.buyerId}`);
       return null;
     }
 
@@ -81,12 +82,11 @@ export const sendOrderStatusNotification = onDocumentUpdated('orders/{orderId}',
       },
       webpush: {
         fcmOptions: {
-          link: `https://your-app-url.com/orders/${orderId}`,
+          link: `${APP_URL}/orders/${orderId}`,
         },
       },
     });
 
-    console.log(`Notification sent to buyer ${after.buyerId} for order ${orderId}`);
     return null;
   } catch (error) {
     console.error('Error sending order status notification:', error);
@@ -105,15 +105,12 @@ export const sendNewOrderNotification = onDocumentCreated('orders/{orderId}', as
     return null;
   }
 
-  console.log(`New order ${orderId} created for seller ${order.sellerId}`);
-
   try {
     // Get seller's FCM token
     const sellerDoc = await admin.firestore().doc(`users/${order.sellerId}`).get();
     const sellerData = sellerDoc.data();
 
     if (!sellerData?.fcmToken) {
-      console.log(`No FCM token found for seller ${order.sellerId}`);
       return null;
     }
 
@@ -135,12 +132,11 @@ export const sendNewOrderNotification = onDocumentCreated('orders/{orderId}', as
       },
       webpush: {
         fcmOptions: {
-          link: `https://your-app-url.com/seller/orders`,
+          link: `${APP_URL}/seller/orders`,
         },
       },
     });
 
-    console.log(`New order notification sent to seller ${order.sellerId}`);
     return null;
   } catch (error) {
     console.error('Error sending new order notification:', error);
@@ -165,15 +161,12 @@ export const sendOrderCancelledNotification = onDocumentUpdated('orders/{orderId
     return null;
   }
 
-  console.log(`Order ${orderId} was cancelled`);
-
   try {
     // Get seller's FCM token
     const sellerDoc = await admin.firestore().doc(`users/${after.sellerId}`).get();
     const sellerData = sellerDoc.data();
 
     if (!sellerData?.fcmToken) {
-      console.log(`No FCM token found for seller ${after.sellerId}`);
       return null;
     }
 
@@ -191,12 +184,11 @@ export const sendOrderCancelledNotification = onDocumentUpdated('orders/{orderId
       },
       webpush: {
         fcmOptions: {
-          link: `https://your-app-url.com/seller/orders`,
+          link: `${APP_URL}/seller/orders`,
         },
       },
     });
 
-    console.log(`Cancellation notification sent to seller ${after.sellerId}`);
     return null;
   } catch (error) {
     console.error('Error sending cancellation notification:', error);
@@ -208,11 +200,9 @@ export const sendOrderCancelledNotification = onDocumentUpdated('orders/{orderId
  * Clean up expired FCM tokens
  * Runs daily to remove tokens older than 60 days
  */
-export const cleanupExpiredTokens = onSchedule('every 24 hours', async (_event) => {
+export const cleanupExpiredTokens = onSchedule('every 24 hours', async () => {
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-
-  console.log('Starting FCM token cleanup...');
 
   try {
     const usersSnapshot = await admin.firestore()
@@ -233,9 +223,6 @@ export const cleanupExpiredTokens = onSchedule('every 24 hours', async (_event) 
 
     if (count > 0) {
       await batch.commit();
-      console.log(`Cleaned up ${count} expired FCM tokens`);
-    } else {
-      console.log('No expired tokens to clean up');
     }
   } catch (error) {
     console.error('Error cleaning up expired tokens:', error);
@@ -254,14 +241,17 @@ export const resetPasswordWithVerification = onCall(async (request) => {
     throw new Error('Missing required fields: email, newPassword, and userId');
   }
 
+  // Validate email domain
+  if (!email.endsWith('@hawk.illinoistech.edu')) {
+    throw new Error('Email must be a valid @hawk.illinoistech.edu address');
+  }
+
   // Validate password strength
   if (newPassword.length < 8) {
     throw new Error('Password must be at least 8 characters long');
   }
 
   try {
-    console.log(`Resetting password for user ${userId} (${email})`);
-
     // Get user by email to verify it exists
     const userRecord = await admin.auth().getUserByEmail(email);
 
@@ -274,8 +264,6 @@ export const resetPasswordWithVerification = onCall(async (request) => {
     await admin.auth().updateUser(userId, {
       password: newPassword,
     });
-
-    console.log(`Password successfully reset for user ${userId}`);
 
     return {
       success: true,

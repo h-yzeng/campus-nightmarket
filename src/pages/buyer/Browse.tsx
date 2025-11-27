@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Search, MapPin, Loader2, AlertCircle, Star } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
@@ -48,12 +49,14 @@ const Browse = ({
   loading = false,
   error = null
 }: BrowseProps) => {
-  const filteredItems = foodItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.seller.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = selectedLocation === 'All Dorms' || item.location === selectedLocation;
-    return matchesSearch && matchesLocation;
-  });
+  const filteredItems = useMemo(() => {
+    return foodItems.filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.seller.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesLocation = selectedLocation === 'All Dorms' || item.location === selectedLocation;
+      return matchesSearch && matchesLocation;
+    });
+  }, [foodItems, searchQuery, selectedLocation]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0A0A0B]">

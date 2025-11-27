@@ -9,6 +9,8 @@ import { useDeleteListingMutation, useToggleListingAvailabilityMutation } from '
 import { createReview } from './services/reviews/reviewService';
 import { updateOrder } from './services/orders/orderService';
 import { AppRoutes } from './routes';
+import ErrorBoundary from './components/ErrorBoundary';
+import type { Order, CartItem } from './types';
 import {
   useAuthStore,
   useNotificationStore,
@@ -104,7 +106,7 @@ function App() {
 
     try {
       // Get the order from React Query cache
-      const ordersData = queryClient.getQueryData<any[]>(['orders', 'buyer', user.uid]);
+      const ordersData = queryClient.getQueryData<Order[]>(['orders', 'buyer', user.uid]);
       const order = ordersData?.find(o => o.id === orderId);
 
       if (!order) {
@@ -120,8 +122,8 @@ function App() {
         sellerName: order.sellerName,
         rating,
         comment: comment || undefined,
-        itemNames: order.items.map((item: any) => item.name),
-        listingIds: order.items.map((item: any) => String(item.listingId || item.id)),
+        itemNames: order.items.map((item: CartItem) => item.name),
+        listingIds: order.items.map((item: CartItem) => String(item.id)),
       });
 
       // Mark the order as reviewed
@@ -137,28 +139,30 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <div className="app">
-        <AppRoutes
-          setProfileData={setProfileData}
-          handleCreateProfile={handleCreateProfile}
-          handleLogin={handleLogin}
-          handleSaveProfile={handleSaveProfile}
-          handleSignOut={wrappedHandleSignOut}
-          handlePlaceOrder={wrappedHandlePlaceOrder}
-          handleCancelOrder={wrappedHandleCancelOrder}
-          handleCreateListing={wrappedHandleCreateListing}
-          handleToggleAvailability={wrappedHandleToggleAvailability}
-          handleDeleteListing={wrappedHandleDeleteListing}
-          handleUpdateListing={wrappedHandleUpdateListing}
-          handleUpdateOrderStatus={handleUpdateOrderStatus}
-          handleSubmitReview={wrappedHandleSubmitReview}
-          addToCart={addToCart}
-          updateCartQuantity={updateCartQuantity}
-          removeFromCart={removeFromCart}
-        />
-      </div>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <div className="app">
+          <AppRoutes
+            setProfileData={setProfileData}
+            handleCreateProfile={handleCreateProfile}
+            handleLogin={handleLogin}
+            handleSaveProfile={handleSaveProfile}
+            handleSignOut={wrappedHandleSignOut}
+            handlePlaceOrder={wrappedHandlePlaceOrder}
+            handleCancelOrder={wrappedHandleCancelOrder}
+            handleCreateListing={wrappedHandleCreateListing}
+            handleToggleAvailability={wrappedHandleToggleAvailability}
+            handleDeleteListing={wrappedHandleDeleteListing}
+            handleUpdateListing={wrappedHandleUpdateListing}
+            handleUpdateOrderStatus={handleUpdateOrderStatus}
+            handleSubmitReview={wrappedHandleSubmitReview}
+            addToCart={addToCart}
+            updateCartQuantity={updateCartQuantity}
+            removeFromCart={removeFromCart}
+          />
+        </div>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

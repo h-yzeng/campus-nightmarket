@@ -47,6 +47,7 @@ export const ImageWithLoading = ({
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
         className={`${className} transition-opacity duration-300 ${

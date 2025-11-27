@@ -16,8 +16,6 @@ export interface CartItem extends FoodItem {
 
 export interface ProfileData {
   email: string;
-  password: string;
-  confirmPassword: string;
   firstName: string;
   lastName: string;
   studentId: string;

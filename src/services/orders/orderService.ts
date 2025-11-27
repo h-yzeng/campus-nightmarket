@@ -84,7 +84,6 @@ export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> 
 
 export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]> => {
   try {
-    console.log('[getSellerOrders] ===== Querying orders for sellerId:', sellerId, '=====');
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
     const q = query(
       ordersRef,
@@ -93,22 +92,19 @@ export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]
     );
 
     const querySnapshot = await getDocs(q);
-    console.log('[getSellerOrders] Query returned', querySnapshot.size, 'documents');
     const orders: FirebaseOrder[] = [];
 
     querySnapshot.forEach((doc) => {
       const orderData = doc.data();
-      console.log('[getSellerOrders] Order doc:', doc.id, 'sellerId:', orderData.sellerId, 'status:', orderData.status, 'buyerName:', orderData.buyerName);
       orders.push({
         id: doc.id,
         ...orderData,
       } as FirebaseOrder);
     });
 
-    console.log('[getSellerOrders] Returning', orders.length, 'sorted orders');
     return orders;
   } catch (error) {
-    console.error('[getSellerOrders] Error getting seller orders:', error);
+    console.error('Error getting seller orders:', error);
     throw new Error('Failed to get seller orders');
   }
 };

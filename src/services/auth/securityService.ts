@@ -16,16 +16,19 @@ export const SECURITY_QUESTIONS = [
   'What is your favorite movie?',
 ];
 
-const hashAnswer = (answer: string): string => {
+const hashAnswer = async (answer: string): Promise<string> => {
   const normalized = answer.toLowerCase().trim();
 
-  let hash = 0;
-  for (let i = 0; i < normalized.length; i++) {
-    const char = normalized.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return hash.toString();
+  // Use Web Crypto API for secure hashing
+  const encoder = new TextEncoder();
+  const data = encoder.encode(normalized);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+  // Convert to hex string
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  return hashHex;
 };
 
 export const saveSecurityQuestions = async (
@@ -33,10 +36,12 @@ export const saveSecurityQuestions = async (
   questions: Array<{ question: string; answer: string }>
 ): Promise<void> => {
   try {
-    const hashedQuestions: SecurityQuestion[] = questions.map(q => ({
-      question: q.question,
-      answer: hashAnswer(q.answer),
-    }));
+    const hashedQuestions: SecurityQuestion[] = await Promise.all(
+      questions.map(async (q) => ({
+        question: q.question,
+        answer: await hashAnswer(q.answer),
+      }))
+    );
 
     const userRef = doc(db, COLLECTIONS.USERS, userId);
     await updateDoc(userRef, {
@@ -61,16 +66,20 @@ export const verifySecurityAnswers = async (
       return { verified: false };
     }
 
-    const allCorrect = answers.every(providedAnswer => {
-      const storedQuestion = userProfile.securityQuestions?.find(
-        sq => sq.question === providedAnswer.question
-      );
+    const verificationResults = await Promise.all(
+      answers.map(async (providedAnswer) => {
+        const storedQuestion = userProfile.securityQuestions?.find(
+          sq => sq.question === providedAnswer.question
+        );
 
-      if (!storedQuestion) return false;
+        if (!storedQuestion) return false;
 
-      const hashedProvidedAnswer = hashAnswer(providedAnswer.answer);
-      return hashedProvidedAnswer === storedQuestion.answer;
-    });
+        const hashedProvidedAnswer = await hashAnswer(providedAnswer.answer);
+        return hashedProvidedAnswer === storedQuestion.answer;
+      })
+    );
+
+    const allCorrect = verificationResults.every(result => result === true);
 
     if (allCorrect) {
       return { verified: true, userId: userProfile.uid };
