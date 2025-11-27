@@ -50,10 +50,9 @@ export const ImageWithLoading = ({
         loading="lazy"
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
-        className={`${className} transition-opacity duration-300 ${
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
           loaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        } ${className}`}
       />
     </div>
   );
