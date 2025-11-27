@@ -3,13 +3,14 @@ importScripts('https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js');
 
 // Initialize Firebase in service worker
+// These values are injected at build time from environment variables
 firebase.initializeApp({
-  apiKey: "AIzaSyDbGGvsy0IvJMkJnvWGUQ39jtQp9Qaeys",
-  authDomain: "campus-night-market.firebaseapp.com",
-  projectId: "campus-night-market",
-  storageBucket: "campus-night-market.firebasestorage.app",
-  messagingSenderId: "1098548595788",
-  appId: "1:1098548595788:web:74d1ea9cced5b1e863f8e9"
+  apiKey: "__VITE_FIREBASE_API_KEY__",
+  authDomain: "__VITE_FIREBASE_AUTH_DOMAIN__",
+  projectId: "__VITE_FIREBASE_PROJECT_ID__",
+  storageBucket: "__VITE_FIREBASE_STORAGE_BUCKET__",
+  messagingSenderId: "__VITE_FIREBASE_MESSAGING_SENDER_ID__",
+  appId: "__VITE_FIREBASE_APP_ID__"
 });
 
 // Get Firebase Messaging instance
@@ -17,8 +18,6 @@ const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-
   const notificationTitle = payload.notification?.title || 'Night Market';
   const notificationOptions = {
     body: payload.notification?.body || 'You have a new notification',
@@ -34,8 +33,6 @@ messaging.onBackgroundMessage((payload) => {
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
-  console.log('[firebase-messaging-sw.js] Notification clicked', event.notification);
-
   event.notification.close();
 
   const data = event.notification.data;

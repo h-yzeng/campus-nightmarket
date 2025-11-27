@@ -3,6 +3,7 @@ import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { firebaseConfig } from './firebaseConfig';
+import { logger } from '../utils/logger';
 
 let app: FirebaseApp;
 let auth: Auth;
@@ -15,9 +16,9 @@ try {
   db = getFirestore(app);
   storage = getStorage(app);
 
-  console.log('Firebase initialized successfully');
+  logger.info('Firebase initialized successfully');
 } catch (error) {
-  console.error('Error initializing Firebase:', error);
+  logger.error('Error initializing Firebase:', error);
   throw new Error('Failed to initialize Firebase. Please check your configuration.');
 }
 

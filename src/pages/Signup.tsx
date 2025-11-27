@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../services/auth/securityService';
 import { useAuth } from '../hooks/userAuth';
+import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 
 interface SignupProps {
   profileData: ProfileData;
@@ -159,6 +160,17 @@ const Signup = ({
 
     if (!isFormValid) {
       setError('Please fill out all required fields correctly');
+      setLoading(false);
+      return;
+    }
+
+    // Rate limiting check for signup
+    const rateLimit = rateLimiter.checkLimit(
+      'signup_attempt',
+      RATE_LIMITS.SIGNUP
+    );
+    if (!rateLimit.allowed) {
+      setError(rateLimit.message || 'Too many signup attempts. Please try again later.');
       setLoading(false);
       return;
     }

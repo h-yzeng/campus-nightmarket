@@ -4,6 +4,8 @@ import type { CartItem, Order, ProfileData } from '../types';
 import type { CreateOrder, FirebaseOrderItem } from '../types/firebase';
 import type { PageType } from './useNavigation';
 import type { User } from 'firebase/auth';
+import { logger } from '../utils/logger';
+import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 
 interface UseOrderManagementProps {
   user: User | null;
@@ -27,7 +29,17 @@ export const useOrderManagement = ({
     notes?: string
   ) => {
     if (!user) {
-      console.error('No user signed in');
+      logger.error('No user signed in');
+      return;
+    }
+
+    // Rate limiting check
+    const rateLimit = rateLimiter.checkLimit(
+      `order_creation_${user.uid}`,
+      RATE_LIMITS.ORDER_CREATION
+    );
+    if (!rateLimit.allowed) {
+      alert(rateLimit.message || 'Too many orders. Please try again later.');
       return;
     }
 
@@ -70,18 +82,64 @@ export const useOrderManagement = ({
           notes: notes || '',
         };
 
-        console.log('[useOrderManagement] Creating order:', orderData);
-        return await createOrderMutation.mutateAsync(orderData);
+        logger.general('[useOrderManagement] Creating order:', orderData);
+        return {
+          sellerName,
+          result: await createOrderMutation.mutateAsync(orderData).catch((err: unknown) => ({ error: err })),
+        };
       });
 
-      const orderIds = await Promise.all(orderPromises);
-      console.log('[useOrderManagement] Orders created successfully:', orderIds);
+      // Use Promise.allSettled to handle partial failures
+      const results = await Promise.allSettled(orderPromises);
 
-      clearCart();
-      setCurrentPage('userOrders');
+      const successfulOrders: string[] = [];
+      const failedOrders: string[] = [];
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          const { sellerName, result: orderResult } = result.value;
+          if (typeof orderResult === 'object' && orderResult !== null && 'error' in orderResult) {
+            failedOrders.push(sellerName);
+            logger.error(`[useOrderManagement] Order failed for ${sellerName}:`, (orderResult as { error: unknown }).error);
+          } else {
+            successfulOrders.push(sellerName);
+            logger.general(`[useOrderManagement] Order created successfully for ${sellerName}:`, orderResult);
+          }
+        } else {
+          failedOrders.push('Unknown seller');
+          logger.error('[useOrderManagement] Order promise rejected:', result.reason);
+        }
+      });
+
+      // Handle results
+      if (failedOrders.length === 0) {
+        // All orders succeeded
+        logger.general('[useOrderManagement] All orders created successfully');
+        clearCart();
+        setCurrentPage('userOrders');
+        alert('All orders placed successfully!');
+      } else if (successfulOrders.length === 0) {
+        // All orders failed
+        logger.error('[useOrderManagement] All orders failed');
+        alert('Failed to place orders. Please try again.');
+      } else {
+        // Partial success
+        logger.warn('[useOrderManagement] Some orders failed:', {
+          successful: successfulOrders,
+          failed: failedOrders,
+        });
+
+        alert(
+          `${successfulOrders.length} order(s) placed successfully!\n` +
+          `${failedOrders.length} order(s) failed for: ${failedOrders.join(', ')}\n\n` +
+          'Please review your cart and try again for failed orders.'
+        );
+
+        setCurrentPage('userOrders');
+      }
     } catch (err) {
-      console.error('[useOrderManagement] Error placing order:', err);
-      alert('Failed to place order. Please try again.');
+      logger.error('[useOrderManagement] Unexpected error placing order:', err);
+      alert('An unexpected error occurred. Please check your orders and try again.');
     }
   };
 
@@ -91,17 +149,17 @@ export const useOrderManagement = ({
     const order = buyerOrders.find(o => o.id === orderId);
 
     if (!order) {
-      console.error('[useOrderManagement] Order not found:', orderId);
+      logger.error('[useOrderManagement] Order not found:', orderId);
       return;
     }
 
     try {
-      console.log('[useOrderManagement] Cancelling order:', order.firebaseId);
+      logger.general('[useOrderManagement] Cancelling order:', order.firebaseId);
       await cancelOrderMutation.mutateAsync(order.firebaseId);
-      console.log('[useOrderManagement] Order cancelled successfully');
+      logger.general('[useOrderManagement] Order cancelled successfully');
       setCurrentPage('userOrders');
     } catch (err) {
-      console.error('[useOrderManagement] Error cancelling order:', err);
+      logger.error('[useOrderManagement] Error cancelling order:', err);
       alert('Failed to cancel order. Please try again.');
     }
   };
@@ -112,16 +170,16 @@ export const useOrderManagement = ({
     const order = sellerOrders.find(o => o.id === orderId);
 
     if (!order) {
-      console.error('[useOrderManagement] Order not found:', orderId);
+      logger.error('[useOrderManagement] Order not found:', orderId);
       return;
     }
 
     try {
-      console.log('[useOrderManagement] Updating order status:', order.firebaseId, 'to', status);
+      logger.general('[useOrderManagement] Updating order status:', order.firebaseId, 'to', status);
       await updateOrderStatusMutation.mutateAsync({ orderId: order.firebaseId, status });
-      console.log('[useOrderManagement] Order status updated successfully');
+      logger.general('[useOrderManagement] Order status updated successfully');
     } catch (err) {
-      console.error('[useOrderManagement] Error updating order status:', err);
+      logger.error('[useOrderManagement] Error updating order status:', err);
       alert('Failed to update order status. Please try again.');
     }
   };

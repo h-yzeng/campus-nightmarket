@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getUserProfile } from '../services/auth/userService';
 import type { FirebaseUserProfile } from '../types/firebase';
+import { logger } from '../utils/logger';
 
 export const useSellerProfile = (sellerId: string | undefined) => {
   const [sellerProfile, setSellerProfile] = useState<FirebaseUserProfile | null>(null);
@@ -21,7 +22,7 @@ export const useSellerProfile = (sellerId: string | undefined) => {
         const profile = await getUserProfile(sellerId);
         setSellerProfile(profile);
       } catch (err) {
-        console.error('Error fetching seller profile:', err);
+        logger.error('Error fetching seller profile:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch seller profile');
         setSellerProfile(null);
       } finally {

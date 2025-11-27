@@ -8,6 +8,7 @@ import {
 } from '../services/orders/orderService';
 import type { FirebaseOrder, CreateOrder } from '../types/firebase';
 import type { Order, CartItem, OrderStatus } from '../types';
+import { logger } from '../utils/logger';
 
 // Simple hash function to convert Firebase ID string to a consistent number
 const hashStringToNumber = (str: string): number => {
@@ -66,7 +67,7 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
 
   const loadOrders = useCallback(async () => {
     if (!userId) {
-      console.log('[useOrders] No userId, clearing orders. Mode:', mode);
+      logger.general('[useOrders] No userId, clearing orders. Mode:', mode);
       setOrders([]);
       setLoading(false);
       return;
@@ -75,19 +76,19 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
     try {
       setLoading(true);
       setError(null);
-      console.log(`[useOrders] ===== Loading ${mode} orders for userId: ${userId} =====`);
+      logger.general(`[useOrders] ===== Loading ${mode} orders for userId: ${userId} =====`);
 
       const firebaseOrders = mode === 'buyer'
         ? await getBuyerOrders(userId)
         : await getSellerOrders(userId);
 
-      console.log(`[useOrders] Fetched ${firebaseOrders.length} Firebase ${mode} orders:`, firebaseOrders);
+      logger.general(`[useOrders] Fetched ${firebaseOrders.length} Firebase ${mode} orders:`, firebaseOrders);
 
       const convertedOrders = firebaseOrders.map(convertFirebaseOrderToApp);
-      console.log(`[useOrders] Converted to ${convertedOrders.length} app orders for ${mode}:`, convertedOrders);
+      logger.general(`[useOrders] Converted to ${convertedOrders.length} app orders for ${mode}:`, convertedOrders);
       setOrders(convertedOrders);
     } catch (err) {
-      console.error(`[useOrders] Error loading ${mode} orders:`, err);
+      logger.error(`[useOrders] Error loading ${mode} orders:`, err);
       setError(err instanceof Error ? err.message : 'Failed to load orders');
     } finally {
       setLoading(false);
@@ -100,14 +101,14 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
 
   const createOrder = async (orderData: CreateOrder): Promise<string> => {
     try {
-      console.log('[useOrders] Creating order:', orderData);
+      logger.general('[useOrders] Creating order:', orderData);
       const orderId = await createOrderService(orderData);
-      console.log('[useOrders] Order created with ID:', orderId);
-      console.log('[useOrders] Refreshing orders list...');
+      logger.general('[useOrders] Order created with ID:', orderId);
+      logger.general('[useOrders] Refreshing orders list...');
       await loadOrders();
       return orderId;
     } catch (err) {
-      console.error('[useOrders] Error creating order:', err);
+      logger.error('[useOrders] Error creating order:', err);
       throw err;
     }
   };
@@ -117,7 +118,7 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
       await updateOrderStatus(orderId, status);
       await loadOrders();
     } catch (err) {
-      console.error('Error updating order status:', err);
+      logger.error('Error updating order status:', err);
       throw err;
     }
   };
@@ -127,7 +128,7 @@ export const useOrders = (userId: string | undefined, mode: 'buyer' | 'seller' =
       await cancelOrderService(orderId);
       await loadOrders();
     } catch (err) {
-      console.error('Error cancelling order:', err);
+      logger.error('Error cancelling order:', err);
       throw err;
     }
   };

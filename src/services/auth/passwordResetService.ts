@@ -1,5 +1,6 @@
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '../../config/firebase';
+import { logger } from '../../utils/logger';
 
 const functions = getFunctions(app);
 
@@ -23,7 +24,7 @@ export const resetPasswordWithVerification = async (
       throw new Error(data.message || 'Failed to reset password');
     }
   } catch (error) {
-    console.error('Error calling resetPasswordWithVerification:', error);
+    logger.error('Error calling resetPasswordWithVerification:', error);
     if (error instanceof Error) {
       throw error;
     }

@@ -6,6 +6,7 @@ import Footer from '../../components/Footer';
 import { uploadListingImage } from '../../services/storage/imageService';
 import { getListing, updateListing } from '../../services/listings/listingService';
 import { useAuth } from '../../hooks/userAuth';
+import { logger } from '../../utils/logger';
 
 interface EditListingProps {
   listingId: string;
@@ -96,7 +97,7 @@ const EditListing = ({
         setCurrentImageURL(listing.imageURL);
         setImagePreview(listing.imageURL);
       } catch (err) {
-        console.error('Error loading listing:', err);
+        logger.error('Error loading listing:', err);
         setError('Failed to load listing');
       } finally {
         setLoading(false);
@@ -161,7 +162,7 @@ const EditListing = ({
         setUploading(false);
       }
 
-      console.log('[EditListing] Updating listing in Firestore...');
+      logger.general('[EditListing] Updating listing in Firestore...');
       await updateListing(listingId, {
         name: name.trim(),
         description: description.trim(),
@@ -170,18 +171,18 @@ const EditListing = ({
         location: location,
         category: category,
       });
-      console.log('[EditListing] Listing updated successfully');
+      logger.general('[EditListing] Listing updated successfully');
 
       if (onUpdateListing) {
-        console.log('[EditListing] Calling onUpdateListing callback...');
+        logger.general('[EditListing] Calling onUpdateListing callback...');
         await onUpdateListing();
-        console.log('[EditListing] onUpdateListing callback complete');
+        logger.general('[EditListing] onUpdateListing callback complete');
       } else {
-        console.log('[EditListing] No onUpdateListing callback, navigating back');
+        logger.general('[EditListing] No onUpdateListing callback, navigating back');
         onBackToListings();
       }
     } catch (err) {
-      console.error('Error updating listing:', err);
+      logger.error('Error updating listing:', err);
       setError(err instanceof Error ? err.message : 'Failed to update listing');
     } finally {
       setUpdating(false);

@@ -2,6 +2,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { COLLECTIONS } from '../../types/firebase';
 import type { SecurityQuestion } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 export const SECURITY_QUESTIONS = [
   'What was the name of your first pet?',
@@ -49,7 +50,7 @@ export const saveSecurityQuestions = async (
       updatedAt: new Date(),
     });
   } catch (error) {
-    console.error('Error saving security questions:', error);
+    logger.error('Error saving security questions:', error);
     throw new Error('Failed to save security questions');
   }
 };
@@ -87,7 +88,7 @@ export const verifySecurityAnswers = async (
 
     return { verified: false };
   } catch (error) {
-    console.error('Error verifying security answers:', error);
+    logger.error('Error verifying security answers:', error);
     throw new Error('Failed to verify security answers');
   }
 };
@@ -105,7 +106,7 @@ export const getUserSecurityQuestions = async (
 
     return userProfile.securityQuestions.map(sq => sq.question);
   } catch (error) {
-    console.error('Error getting security questions:', error);
+    logger.error('Error getting security questions:', error);
     throw new Error('Failed to get security questions');
   }
 };

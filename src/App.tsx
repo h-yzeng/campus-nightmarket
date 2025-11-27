@@ -15,6 +15,7 @@ import {
   useAuthStore,
   useNotificationStore,
 } from './stores';
+import { logger } from './utils/logger';
 
 function App() {
   const queryClient = useQueryClient();
@@ -133,7 +134,7 @@ function App() {
       queryClient.invalidateQueries({ queryKey: ['orders', 'buyer', user.uid] });
       queryClient.invalidateQueries({ queryKey: ['reviews', 'seller', order.sellerId] });
     } catch (error) {
-      console.error('Error submitting review:', error);
+      logger.error('Error submitting review:', error);
       throw error;
     }
   };

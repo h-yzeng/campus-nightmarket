@@ -6,6 +6,7 @@ import {
   removeFCMToken,
 } from '../services/notifications/notificationService';
 import { useQueryClient } from '@tanstack/react-query';
+import { logger } from '../utils/logger';
 
 export interface Notification {
   id: string;
@@ -47,7 +48,7 @@ export const useNotifications = (userId: string | undefined) => {
     // Clean up on unmount or user change
     return () => {
       if (userId) {
-        removeFCMToken(userId).catch(console.error);
+        removeFCMToken(userId).catch((err) => logger.error(err));
       }
     };
   }, [userId]);
@@ -57,7 +58,7 @@ export const useNotifications = (userId: string | undefined) => {
     if (!hasPermission) return;
 
     const unsubscribe = onForegroundMessage((payload) => {
-      console.log('Received foreground notification:', payload);
+      logger.general('Received foreground notification:', payload);
 
       // Cast payload to FCMPayload type
       const fcmPayload = payload as FCMPayload;

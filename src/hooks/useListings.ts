@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAllListings } from '../services/listings/listingService';
 import type { FirebaseListing } from '../types/firebase';
 import type { FoodItem } from '../types';
+import { logger } from '../utils/logger';
 
 const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem => {
   return {
@@ -30,7 +31,7 @@ export const useListings = () => {
       const convertedItems = listings.map(convertFirebaseListingToFoodItem);
       setFoodItems(convertedItems);
     } catch (err) {
-      console.error('Error loading listings:', err);
+      logger.error('Error loading listings:', err);
       setError(err instanceof Error ? err.message : 'Failed to load listings');
     } finally {
       setLoading(false);

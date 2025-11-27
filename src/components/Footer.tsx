@@ -1,4 +1,5 @@
 import { Mail } from 'lucide-react';
+import { memo } from 'react';
 
 const Footer = () => {
   return (
@@ -41,4 +42,5 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+// Memoize Footer since it has no props and never needs to re-render
+export default memo(Footer);

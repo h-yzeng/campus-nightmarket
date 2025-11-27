@@ -9,7 +9,7 @@ interface CheckoutProps {
   profileData: ProfileData;
   userMode: UserMode;
   onBackToCart: () => void;
-  onPlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => void;
+  onPlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => Promise<void>;
   onSignOut: () => void;
   onProfileClick: () => void;
   onLogoClick?: () => void;
@@ -30,6 +30,7 @@ const Checkout = ({
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('Cash');
   const [pickupTimesBySeller, setPickupTimesBySeller] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState<string>('');
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -78,15 +79,22 @@ const Checkout = ({
     }));
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const missingTimes = sellers.filter(seller => !pickupTimesBySeller[seller]);
-    
+
     if (missingTimes.length > 0) {
       alert(`Please select a pickup time for: ${missingTimes.join(', ')}`);
       return;
     }
-    
-    onPlaceOrder(selectedPayment, pickupTimesBySeller, notes);
+
+    setIsPlacingOrder(true);
+    try {
+      await onPlaceOrder(selectedPayment, pickupTimesBySeller, notes);
+    } catch (error) {
+      console.error('Error placing order:', error);
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   const allTimesSelected = sellers.every(seller => pickupTimesBySeller[seller]);
@@ -309,14 +317,19 @@ const Checkout = ({
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={!allTimesSelected}
+                disabled={!allTimesSelected || isPlacingOrder}
                 className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg transition-all transform ${
-                  allTimesSelected
+                  allTimesSelected && !isPlacingOrder
                     ? 'bg-[#CC0000] hover:shadow-xl hover:scale-102 active:scale-98'
                     : 'bg-[#666666] cursor-not-allowed'
                 }`}
               >
-                {allTimesSelected ? (
+                {isPlacingOrder ? (
+                  <>
+                    <div className="inline-block w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Placing Order...
+                  </>
+                ) : allTimesSelected ? (
                   <>
                     <CheckCircle size={20} className="inline mr-2" />
                     Place Order

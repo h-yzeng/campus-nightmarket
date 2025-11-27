@@ -5,17 +5,45 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import App from './App.tsx'
 import ErrorBoundary from './components/ErrorBoundary.tsx'
 import './styles/index.css'
+import { logger } from './utils/logger'
+import { initializeSentry } from './config/sentry.tsx'
+
+// Initialize Sentry for error tracking
+initializeSentry();
 
 document.documentElement.classList.add('dark');
 
-// Configure React Query
+// Configure React Query with optimized caching strategy
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      // Default staleTime: data older than this is considered stale
+      staleTime: 2 * 60 * 1000, // 2 minutes for most queries
+
+      // gcTime: how long unused data stays in cache (formerly cacheTime)
+      gcTime: 10 * 60 * 1000, // 10 minutes
+
+      // Don't refetch on window focus by default (can override per query)
       refetchOnWindowFocus: false,
+
+      // Retry failed queries once
       retry: 1,
+
+      // Retry delay increases exponentially
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+
+      // Don't refetch on mount if data is fresh
+      refetchOnMount: false,
+
+      // Refetch on reconnect if data is stale
+      refetchOnReconnect: 'always',
+    },
+    mutations: {
+      // Retry failed mutations once
+      retry: 1,
+
+      // Shorter retry delay for mutations (user action)
+      retryDelay: 1000,
     },
   },
 });
@@ -36,9 +64,9 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker
     .register('/firebase-messaging-sw.js')
     .then((registration) => {
-      console.log('Service Worker registered:', registration);
+      logger.info('Service Worker registered:', registration);
     })
     .catch((error) => {
-      console.error('Service Worker registration failed:', error);
+      logger.error('Service Worker registration failed:', error);
     });
 }

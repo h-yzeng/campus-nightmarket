@@ -16,6 +16,7 @@ import {
   becomeSeller,
 } from '../services/auth/userService';
 import type { FirebaseUserProfile } from '../types/firebase';
+import { logger } from '../utils/logger';
 
 export interface UseFirebaseAuthReturn {
   user: User | null;
@@ -47,7 +48,7 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
             const userProfile = await getUserProfile(firebaseUser.uid);
             setProfile(userProfile);
           } catch (err) {
-            console.error('Error loading user profile:', err);
+            logger.error('Error loading user profile:', err);
             setError('Failed to load user profile');
             setProfile(null);
           }
@@ -55,7 +56,7 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
           setProfile(null);
         }
       } catch (err) {
-        console.error('Error in auth state change handler:', err);
+        logger.error('Error in auth state change handler:', err);
         setError('Authentication error occurred');
         setUser(null);
         setProfile(null);
@@ -163,7 +164,8 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     setLoading(true);
 
     try {
-      await becomeSeller(user.uid, sellerInfo);
+      // Pass email verification status to becomeSeller
+      await becomeSeller(user.uid, sellerInfo, user.emailVerified);
 
       if (profile) {
         setProfile({ ...profile, isSeller: true, sellerInfo });

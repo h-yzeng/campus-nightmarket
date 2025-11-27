@@ -5,6 +5,7 @@ import ViewProfile from './ViewProfile';
 import type { ProfileData, CartItem, Transaction, UserMode } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { logger } from '../../utils/logger';
 
 interface ViewProfileWrapperProps {
   sellerId: string;
@@ -63,7 +64,7 @@ const ViewProfileWrapper = ({
           sellerLocation: profile.sellerInfo?.preferredLocations?.[0] || 'No location set',
         });
       } catch (err) {
-        console.error('Error fetching seller profile:', err);
+        logger.error('Error fetching seller profile:', err);
         setError('Failed to load seller profile');
       } finally {
         setLoading(false);

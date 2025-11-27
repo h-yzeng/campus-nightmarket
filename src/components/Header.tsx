@@ -1,5 +1,5 @@
 import { ShoppingCart, User, ChevronDown, LogOut, Package, Store, LayoutGrid } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import NotificationBell from './NotificationBell';
 import { useNotificationStore } from '../stores';
 import type { CartItem, ProfileData, UserMode } from '../types';
@@ -246,4 +246,6 @@ const Header = ({
   );
 };
 
-export default Header;
+// Memoize Header to prevent unnecessary re-renders
+// Header re-renders frequently but often with the same props
+export default memo(Header);

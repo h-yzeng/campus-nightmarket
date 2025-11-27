@@ -5,6 +5,7 @@ import {
   verifySecurityAnswers,
 } from '../services/auth/securityService';
 import { resetPasswordWithVerification } from '../services/auth/passwordResetService';
+import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 
 interface ForgotPasswordProps {
   onBack: () => void;
@@ -63,6 +64,17 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
   const handleSecurityQuestionsSubmit = async () => {
     setError('');
     setLoading(true);
+
+    // Rate limiting check
+    const rateLimit = rateLimiter.checkLimit(
+      `password_reset_${email}`,
+      RATE_LIMITS.PASSWORD_RESET
+    );
+    if (!rateLimit.allowed) {
+      setError(rateLimit.message || 'Too many password reset attempts. Please try again later.');
+      setLoading(false);
+      return;
+    }
 
     const unansweredQuestions = securityQuestions.filter(q => !answers[q] || answers[q].trim() === '');
     if (unansweredQuestions.length > 0) {

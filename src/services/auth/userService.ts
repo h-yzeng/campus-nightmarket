@@ -17,6 +17,7 @@ import {
   type UpdateUserProfile,
   COLLECTIONS,
 } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 export const createUserProfile = async (
   uid: string,
@@ -37,7 +38,7 @@ export const createUserProfile = async (
 
     await setDoc(userRef, profile);
   } catch (error) {
-    console.error('Error creating user profile:', error);
+    logger.error('Error creating user profile:', error);
     throw new Error('Failed to create user profile');
   }
 };
@@ -53,7 +54,7 @@ export const getUserProfile = async (uid: string): Promise<FirebaseUserProfile |
 
     return userSnap.data() as FirebaseUserProfile;
   } catch (error) {
-    console.error('Error getting user profile:', error);
+    logger.error('Error getting user profile:', error);
     throw new Error('Failed to get user profile');
   }
 };
@@ -70,22 +71,31 @@ export const updateUserProfile = async (
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    logger.error('Error updating user profile:', error);
     throw new Error('Failed to update user profile');
   }
 };
 
 export const becomeSeller = async (
   uid: string,
-  sellerInfo: FirebaseUserProfile['sellerInfo']
+  sellerInfo: FirebaseUserProfile['sellerInfo'],
+  emailVerified: boolean
 ): Promise<void> => {
   try {
+    // Require email verification to become a seller
+    if (!emailVerified) {
+      throw new Error('Please verify your email before becoming a seller. Check your inbox for a verification link.');
+    }
+
     await updateUserProfile(uid, {
       isSeller: true,
       sellerInfo,
     });
   } catch (error) {
-    console.error('Error converting to seller:', error);
+    logger.error('Error converting to seller:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to become a seller');
   }
 };
@@ -96,7 +106,7 @@ export const userExists = async (uid: string): Promise<boolean> => {
     const userSnap = await getDoc(userRef);
     return userSnap.exists();
   } catch (error) {
-    console.error('Error checking if user exists:', error);
+    logger.error('Error checking if user exists:', error);
     return false;
   }
 };
@@ -113,7 +123,7 @@ export const getUserByEmail = async (email: string): Promise<FirebaseUserProfile
 
     return querySnapshot.docs[0].data() as FirebaseUserProfile;
   } catch (error) {
-    console.error('Error getting user by email:', error);
+    logger.error('Error getting user by email:', error);
     throw new Error('Failed to get user by email');
   }
 };

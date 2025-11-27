@@ -7,6 +7,7 @@ import {
 } from 'firebase/storage';
 import { storage } from '../../config/firebase';
 import { STORAGE_PATHS } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 const compressImage = async (file: File, maxWidth = 1200, maxHeight = 1200): Promise<Blob> => {
   return new Promise((resolve, reject) => {
@@ -95,7 +96,7 @@ export const uploadProfilePhoto = async (
 
     return downloadURL;
   } catch (error) {
-    console.error('Error uploading profile photo:', error);
+    logger.error('Error uploading profile photo:', error);
     throw new Error('Failed to upload profile photo');
   }
 };
@@ -118,7 +119,7 @@ export const uploadListingImage = async (
 
     return downloadURL;
   } catch (error) {
-    console.error('Error uploading listing image:', error);
+    logger.error('Error uploading listing image:', error);
     throw new Error('Failed to upload listing image');
   }
 };
@@ -128,7 +129,7 @@ export const deleteImage = async (imageURL: string): Promise<void> => {
     const imageRef = ref(storage, imageURL);
     await deleteObject(imageRef);
   } catch (error) {
-    console.error('Error deleting image:', error);
+    logger.error('Error deleting image:', error);
   }
 };
 

@@ -15,6 +15,7 @@ import {
   type CreateReview,
   COLLECTIONS,
 } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 export const createReview = async (reviewData: CreateReview): Promise<string> => {
   try {
@@ -28,7 +29,7 @@ export const createReview = async (reviewData: CreateReview): Promise<string> =>
     const docRef = await addDoc(reviewsRef, review);
     return docRef.id;
   } catch (error) {
-    console.error('Error creating review:', error);
+    logger.error('Error creating review:', error);
     throw new Error('Failed to create review');
   }
 };
@@ -47,7 +48,7 @@ export const getReview = async (reviewId: string): Promise<FirebaseReview | null
       ...reviewSnap.data(),
     } as FirebaseReview;
   } catch (error) {
-    console.error('Error getting review:', error);
+    logger.error('Error getting review:', error);
     throw new Error('Failed to get review');
   }
 };
@@ -73,7 +74,7 @@ export const getSellerReviews = async (sellerId: string): Promise<FirebaseReview
 
     return reviews;
   } catch (error) {
-    console.error('Error getting seller reviews:', error);
+    logger.error('Error getting seller reviews:', error);
     throw new Error('Failed to get seller reviews');
   }
 };
@@ -99,7 +100,7 @@ export const getBuyerReviews = async (buyerId: string): Promise<FirebaseReview[]
 
     return reviews;
   } catch (error) {
-    console.error('Error getting buyer reviews:', error);
+    logger.error('Error getting buyer reviews:', error);
     throw new Error('Failed to get buyer reviews');
   }
 };
@@ -121,7 +122,7 @@ export const getOrderReview = async (orderId: string): Promise<FirebaseReview | 
       ...doc.data(),
     } as FirebaseReview;
   } catch (error) {
-    console.error('Error getting order review:', error);
+    logger.error('Error getting order review:', error);
     throw new Error('Failed to get order review');
   }
 };
@@ -137,7 +138,7 @@ export const getSellerAverageRating = async (sellerId: string): Promise<number> 
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     return totalRating / reviews.length;
   } catch (error) {
-    console.error('Error calculating seller average rating:', error);
+    logger.error('Error calculating seller average rating:', error);
     return 0;
   }
 };
@@ -147,7 +148,7 @@ export const hasReviewedOrder = async (orderId: string): Promise<boolean> => {
     const review = await getOrderReview(orderId);
     return review !== null;
   } catch (error) {
-    console.error('Error checking if order is reviewed:', error);
+    logger.error('Error checking if order is reviewed:', error);
     return false;
   }
 };

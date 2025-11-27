@@ -3,6 +3,7 @@ import type { ProfileData, PageType } from '../types';
 import { useFirebaseAuth } from './useFirebaseAuth';
 import type { SignupData } from '../services/auth/authService';
 import type { FirebaseUserProfile } from '../types/firebase';
+import { logger } from '../utils/logger';
 
 const convertFirebaseProfileToApp = (
   firebaseProfile: FirebaseUserProfile | null
@@ -80,7 +81,7 @@ export const useAuth = () => {
       await handleSignUp(signupData);
       setCurrentPage('browse');
     } catch (err) {
-      console.error('Error creating profile:', err);
+      logger.error('Error creating profile:', err);
       throw err;
     }
   };
@@ -91,14 +92,14 @@ export const useAuth = () => {
       setCurrentPage('browse');
       return true;
     } catch (err) {
-      console.error('Error logging in:', err);
+      logger.error('Error logging in:', err);
       return false;
     }
   };
 
   const handleSaveProfile = async () => {
     if (!user) {
-      console.error('No user signed in');
+      logger.error('No user signed in');
       return;
     }
 
@@ -121,7 +122,7 @@ export const useAuth = () => {
 
       await handleUpdateProfile(updates);
     } catch (err) {
-      console.error('Error saving profile:', err);
+      logger.error('Error saving profile:', err);
       throw err;
     }
   };
@@ -131,14 +132,14 @@ export const useAuth = () => {
       await firebaseSignOut();
       setCurrentPage('home');
     } catch (err) {
-      console.error('Error signing out:', err);
+      logger.error('Error signing out:', err);
       throw err;
     }
   };
 
   const handleBecomeSeller = async () => {
     if (!user) {
-      console.error('No user signed in');
+      logger.error('No user signed in');
       return;
     }
 
@@ -156,7 +157,7 @@ export const useAuth = () => {
         sellerInfo,
       }));
     } catch (err) {
-      console.error('Error becoming seller:', err);
+      logger.error('Error becoming seller:', err);
       throw err;
     }
   };

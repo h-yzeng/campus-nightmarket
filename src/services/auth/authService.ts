@@ -3,6 +3,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updatePassword,
   updateEmail,
   reauthenticateWithCredential,
@@ -11,6 +12,7 @@ import {
   type AuthError,
 } from 'firebase/auth';
 import { auth } from '../../config/firebase';
+import { logger } from '../../utils/logger';
 
 export interface SignupData {
   email: string;
@@ -34,7 +36,62 @@ export const signUp = async (data: SignupData): Promise<User> => {
     }
 
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Send email verification
+    try {
+      await sendEmailVerification(userCredential.user);
+      logger.info('Verification email sent to:', email);
+    } catch (verificationError) {
+      logger.error('Failed to send verification email:', verificationError);
+      // Don't throw - allow signup to continue even if verification email fails
+    }
+
     return userCredential.user;
+  } catch (error) {
+    throw handleAuthError(error as AuthError);
+  }
+};
+
+/**
+ * Resend email verification to the current user
+ */
+export const resendVerificationEmail = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently signed in');
+    }
+
+    if (user.emailVerified) {
+      throw new Error('Email is already verified');
+    }
+
+    await sendEmailVerification(user);
+    logger.info('Verification email resent to:', user.email);
+  } catch (error) {
+    throw handleAuthError(error as AuthError);
+  }
+};
+
+/**
+ * Check if current user's email is verified
+ */
+export const isEmailVerified = (): boolean => {
+  const user = auth.currentUser;
+  return user?.emailVerified ?? false;
+};
+
+/**
+ * Reload user data to check latest email verification status
+ */
+export const reloadUser = async (): Promise<void> => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently signed in');
+    }
+
+    await user.reload();
   } catch (error) {
     throw handleAuthError(error as AuthError);
   }

@@ -6,6 +6,8 @@ import Footer from '../../components/Footer';
 import { uploadListingImage } from '../../services/storage/imageService';
 import { createListing } from '../../services/listings/listingService';
 import { useAuth } from '../../hooks/userAuth';
+import { logger } from '../../utils/logger';
+import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
 
 interface CreateListingProps {
   profileData: ProfileData;
@@ -115,6 +117,16 @@ const CreateListing = ({
       return;
     }
 
+    // Rate limiting check
+    const rateLimit = rateLimiter.checkLimit(
+      `listing_creation_${user.uid}`,
+      RATE_LIMITS.LISTING_CREATION
+    );
+    if (!rateLimit.allowed) {
+      setError(rateLimit.message || 'Too many listings created. Please try again later.');
+      return;
+    }
+
     setCreating(true);
     setError('');
 
@@ -123,7 +135,7 @@ const CreateListing = ({
       const imageURL = await uploadListingImage(user.uid, imageFile);
       setUploading(false);
 
-      console.log('[CreateListing] Creating listing in Firestore...');
+      logger.general('[CreateListing] Creating listing in Firestore...');
       await createListing({
         name: name.trim(),
         description: description.trim(),
@@ -135,18 +147,18 @@ const CreateListing = ({
         isAvailable: true,
         category: category,
       });
-      console.log('[CreateListing] Listing created successfully');
+      logger.general('[CreateListing] Listing created successfully');
 
       if (onCreateListing) {
-        console.log('[CreateListing] Calling onCreateListing callback...');
+        logger.general('[CreateListing] Calling onCreateListing callback...');
         await onCreateListing();
-        console.log('[CreateListing] onCreateListing callback complete');
+        logger.general('[CreateListing] onCreateListing callback complete');
       } else {
-        console.log('[CreateListing] No onCreateListing callback, navigating to dashboard');
+        logger.general('[CreateListing] No onCreateListing callback, navigating to dashboard');
         onBackToDashboard();
       }
     } catch (err) {
-      console.error('Error creating listing:', err);
+      logger.error('Error creating listing:', err);
       setError(err instanceof Error ? err.message : 'Failed to create listing');
     } finally {
       setCreating(false);

@@ -22,13 +22,32 @@ import {
   type UpdateListing,
   COLLECTIONS,
 } from '../../types/firebase';
+import { logger } from '../../utils/logger';
+import {
+  validatePrice,
+  validateCategory,
+  sanitizeString,
+} from '../../utils/validation';
 
 export const createListing = async (listingData: CreateListing): Promise<string> => {
   try {
+    // Validate input data
+    validatePrice(listingData.price);
+    validateCategory(listingData.category);
+
+    // Sanitize text fields
+    const sanitizedData: CreateListing = {
+      ...listingData,
+      name: sanitizeString(listingData.name, 200),
+      description: sanitizeString(listingData.description, 1000),
+      sellerName: sanitizeString(listingData.sellerName, 100),
+      location: sanitizeString(listingData.location, 100),
+    };
+
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
 
     const listing = {
-      ...listingData,
+      ...sanitizedData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -36,7 +55,10 @@ export const createListing = async (listingData: CreateListing): Promise<string>
     const docRef = await addDoc(listingsRef, listing);
     return docRef.id;
   } catch (error) {
-    console.error('Error creating listing:', error);
+    logger.error('Error creating listing:', error);
+    if (error instanceof Error) {
+      throw error; // Re-throw validation errors with their messages
+    }
     throw new Error('Failed to create listing');
   }
 };
@@ -55,7 +77,7 @@ export const getListing = async (listingId: string): Promise<FirebaseListing | n
       ...listingSnap.data(),
     } as FirebaseListing;
   } catch (error) {
-    console.error('Error getting listing:', error);
+    logger.error('Error getting listing:', error);
     throw new Error('Failed to get listing');
   }
 };
@@ -87,7 +109,7 @@ export const getAllListings = async (onlyAvailable = false): Promise<FirebaseLis
       return bTime - aTime;
     });
   } catch (error) {
-    console.error('Error getting all listings:', error);
+    logger.error('Error getting all listings:', error);
     throw new Error('Failed to get listings');
   }
 };
@@ -136,7 +158,7 @@ export const getPaginatedListings = async (
 
     return { listings, lastDoc: newLastDoc, hasMore };
   } catch (error) {
-    console.error('Error getting paginated listings:', error);
+    logger.error('Error getting paginated listings:', error);
     throw new Error('Failed to get listings');
   }
 };
@@ -165,7 +187,7 @@ export const getListingsBySeller = async (sellerId: string): Promise<FirebaseLis
       return bTime - aTime;
     });
   } catch (error) {
-    console.error('Error getting seller listings:', error);
+    logger.error('Error getting seller listings:', error);
     throw new Error('Failed to get seller listings');
   }
 };
@@ -195,7 +217,7 @@ export const getListingsByLocation = async (location: string): Promise<FirebaseL
       return bTime - aTime;
     });
   } catch (error) {
-    console.error('Error getting listings by location:', error);
+    logger.error('Error getting listings by location:', error);
     throw new Error('Failed to get listings by location');
   }
 };
@@ -225,7 +247,7 @@ export const getListingsByCategory = async (category: string): Promise<FirebaseL
       return bTime - aTime;
     });
   } catch (error) {
-    console.error('Error getting listings by category:', error);
+    logger.error('Error getting listings by category:', error);
     throw new Error('Failed to get listings by category');
   }
 };
@@ -242,7 +264,7 @@ export const updateListing = async (
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
-    console.error('Error updating listing:', error);
+    logger.error('Error updating listing:', error);
     throw new Error('Failed to update listing');
   }
 };
@@ -258,7 +280,7 @@ export const toggleListingAvailability = async (listingId: string): Promise<void
       isAvailable: !listing.isAvailable,
     });
   } catch (error) {
-    console.error('Error toggling listing availability:', error);
+    logger.error('Error toggling listing availability:', error);
     throw new Error('Failed to toggle listing availability');
   }
 };
@@ -268,7 +290,7 @@ export const deleteListing = async (listingId: string): Promise<void> => {
     const listingRef = doc(db, COLLECTIONS.LISTINGS, listingId);
     await deleteDoc(listingRef);
   } catch (error) {
-    console.error('Error deleting listing:', error);
+    logger.error('Error deleting listing:', error);
     throw new Error('Failed to delete listing');
   }
 };

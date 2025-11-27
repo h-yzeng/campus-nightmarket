@@ -1,6 +1,7 @@
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import ForgotPassword from './ForgotPassword';
+import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<boolean>;
@@ -25,13 +26,37 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
       return;
     }
 
+    // Check if rate limited
+    const rateLimit = rateLimiter.checkLimit(
+      `login_failed_${email}`,
+      RATE_LIMITS.LOGIN_FAILED
+    );
+    if (!rateLimit.allowed) {
+      setError(rateLimit.message || 'Too many failed login attempts. Please try again later.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const success = await onLogin(email, password);
 
       if (!success) {
+        // Track failed login attempt for rate limiting
+        rateLimiter.checkLimit(
+          `login_failed_${email}`,
+          RATE_LIMITS.LOGIN_FAILED
+        );
         setError('Invalid email or password. Please try again.');
+      } else {
+        // Reset rate limit on successful login
+        rateLimiter.reset(`login_failed_${email}`);
       }
     } catch (err) {
+      // Track failed attempt
+      rateLimiter.checkLimit(
+        `login_failed_${email}`,
+        RATE_LIMITS.LOGIN_FAILED
+      );
       setError(err instanceof Error ? err.message : 'Failed to sign in');
     } finally {
       setLoading(false);

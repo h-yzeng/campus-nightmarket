@@ -18,13 +18,46 @@ import {
   COLLECTIONS,
 } from '../../types/firebase';
 import type { OrderStatus } from '../../types';
+import { logger } from '../../utils/logger';
+import {
+  validatePaymentMethod,
+  validatePrice,
+  validateQuantity,
+  validateNotes,
+  sanitizeString,
+} from '../../utils/validation';
 
 export const createOrder = async (orderData: CreateOrder): Promise<string> => {
   try {
+    // Validate input data
+    validatePaymentMethod(orderData.paymentMethod);
+    validatePrice(orderData.total);
+
+    // Validate each item
+    orderData.items.forEach((item) => {
+      validatePrice(item.price);
+      validateQuantity(item.quantity);
+
+      // Sanitize text fields
+      item.name = sanitizeString(item.name, 200);
+      item.seller = sanitizeString(item.seller, 100);
+      item.location = sanitizeString(item.location, 100);
+    });
+
+    // Sanitize buyer and seller names
+    const sanitizedData = {
+      ...orderData,
+      buyerName: sanitizeString(orderData.buyerName, 100),
+      sellerName: sanitizeString(orderData.sellerName, 100),
+      sellerLocation: sanitizeString(orderData.sellerLocation, 100),
+      pickupTime: sanitizeString(orderData.pickupTime, 50),
+      notes: orderData.notes ? validateNotes(orderData.notes) : '',
+    };
+
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
 
     const order = {
-      ...orderData,
+      ...sanitizedData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -32,7 +65,10 @@ export const createOrder = async (orderData: CreateOrder): Promise<string> => {
     const docRef = await addDoc(ordersRef, order);
     return docRef.id;
   } catch (error) {
-    console.error('Error creating order:', error);
+    logger.error('Error creating order:', error);
+    if (error instanceof Error) {
+      throw error; // Re-throw validation errors with their messages
+    }
     throw new Error('Failed to create order');
   }
 };
@@ -51,7 +87,7 @@ export const getOrder = async (orderId: string): Promise<FirebaseOrder | null> =
       ...orderSnap.data(),
     } as FirebaseOrder;
   } catch (error) {
-    console.error('Error getting order:', error);
+    logger.error('Error getting order:', error);
     throw new Error('Failed to get order');
   }
 };
@@ -77,7 +113,7 @@ export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> 
 
     return orders;
   } catch (error) {
-    console.error('Error getting buyer orders:', error);
+    logger.error('Error getting buyer orders:', error);
     throw new Error('Failed to get buyer orders');
   }
 };
@@ -104,7 +140,7 @@ export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]
 
     return orders;
   } catch (error) {
-    console.error('Error getting seller orders:', error);
+    logger.error('Error getting seller orders:', error);
     throw new Error('Failed to get seller orders');
   }
 };
@@ -134,7 +170,7 @@ export const getBuyerOrdersByStatus = async (
 
     return orders;
   } catch (error) {
-    console.error('Error getting buyer orders by status:', error);
+    logger.error('Error getting buyer orders by status:', error);
     throw new Error('Failed to get buyer orders by status');
   }
 };
@@ -164,7 +200,7 @@ export const getSellerOrdersByStatus = async (
 
     return orders;
   } catch (error) {
-    console.error('Error getting seller orders by status:', error);
+    logger.error('Error getting seller orders by status:', error);
     throw new Error('Failed to get seller orders by status');
   }
 };
@@ -181,7 +217,7 @@ export const updateOrder = async (
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
-    console.error('Error updating order:', error);
+    logger.error('Error updating order:', error);
     throw new Error('Failed to update order');
   }
 };
@@ -193,7 +229,7 @@ export const updateOrderStatus = async (
   try {
     await updateOrder(orderId, { status });
   } catch (error) {
-    console.error('Error updating order status:', error);
+    logger.error('Error updating order status:', error);
     throw new Error('Failed to update order status');
   }
 };
@@ -202,7 +238,7 @@ export const cancelOrder = async (orderId: string): Promise<void> => {
   try {
     await updateOrderStatus(orderId, 'cancelled');
   } catch (error) {
-    console.error('Error cancelling order:', error);
+    logger.error('Error cancelling order:', error);
     throw new Error('Failed to cancel order');
   }
 };
@@ -211,7 +247,7 @@ export const completeOrder = async (orderId: string): Promise<void> => {
   try {
     await updateOrderStatus(orderId, 'completed');
   } catch (error) {
-    console.error('Error completing order:', error);
+    logger.error('Error completing order:', error);
     throw new Error('Failed to complete order');
   }
 };

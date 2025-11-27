@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { ProfileData, CartItem, ListingWithFirebaseId } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { logger } from '../../utils/logger';
 
 interface SellerListingsProps {
   profileData: ProfileData;
@@ -52,17 +53,17 @@ const SellerListings = ({
     activeTab === 'inactive' ? inactiveListings :
     listings;
 
-  console.log('[SellerListings] Rendering with listings:', listings.map(l => ({ id: l.id, name: l.name })));
+  logger.general('[SellerListings] Rendering with listings:', listings.map(l => ({ id: l.id, name: l.name })));
 
   const handleDeleteClick = (listing: ListingWithFirebaseId) => {
     const firebaseId = listing.firebaseId;
-    console.log('[SellerListings] Delete button clicked for listing:', listing.name, 'firebaseId:', firebaseId);
+    logger.general('[SellerListings] Delete button clicked for listing:', listing.name, 'firebaseId:', firebaseId);
     setDeleteConfirmId(firebaseId);
   };
 
   const handleConfirmDelete = (listing: ListingWithFirebaseId) => {
     const firebaseId = listing.firebaseId;
-    console.log('[SellerListings] Confirming delete for:', listing.name, 'firebaseId:', firebaseId);
+    logger.general('[SellerListings] Confirming delete for:', listing.name, 'firebaseId:', firebaseId);
     onDeleteListing(firebaseId || listing.id);
     setDeleteConfirmId(null);
   };
@@ -308,7 +309,7 @@ const SellerListings = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           const firebaseId = listing.firebaseId;
-                          console.log('[SellerListings] Edit button clicked for listing:', listing.name, 'firebaseId:', firebaseId);
+                          logger.general('[SellerListings] Edit button clicked for listing:', listing.name, 'firebaseId:', firebaseId);
                           onEditListing(firebaseId || listing.id);
                         }}
                         className="py-2 bg-[#0A1A2A] text-[#88CCFF] rounded-lg text-sm font-semibold hover:bg-[#1A2A3A] transition-all"
@@ -321,7 +322,7 @@ const SellerListings = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log('[SellerListings] Delete button onClick fired, listing.id:', listing.id);
+                          logger.general('[SellerListings] Delete button onClick fired, listing.id:', listing.id);
                           handleDeleteClick(listing);
                         }}
                         className="py-2 bg-[#2A0A0A] text-[#FF8888] rounded-lg text-sm font-semibold hover:bg-[#3A1A1A] transition-all"

@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -22,7 +24,7 @@ const missingKeys = requiredKeys.filter(
 );
 
 if (missingKeys.length > 0) {
-  console.error(
+  logger.error(
     `Missing Firebase configuration keys: ${missingKeys.join(', ')}\n` +
     'Please check your .env.local file and ensure all required variables are set.\n' +
     'See .env.local.example for required variables.'

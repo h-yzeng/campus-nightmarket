@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 import type { UserMode } from '../types';
 import { uploadProfilePhoto } from '../services/storage/imageService';
 import { useAuth } from '../hooks/userAuth';
+import { logger } from '../utils/logger';
 
 interface UserProfileProps {
   profileData: ProfileData;
@@ -61,7 +62,7 @@ const UserProfile = ({
       setProfileData({ ...profileData, photo: photoURL });
       setHasChanges(true);
     } catch (err) {
-      console.error('Error uploading photo:', err);
+      logger.error('Error uploading photo:', err);
       setError(err instanceof Error ? err.message : 'Failed to upload photo');
     } finally {
       setUploadingPhoto(false);
@@ -161,7 +162,7 @@ const UserProfile = ({
       await onSaveProfile();
       setHasChanges(false);
     } catch (err) {
-      console.error('Error saving profile:', err);
+      logger.error('Error saving profile:', err);
       setError(err instanceof Error ? err.message : 'Failed to save profile');
     } finally {
       setSaving(false);
