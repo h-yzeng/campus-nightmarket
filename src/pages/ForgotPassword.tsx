@@ -1,21 +1,27 @@
-import { Mail, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Mail, AlertCircle, CheckCircle, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import {
   getUserSecurityQuestions,
   verifySecurityAnswers,
 } from '../services/auth/securityService';
+import { resetPasswordWithVerification } from '../services/auth/passwordResetService';
 
 interface ForgotPasswordProps {
   onBack: () => void;
 }
 
-type Step = 'email' | 'security-questions' | 'success';
+type Step = 'email' | 'security-questions' | 'new-password' | 'success';
 
 const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState('');
   const [securityQuestions, setSecurityQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -73,17 +79,50 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
 
       const result = await verifySecurityAnswers(email, answersArray);
 
-      if (!result.verified) {
+      if (!result.verified || !result.userId) {
         setError('Security answers are incorrect. Please try again.');
         setLoading(false);
         return;
       }
 
-      const { resetPassword } = await import('../services/auth/authService');
-      await resetPassword(email);
-      setStep('success');
+      // Store userId and move to password reset step
+      setUserId(result.userId);
+      setStep('new-password');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to verify security answers');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    setError('');
+    setLoading(true);
+
+    // Validate password
+    if (!newPassword || newPassword.length < 8) {
+      setError('Password must be at least 8 characters long');
+      setLoading(false);
+      return;
+    }
+
+    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/\d/.test(newPassword)) {
+      setError('Password must contain uppercase, lowercase, and number');
+      setLoading(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await resetPasswordWithVerification(email, newPassword, userId);
+      setStep('success');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reset password');
     } finally {
       setLoading(false);
     }
@@ -100,12 +139,14 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
             <h2 className="text-4xl font-bold mb-3 text-[#CC0000]">
               {step === 'email' && 'Reset Password'}
               {step === 'security-questions' && 'Security Questions'}
-              {step === 'success' && 'Check Your Email'}
+              {step === 'new-password' && 'Create New Password'}
+              {step === 'success' && 'Success!'}
             </h2>
             <p className="text-lg text-gray-400">
               {step === 'email' && 'Enter your email to get started'}
               {step === 'security-questions' && 'Answer your security questions'}
-              {step === 'success' && 'Password reset email sent'}
+              {step === 'new-password' && 'Enter your new password'}
+              {step === 'success' && 'Password has been reset'}
             </p>
           </div>
 
@@ -179,14 +220,80 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
               </>
             )}
 
+            {step === 'new-password' && (
+              <>
+                <div className="mb-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-white">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full pl-12 pr-12 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                        placeholder="Enter new password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-white transition-colors"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold mb-2 text-white">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full pl-12 pr-12 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                        placeholder="Confirm new password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-white transition-colors"
+                      >
+                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-400 mt-2">
+                    Password must be at least 8 characters with uppercase, lowercase, and number
+                  </div>
+                </div>
+
+                <button
+                  onClick={handlePasswordReset}
+                  disabled={loading}
+                  className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 mb-4 ${
+                    loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#CC0000]'
+                  }`}
+                >
+                  {loading ? 'Resetting Password...' : 'Reset Password →'}
+                </button>
+              </>
+            )}
+
             {step === 'success' && (
               <>
                 <div className="flex gap-3 p-4 rounded-xl mb-6 bg-green-950 border-2 border-green-800">
                   <CheckCircle size={20} className="text-green-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-semibold text-white mb-1">Reset Email Sent!</p>
+                    <p className="text-sm font-semibold text-white mb-1">Password Reset Successful!</p>
                     <p className="text-sm text-gray-300">
-                      Check your email ({email}) for a password reset link. The link will expire in 24 hours.
+                      Your password has been successfully changed. You can now sign in with your new password.
                     </p>
                   </div>
                 </div>

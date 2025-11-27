@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getUserProfile } from '../../services/auth/userService';
+import { useSellerReviewsQuery } from '../../hooks/queries/useReviewsQuery';
 import ViewProfile from './ViewProfile';
 import type { ProfileData, CartItem, Transaction, UserMode } from '../../types';
 import Header from '../../components/Header';
@@ -37,6 +38,9 @@ const ViewProfileWrapper = ({
     sellerBio: string;
     sellerLocation: string;
   } | null>(null);
+
+  // Fetch reviews using React Query
+  const { data: reviews = [], isLoading: reviewsLoading } = useSellerReviewsQuery(sellerId);
 
   useEffect(() => {
     const fetchSellerProfile = async () => {
@@ -135,6 +139,8 @@ const ViewProfileWrapper = ({
       sellerBio={sellerData.sellerBio}
       sellerLocation={sellerData.sellerLocation}
       transactions={transactions}
+      reviews={reviews}
+      reviewsLoading={reviewsLoading}
       currentUserProfile={currentUserProfile}
       cart={cart}
       userMode={userMode}

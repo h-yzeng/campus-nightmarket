@@ -6,6 +6,8 @@ import { useCart } from './hooks/useCart';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useNotifications } from './hooks/useNotifications';
 import { useDeleteListingMutation, useToggleListingAvailabilityMutation } from './hooks/mutations/useListingMutations';
+import { createReview } from './services/reviews/reviewService';
+import { updateOrder } from './services/orders/orderService';
 import { AppRoutes } from './routes';
 import {
   useAuthStore,
@@ -95,6 +97,45 @@ function App() {
     await handleCancelOrder(orderId, () => {});
   };
 
+  const wrappedHandleSubmitReview = async (orderId: number, rating: number, comment: string) => {
+    if (!user || !profileData) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      // Get the order from React Query cache
+      const ordersData = queryClient.getQueryData<any[]>(['orders', 'buyer', user.uid]);
+      const order = ordersData?.find(o => o.id === orderId);
+
+      if (!order) {
+        throw new Error('Order not found');
+      }
+
+      // Create the review
+      await createReview({
+        orderId: order.firebaseId,
+        buyerId: user.uid,
+        buyerName: `${profileData.firstName} ${profileData.lastName}`,
+        sellerId: order.sellerId,
+        sellerName: order.sellerName,
+        rating,
+        comment: comment || undefined,
+        itemNames: order.items.map((item: any) => item.name),
+        listingIds: order.items.map((item: any) => String(item.listingId || item.id)),
+      });
+
+      // Mark the order as reviewed
+      await updateOrder(order.firebaseId, { hasReview: true });
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['orders', 'buyer', user.uid] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', 'seller', order.sellerId] });
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      throw error;
+    }
+  };
+
   return (
     <BrowserRouter>
       <div className="app">
@@ -111,6 +152,7 @@ function App() {
           handleDeleteListing={wrappedHandleDeleteListing}
           handleUpdateListing={wrappedHandleUpdateListing}
           handleUpdateOrderStatus={handleUpdateOrderStatus}
+          handleSubmitReview={wrappedHandleSubmitReview}
           addToCart={addToCart}
           updateCartQuantity={updateCartQuantity}
           removeFromCart={removeFromCart}

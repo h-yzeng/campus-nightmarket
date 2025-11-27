@@ -5,6 +5,7 @@ import Footer from '../../components/Footer';
 
 interface BrowseProps {
   foodItems: FoodItem[];
+  sellerRatings: Record<string, string | null>;
   cart: CartItem[];
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -27,6 +28,7 @@ interface BrowseProps {
 
 const Browse = ({
   foodItems,
+  sellerRatings,
   cart,
   searchQuery,
   setSearchQuery,
@@ -178,10 +180,10 @@ const Browse = ({
                   <div className="flex items-center gap-2 mb-4">
                     <MapPin size={14} className="text-[#888888]" />
                     <span className="text-xs text-[#B0B0B0]">{item.location}</span>
-                    {item.rating !== 'N/A' && (
+                    {sellerRatings[item.sellerId] && (
                       <div className="ml-auto flex items-center gap-1">
                         <Star size={14} className="fill-[#FFD700] text-[#FFD700]" />
-                        <span className="text-xs font-semibold text-[#E0E0E0]">{item.rating}</span>
+                        <span className="text-xs font-semibold text-[#E0E0E0]">{sellerRatings[item.sellerId]}</span>
                       </div>
                     )}
                   </div>

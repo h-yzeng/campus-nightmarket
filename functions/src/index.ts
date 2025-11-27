@@ -1,5 +1,6 @@
 import {onDocumentCreated, onDocumentUpdated} from 'firebase-functions/v2/firestore';
 import {onSchedule} from 'firebase-functions/v2/scheduler';
+import {onCall} from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
 admin.initializeApp();
@@ -238,5 +239,53 @@ export const cleanupExpiredTokens = onSchedule('every 24 hours', async (_event) 
     }
   } catch (error) {
     console.error('Error cleaning up expired tokens:', error);
+  }
+});
+
+/**
+ * Reset user password after security questions are verified
+ * This is called from the client after security answers are confirmed
+ */
+export const resetPasswordWithVerification = onCall(async (request) => {
+  const {email, newPassword, userId} = request.data;
+
+  // Validate input
+  if (!email || !newPassword || !userId) {
+    throw new Error('Missing required fields: email, newPassword, and userId');
+  }
+
+  // Validate password strength
+  if (newPassword.length < 8) {
+    throw new Error('Password must be at least 8 characters long');
+  }
+
+  try {
+    console.log(`Resetting password for user ${userId} (${email})`);
+
+    // Get user by email to verify it exists
+    const userRecord = await admin.auth().getUserByEmail(email);
+
+    // Verify the userId matches
+    if (userRecord.uid !== userId) {
+      throw new Error('User ID mismatch');
+    }
+
+    // Update the password using Firebase Admin SDK
+    await admin.auth().updateUser(userId, {
+      password: newPassword,
+    });
+
+    console.log(`Password successfully reset for user ${userId}`);
+
+    return {
+      success: true,
+      message: 'Password has been successfully reset',
+    };
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to reset password: ${error.message}`);
+    }
+    throw new Error('Failed to reset password');
   }
 });

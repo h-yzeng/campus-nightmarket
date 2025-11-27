@@ -1,12 +1,13 @@
 import { ArrowLeft, Clock, MapPin, Package, Wallet, User, Phone, Mail, MessageSquare, CheckCircle, XCircle, AlertCircle, Star } from 'lucide-react';
 import { useState } from 'react';
-import type { UserMode, Order, ProfileData, CartItem } from '../../types';
+import type { UserMode, Order, ProfileData, CartItem, Review } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ReviewModal from '../../components/ReviewModal';
 
 interface OrderDetailsProps {
   order: Order;
+  review?: Review;
   sellerPhone?: string;
   sellerEmail?: string;
   sellerCashApp?: string;
@@ -26,6 +27,7 @@ interface OrderDetailsProps {
 
 const OrderDetails = ({
   order,
+  review,
   sellerPhone,
   sellerEmail,
   sellerCashApp,
@@ -365,14 +367,42 @@ const OrderDetails = ({
             )}
 
             {/* Already Reviewed */}
-            {order.status === 'completed' && order.hasReview && (
+            {order.status === 'completed' && order.hasReview && review && (
               <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-[#1A4A1A] p-6">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-4">
                   <CheckCircle size={20} className="text-[#88FF88]" />
-                  <h3 className="text-lg font-bold text-white">Review Submitted</h3>
+                  <h3 className="text-lg font-bold text-white">Your Review</h3>
                 </div>
-                <p className="text-sm text-[#B0B0B0]">
-                  Thank you for leaving a review for this order!
+
+                {/* Star Rating */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={20}
+                        className={star <= review.rating ? 'text-[#FFD700] fill-[#FFD700]' : 'text-[#3A3A3A]'}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm font-semibold text-[#E0E0E0]">
+                    {review.rating} out of 5
+                  </span>
+                </div>
+
+                {/* Review Comment */}
+                {review.comment && (
+                  <div className="p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
+                    <p className="text-sm text-[#E0E0E0] italic">"{review.comment}"</p>
+                  </div>
+                )}
+
+                <p className="text-xs text-[#888888] mt-3">
+                  Submitted on {new Date(review.createdAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
                 </p>
               </div>
             )}

@@ -1,6 +1,6 @@
-import { ArrowLeft, Clock, MapPin, Package, User, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Package, User, CheckCircle, XCircle, AlertCircle, Loader2, Star } from 'lucide-react';
 import { useState } from 'react';
-import type { ProfileData, CartItem, Order } from '../../types';
+import type { ProfileData, CartItem, Order, Review } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
@@ -8,6 +8,7 @@ interface SellerOrdersProps {
   profileData: ProfileData;
   cart: CartItem[];
   incomingOrders: Order[];
+  orderReviews: Record<string, Review>;
   userMode: 'buyer' | 'seller';
   onBackToDashboard: () => void;
   onUpdateOrderStatus: (orderId: number, status: Order['status']) => void;
@@ -27,6 +28,7 @@ const SellerOrders = ({
   profileData,
   cart,
   incomingOrders,
+  orderReviews,
   userMode,
   onBackToDashboard,
   onUpdateOrderStatus,
@@ -455,14 +457,63 @@ const SellerOrders = ({
                       )}
 
                       {order.status === 'completed' && (
-                        <div className="p-4 bg-green-950 rounded-xl border-2 border-green-800">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle size={20} className="text-green-600" />
-                            <p className="text-sm font-semibold text-[#88FF88]">
-                              Order completed successfully!
-                            </p>
+                        <>
+                          <div className="p-4 bg-green-950 rounded-xl border-2 border-green-800 mb-4">
+                            <div className="flex items-center gap-2">
+                              <CheckCircle size={20} className="text-green-600" />
+                              <p className="text-sm font-semibold text-[#88FF88]">
+                                Order completed successfully!
+                              </p>
+                            </div>
                           </div>
-                        </div>
+
+                          {/* Customer Review */}
+                          {order.hasReview && orderReviews[order.firebaseId] && (
+                            <div className="p-5 bg-[#1E1E1E] rounded-xl border-2 border-[#3A3A3A]">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Star size={18} className="text-[#FFD700] fill-[#FFD700]" />
+                                <h4 className="text-base font-bold text-white">Customer Review</h4>
+                              </div>
+
+                              {/* Star Rating */}
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="flex">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      size={18}
+                                      className={star <= orderReviews[order.firebaseId].rating ? 'text-[#FFD700] fill-[#FFD700]' : 'text-[#3A3A3A]'}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm font-semibold text-[#E0E0E0]">
+                                  {orderReviews[order.firebaseId].rating} out of 5
+                                </span>
+                              </div>
+
+                              {/* Review Comment */}
+                              {orderReviews[order.firebaseId].comment && (
+                                <div className="p-3 bg-[#252525] rounded-lg border border-[#3A3A3A] mb-3">
+                                  <p className="text-sm text-[#E0E0E0] italic">
+                                    "{orderReviews[order.firebaseId].comment}"
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Review Details */}
+                              <div className="flex items-center justify-between text-xs text-[#888888]">
+                                <span>By {orderReviews[order.firebaseId].buyerName}</span>
+                                <span>
+                                  {new Date(orderReviews[order.firebaseId].createdAt).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
 
                       {order.status === 'cancelled' && (

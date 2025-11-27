@@ -53,6 +53,8 @@ const convertFirebaseOrderToApp = (firebaseOrder: FirebaseOrder): Order => {
     }),
     notes: firebaseOrder.notes,
     buyerName: firebaseOrder.buyerName,
+    reviewId: firebaseOrder.reviewId,
+    hasReview: firebaseOrder.hasReview,
   };
 };
 

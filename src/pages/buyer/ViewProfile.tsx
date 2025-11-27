@@ -42,11 +42,11 @@ const ViewProfile = ({
   onProfileClick,
   onLogoClick
 }: ViewProfileProps) => {
-  const averageRating = transactions.length > 0
-    ? (transactions.reduce((sum, t) => sum + t.rating, 0) / transactions.length).toFixed(1)
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
     : 'N/A';
 
-  const totalSales = transactions.length;
+  const totalSales = reviews.length;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#040707]">
@@ -73,15 +73,15 @@ const ViewProfile = ({
 
         <div className="bg-neutral-800 rounded-2xl shadow-xl border-2 border-neutral-700 p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#E0E0E0] bg-[#F5F5F5] overflow-hidden mb-4">
+            <div className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#3A3A3A] bg-[#252525] overflow-hidden mb-4">
               {sellerPhoto ? (
-                <img 
-                  src={sellerPhoto} 
-                  alt={sellerName} 
-                  className="w-full h-full object-cover" 
+                <img
+                  src={sellerPhoto}
+                  alt={sellerName}
+                  className="w-full h-full object-cover"
                 />
               ) : (
-                <User size={48} className="text-[#76777B]" />
+                <User size={48} className="text-[#888888]" />
               )}
             </div>
             
@@ -117,9 +117,9 @@ const ViewProfile = ({
           </div>
 
           {sellerBio && (
-            <div className="mb-8 p-4 bg-[#FAFAFA] rounded-xl border-2 border-gray-200">
+            <div className="mb-8 p-4 bg-[#2A2A2A] rounded-xl border-2 border-[#3A3A3A]">
               <h2 className="text-sm font-bold text-white mb-2">About</h2>
-              <p className="text-sm text-gray-700">{sellerBio}</p>
+              <p className="text-sm text-[#E0E0E0]">{sellerBio}</p>
             </div>
           )}
 
@@ -149,12 +149,12 @@ const ViewProfile = ({
                 {transactions.slice(0, 5).map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="p-4 bg-[#FAFAFA] rounded-xl border-2 border-neutral-700 hover:border-neutral-600 transition-colors"
+                    className="p-4 bg-[#2A2A2A] rounded-xl border-2 border-[#3A3A3A] hover:border-[#4A4A4A] transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <h3 className="font-bold text-white">{transaction.itemName}</h3>
-                        <p className="text-sm text-gray-600">Bought by {transaction.buyerName}</p>
+                        <p className="text-sm text-[#A0A0A0]">Bought by {transaction.buyerName}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-[#CC0000]">${transaction.price}</p>
@@ -165,14 +165,14 @@ const ViewProfile = ({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                    <div className="flex items-center gap-2 text-xs text-[#888888] mb-2">
                       <Calendar size={12} />
                       <span>{transaction.date}</span>
                     </div>
 
                     {transaction.review && (
-                      <div className="mt-3 p-3 bg-neutral-800 rounded-lg border border-gray-200">
-                        <p className="text-sm text-gray-300 italic">"{transaction.review}"</p>
+                      <div className="mt-3 p-3 bg-[#1E1E1E] rounded-lg border border-[#3A3A3A]">
+                        <p className="text-sm text-[#E0E0E0] italic">"{transaction.review}"</p>
                       </div>
                     )}
                   </div>

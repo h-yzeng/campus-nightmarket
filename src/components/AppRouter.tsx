@@ -188,6 +188,7 @@ export const AppRouter = ({
       {currentPage === 'browse' && (
         <Browse
           foodItems={foodItems}
+          sellerRatings={{}}
           cart={cart}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -356,6 +357,7 @@ export const AppRouter = ({
           profileData={profileData}
           cart={cart}
           incomingOrders={sellerOrders}
+          orderReviews={{}}
           userMode={userMode}
           onBackToDashboard={handleGoToSellerDashboard}
           onUpdateOrderStatus={handleUpdateOrderStatus}
