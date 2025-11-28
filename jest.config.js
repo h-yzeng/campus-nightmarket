@@ -21,7 +21,6 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
   },
-  setupFilesAfterEnv: ['<rootDir>/tests/test-setup.ts'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',

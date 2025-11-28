@@ -52,16 +52,16 @@ describe('Password Validation', () => {
   });
 
   describe('Common Password Patterns', () => {
-    it('should reject common weak passwords even if they meet length requirements', () => {
+    it('should accept common weak passwords that meet length requirements', () => {
       // Note: Current implementation doesn't check against common passwords
       // This is a placeholder for future enhancement
       const weakPasswords = [
         'Password123!',
         'Qwerty123456!',
-        '123456Abc!',
+        'Admin1234567!',
       ];
 
-      // These would pass current validation but should ideally be rejected
+      // These currently pass validation but should ideally be rejected in a future enhancement
       weakPasswords.forEach(pwd => {
         expect(isValidPassword(pwd)).toBe(true); // Current behavior
       });

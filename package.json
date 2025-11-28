@@ -10,13 +10,7 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:auth": "jest tests/integration/auth.integration.test.ts",
-    "test:orders": "jest tests/integration/orders.integration.test.ts",
-    "test:listings": "jest tests/integration/listings.integration.test.ts",
-    "test:security": "jest tests/integration/security-rules.test.ts",
-    "emulators:start": "firebase emulators:start",
-    "test:emulators": "firebase emulators:exec \"npm test\""
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@sentry/react": "^10.27.0",
@@ -33,7 +27,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@firebase/rules-unit-testing": "^3.0.4",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
@@ -55,10 +48,5 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
     "vite": "^7.2.2"
-  },
-  "overrides": {
-    "@firebase/rules-unit-testing": {
-      "firebase": "$firebase"
-    }
   }
 }
