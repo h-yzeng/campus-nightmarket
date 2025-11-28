@@ -86,7 +86,7 @@ service cloud.firestore {
         && request.resource.data.items.size() > 0
         && request.resource.data.total > 0
         && request.resource.data.status == 'pending'
-        && request.resource.data.paymentMethod in ['cashApp', 'venmo', 'zelle'];
+        && request.resource.data.paymentMethod in ['Cash', 'CashApp', 'Venmo', 'Zelle'];
 
       // Buyer can update their order (cancel it)
       // Seller can update order status

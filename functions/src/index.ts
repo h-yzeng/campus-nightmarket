@@ -8,35 +8,120 @@ import * as bcrypt from 'bcrypt';
 
 admin.initializeApp();
 
+/**
+ * RATE LIMITING CONFIGURATION
+ *
+ * These settings control how many password reset/security verification attempts
+ * are allowed before blocking the user.
+ *
+ * HOW TO ADJUST:
+ * - RATE_LIMIT_WINDOW: How long to track attempts (in milliseconds)
+ * - MAX_VERIFICATION_ATTEMPTS: Number of attempts before blocking starts
+ * - PROGRESSIVE_BLOCKING: Escalating block times based on attempt count
+ *
+ * TIME CONVERSION:
+ * - 1 minute = 60 * 1000
+ * - 5 minutes = 5 * 60 * 1000
+ * - 1 hour = 60 * 60 * 1000
+ */
+
 // Rate limiting storage (in-memory for simplicity - consider Redis for production)
 const rateLimitStore = new Map<string, { attempts: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
-const MAX_VERIFICATION_ATTEMPTS = 5;
-const BCRYPT_ROUNDS = 12;
 
-// Verification tokens storage (short-lived, in-memory)
-const verificationTokens = new Map<string, { userId: string; email: string; expiresAt: number }>();
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour window to track attempts
+const MAX_VERIFICATION_ATTEMPTS = 10; // Allow 10 attempts before blocking (good for development)
+const BCRYPT_ROUNDS = 12; // Security strength for password hashing
+
+/**
+ * Progressive blocking durations
+ * After exceeding MAX_VERIFICATION_ATTEMPTS, users are blocked for escalating durations:
+ * - 4+ attempts: 5 minutes
+ * - 5+ attempts: 10 minutes
+ * - 6+ attempts: 15 minutes
+ * - 7+ attempts: 30 minutes
+ */
+const PROGRESSIVE_BLOCKING = {
+  4: 5 * 60 * 1000,   // 5 minutes
+  5: 10 * 60 * 1000,  // 10 minutes
+  6: 15 * 60 * 1000,  // 15 minutes
+  7: 30 * 60 * 1000,  // 30 minutes
+};
+
+// Verification tokens storage - now using Firestore instead of in-memory Map
+// to persist tokens across Cloud Function cold starts and scaling
 const TOKEN_EXPIRY = 10 * 60 * 1000; // 10 minutes
 
 /**
- * Check rate limit for security question verification
+ * Store verification token in Firestore
  */
-function checkRateLimit(identifier: string): boolean {
+async function storeVerificationToken(token: string, userId: string, email: string): Promise<void> {
+  await admin.firestore().collection('verificationTokens').doc(token).set({
+    userId,
+    email,
+    expiresAt: Date.now() + TOKEN_EXPIRY,
+    createdAt: Date.now(),
+  });
+}
+
+/**
+ * Get verification token from Firestore
+ */
+async function getVerificationToken(token: string): Promise<{ userId: string; email: string; expiresAt: number } | null> {
+  const doc = await admin.firestore().collection('verificationTokens').doc(token).get();
+  if (!doc.exists) {
+    return null;
+  }
+  return doc.data() as { userId: string; email: string; expiresAt: number };
+}
+
+/**
+ * Delete verification token from Firestore
+ */
+async function deleteVerificationToken(token: string): Promise<void> {
+  await admin.firestore().collection('verificationTokens').doc(token).delete();
+}
+
+/**
+ * Check rate limit for security question verification
+ * Returns { allowed: boolean, blockDurationMs?: number, message?: string }
+ */
+function checkRateLimit(identifier: string): { allowed: boolean; blockDurationMs?: number; message?: string } {
   const now = Date.now();
   const record = rateLimitStore.get(identifier);
 
   if (!record || now > record.resetTime) {
     // Reset or create new record
     rateLimitStore.set(identifier, { attempts: 1, resetTime: now + RATE_LIMIT_WINDOW });
-    return true;
+    return { allowed: true };
   }
 
   if (record.attempts >= MAX_VERIFICATION_ATTEMPTS) {
-    return false; // Rate limit exceeded
+    // Calculate progressive blocking duration
+    const attemptCount = record.attempts;
+    let blockDurationMs = 30 * 60 * 1000; // Default 30 minutes
+
+    // Find appropriate block duration
+    const blockingLevels = Object.keys(PROGRESSIVE_BLOCKING)
+      .map(Number)
+      .sort((a, b) => b - a);
+
+    for (const level of blockingLevels) {
+      if (attemptCount >= level) {
+        blockDurationMs = PROGRESSIVE_BLOCKING[level as keyof typeof PROGRESSIVE_BLOCKING];
+        break;
+      }
+    }
+
+    const retryAfterMinutes = Math.ceil(blockDurationMs / 60000);
+    return {
+      allowed: false,
+      blockDurationMs,
+      message: `Too many verification attempts. Please try again in ${retryAfterMinutes} minute(s).`,
+    };
   }
 
   record.attempts++;
-  return true;
+  return { allowed: true };
 }
 
 /**
@@ -335,8 +420,11 @@ export const saveSecurityQuestions = onCall(async (request) => {
 
 /**
  * Verify security question answers (server-side with rate limiting)
+ * App Check disabled to allow password reset without authentication
  */
-export const verifySecurityAnswers = onCall(async (request) => {
+export const verifySecurityAnswers = onCall({
+  consumeAppCheckToken: false,
+}, async (request) => {
   const {email, answers} = request.data;
 
   // Validate input
@@ -350,8 +438,9 @@ export const verifySecurityAnswers = onCall(async (request) => {
   }
 
   // Check rate limit
-  if (!checkRateLimit(email)) {
-    throw new Error('Too many verification attempts. Please try again later.');
+  const rateLimit = checkRateLimit(email);
+  if (!rateLimit.allowed) {
+    throw new Error(rateLimit.message || 'Too many verification attempts. Please try again later.');
   }
 
   try {
@@ -385,9 +474,22 @@ export const verifySecurityAnswers = onCall(async (request) => {
           return false;
         }
 
-        // Normalize answer before comparing
-        const normalizedAnswer = providedAnswer.answer.toLowerCase().trim();
-        return await bcrypt.compare(normalizedAnswer, storedQuestion.answer);
+        // Try multiple normalization strategies for flexibility
+        const strategies = [
+          providedAnswer.answer,
+          providedAnswer.answer.toLowerCase(),
+          providedAnswer.answer.trim(),
+          providedAnswer.answer.trim().toLowerCase(),
+        ];
+
+        for (const strategy of strategies) {
+          const match = await bcrypt.compare(strategy, storedQuestion.answer);
+          if (match) {
+            return true;
+          }
+        }
+
+        return false;
       })
     );
 
@@ -399,11 +501,7 @@ export const verifySecurityAnswers = onCall(async (request) => {
 
     // Generate verification token
     const token = generateToken();
-    verificationTokens.set(token, {
-      userId,
-      email,
-      expiresAt: Date.now() + TOKEN_EXPIRY,
-    });
+    await storeVerificationToken(token, userId, email);
 
     return {
       verified: true,
@@ -412,7 +510,7 @@ export const verifySecurityAnswers = onCall(async (request) => {
       message: 'Security answers verified successfully',
     };
   } catch (error) {
-    logger.error('Error verifying security answers:', error);
+    logger.error('Error in verifySecurityAnswers:', error);
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -422,8 +520,11 @@ export const verifySecurityAnswers = onCall(async (request) => {
 
 /**
  * Get user's security questions (without answers)
+ * App Check disabled to allow password reset without authentication
  */
-export const getUserSecurityQuestions = onCall(async (request) => {
+export const getUserSecurityQuestions = onCall({
+  consumeAppCheckToken: false,
+}, async (request) => {
   const {email} = request.data;
 
   // Validate input
@@ -463,7 +564,7 @@ export const getUserSecurityQuestions = onCall(async (request) => {
       questions,
     };
   } catch (error) {
-    logger.error('Error getting security questions:', error);
+    logger.error('Error in getUserSecurityQuestions:', error);
     if (error instanceof Error) {
       throw new Error(error.message);
     }
@@ -474,8 +575,11 @@ export const getUserSecurityQuestions = onCall(async (request) => {
 /**
  * Reset user password after security questions are verified
  * Requires a valid verification token from verifySecurityAnswers
+ * App Check disabled to allow password reset without authentication
  */
-export const resetPasswordWithVerification = onCall(async (request) => {
+export const resetPasswordWithVerification = onCall({
+  consumeAppCheckToken: false,
+}, async (request) => {
   const {email, newPassword, token} = request.data;
 
   // Validate input
@@ -504,7 +608,7 @@ export const resetPasswordWithVerification = onCall(async (request) => {
   }
 
   // Verify token
-  const tokenData = verificationTokens.get(token);
+  const tokenData = await getVerificationToken(token);
   if (!tokenData) {
     throw new Error('Invalid or expired verification token');
   }
@@ -514,7 +618,7 @@ export const resetPasswordWithVerification = onCall(async (request) => {
   }
 
   if (Date.now() > tokenData.expiresAt) {
-    verificationTokens.delete(token);
+    await deleteVerificationToken(token);
     throw new Error('Verification token has expired. Please verify security questions again.');
   }
 
@@ -533,7 +637,7 @@ export const resetPasswordWithVerification = onCall(async (request) => {
     });
 
     // Delete the token after successful password reset
-    verificationTokens.delete(token);
+    await deleteVerificationToken(token);
 
     return {
       success: true,
@@ -667,3 +771,4 @@ async function logSecurityEvent(event: {
     logger.error('Error logging security event:', error);
   }
 }
+

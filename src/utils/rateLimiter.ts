@@ -9,6 +9,9 @@ interface RateLimitConfig {
   maxAttempts: number; // Maximum number of attempts
   windowMs: number; // Time window in milliseconds
   blockDurationMs?: number; // How long to block after exceeding limit
+  progressiveBlocking?: {
+    [attemptCount: number]: number; // Attempt count -> block duration in ms
+  };
 }
 
 interface RateLimitEntry {
@@ -69,13 +72,30 @@ class RateLimiter {
 
     // Check if limit exceeded
     if (entry.attempts.length >= config.maxAttempts) {
-      const blockDuration = config.blockDurationMs || config.windowMs;
+      // Calculate block duration based on progressive blocking if configured
+      let blockDuration = config.blockDurationMs || config.windowMs;
+
+      if (config.progressiveBlocking) {
+        const attemptCount = entry.attempts.length;
+        // Find the appropriate block duration based on attempt count
+        const blockingLevels = Object.keys(config.progressiveBlocking)
+          .map(Number)
+          .sort((a, b) => b - a); // Sort descending
+
+        for (const level of blockingLevels) {
+          if (attemptCount >= level) {
+            blockDuration = config.progressiveBlocking[level];
+            break;
+          }
+        }
+      }
+
       entry.blockedUntil = now + blockDuration;
       data[key] = entry;
       this.setData(data);
 
       const retryAfterMinutes = Math.ceil(blockDuration / 60000);
-      logger.warn(`Rate limit exceeded for ${key}`);
+      logger.warn(`Rate limit exceeded for ${key}. Blocked for ${retryAfterMinutes} minutes.`);
       return {
         allowed: false,
         retryAfterMs: blockDuration,
@@ -133,9 +153,33 @@ export const RATE_LIMITS = {
     windowMs: 60 * 60 * 1000, // 1 hour
     blockDurationMs: 60 * 60 * 1000, // Block for 1 hour
   },
+  /**
+   * LOGIN_FAILED rate limiting configuration
+   *
+   * DEVELOPMENT (localhost): 10 attempts before blocking
+   * PRODUCTION: 3 attempts before blocking
+   *
+   * How to adjust:
+   * - maxAttempts: Number of failed login attempts before blocking starts
+   * - windowMs: Time window to track attempts (in milliseconds)
+   * - progressiveBlocking: Escalating block durations based on attempt count
+   *   - Key: attempt number (4th, 5th, 6th, 7th+)
+   *   - Value: block duration in milliseconds
+   *
+   * Examples:
+   * - 5 * 60 * 1000 = 5 minutes
+   * - 10 * 60 * 1000 = 10 minutes
+   * - 60 * 60 * 1000 = 1 hour
+   */
   LOGIN_FAILED: {
-    maxAttempts: 5,
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    blockDurationMs: 30 * 60 * 1000, // Block for 30 minutes
+    // Allow more attempts in development for easier testing
+    maxAttempts: typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 10 : 3,
+    windowMs: 60 * 60 * 1000, // 1 hour window
+    progressiveBlocking: {
+      4: 5 * 60 * 1000,   // Block for 5 minutes after 4th failed attempt
+      5: 10 * 60 * 1000,  // Block for 10 minutes after 5th failed attempt
+      6: 15 * 60 * 1000,  // Block for 15 minutes after 6th failed attempt
+      7: 30 * 60 * 1000,  // Block for 30 minutes after 7th+ failed attempts
+    },
   },
 } as const;

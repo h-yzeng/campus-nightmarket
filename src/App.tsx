@@ -16,9 +16,18 @@ import {
   useNotificationStore,
 } from './stores';
 import { logger } from './utils/logger';
+import { rateLimiter } from './utils/rateLimiter';
 
 function App() {
   const queryClient = useQueryClient();
+
+  // Clear rate limits on page refresh in development mode
+  useEffect(() => {
+    if (window.location.hostname === 'localhost') {
+      rateLimiter.clearAll();
+      logger.info('Rate limits cleared for development mode');
+    }
+  }, []);
 
   // Auth and cart still use hooks
   const {

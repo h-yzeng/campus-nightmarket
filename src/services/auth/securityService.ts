@@ -39,6 +39,13 @@ export const saveSecurityQuestions = async (
     }
   } catch (error) {
     logger.error('Error saving security questions:', error);
+
+    // Handle Firebase Functions errors specifically
+    if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
+      const fbError = error as { code: string; message: string };
+      throw new Error(fbError.message || 'Failed to save security questions');
+    }
+
     if (error instanceof Error) {
       throw error;
     }
@@ -80,6 +87,13 @@ export const verifySecurityAnswers = async (
     };
   } catch (error) {
     logger.error('Error verifying security answers:', error);
+
+    // Handle Firebase Functions errors specifically
+    if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
+      const fbError = error as { code: string; message: string };
+      throw new Error(fbError.message || 'Failed to verify security answers');
+    }
+
     if (error instanceof Error) {
       throw error;
     }
@@ -105,6 +119,13 @@ export const getUserSecurityQuestions = async (
     return data.questions || [];
   } catch (error) {
     logger.error('Error getting security questions:', error);
+
+    // Handle Firebase Functions errors specifically
+    if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
+      const fbError = error as { code: string; message: string };
+      throw new Error(fbError.message || 'Failed to get security questions');
+    }
+
     if (error instanceof Error) {
       throw error;
     }

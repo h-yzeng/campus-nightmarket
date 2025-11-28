@@ -187,7 +187,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                       placeholder="youremail@hawk.illinoistech.edu"
                       onKeyPress={(e) => e.key === 'Enter' && handleEmailSubmit()}
                     />
@@ -218,7 +218,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                         type="text"
                         value={answers[question] || ''}
                         onChange={(e) => setAnswers({ ...answers, [question]: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                        className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                         placeholder="Your answer"
                       />
                     </div>
@@ -250,7 +250,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                         type={showPassword ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                        className="w-full pl-12 pr-12 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                         placeholder="Enter new password"
                       />
                       <button
@@ -273,7 +273,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                        className="w-full pl-12 pr-12 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                         placeholder="Confirm new password"
                       />
                       <button

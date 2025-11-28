@@ -57,33 +57,33 @@ const Signup = ({
   };
   
   const getNameBorderColor = (value: string): string => {
-    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
-    if (isValidName(value)) return 'border-[#000000] focus:ring-gray-200';
-    return 'border-[#CC0000] focus:ring-red-200';
+    if (!value) return 'border-[#3A3A3A] focus:ring-[#CC0000]';
+    if (isValidName(value)) return 'border-[#4A4A4A] focus:ring-[#CC0000]';
+    return 'border-[#CC0000] focus:ring-[#CC0000]';
   };
-  
+
   const getStudentIdBorderColor = (value: string): string => {
-    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
-    if (isValidStudentId(value) && value.length > 1) return 'border-[#000000] focus:ring-gray-200';
-    return 'border-[#CC0000] focus:ring-red-200';
+    if (!value) return 'border-[#3A3A3A] focus:ring-[#CC0000]';
+    if (isValidStudentId(value) && value.length > 1) return 'border-[#4A4A4A] focus:ring-[#CC0000]';
+    return 'border-[#CC0000] focus:ring-[#CC0000]';
   };
-  
+
   const getEmailBorderColor = (value: string): string => {
-    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
-    if (isValidEmail(value)) return 'border-[#000000] focus:ring-gray-200';
-    return 'border-[#CC0000] focus:ring-red-200';
+    if (!value) return 'border-[#3A3A3A] focus:ring-[#CC0000]';
+    if (isValidEmail(value)) return 'border-[#4A4A4A] focus:ring-[#CC0000]';
+    return 'border-[#CC0000] focus:ring-[#CC0000]';
   };
-  
+
   const getPasswordBorderColor = (value: string): string => {
-    if (!value) return 'border-[#D0D0D0] focus:ring-gray-200';
-    if (isValidPassword(value)) return 'border-[#000000] focus:ring-gray-200';
-    return 'border-[#CC0000] focus:ring-red-200';
+    if (!value) return 'border-[#3A3A3A] focus:ring-[#CC0000]';
+    if (isValidPassword(value)) return 'border-[#4A4A4A] focus:ring-[#CC0000]';
+    return 'border-[#CC0000] focus:ring-[#CC0000]';
   };
-  
+
   const getConfirmPasswordBorderColor = (): string => {
-    if (!confirmPassword) return 'border-[#D0D0D0] focus:ring-gray-200';
-    if (passwordsMatch()) return 'border-[#000000] focus:ring-gray-200';
-    return 'border-[#CC0000] focus:ring-red-200';
+    if (!confirmPassword) return 'border-[#3A3A3A] focus:ring-[#CC0000]';
+    if (passwordsMatch()) return 'border-[#4A4A4A] focus:ring-[#CC0000]';
+    return 'border-[#CC0000] focus:ring-[#CC0000]';
   };
   
   const isFormValid =
@@ -212,7 +212,7 @@ const Signup = ({
               <div className="relative">
                 <div
                   onClick={handlePhotoClick}
-                  className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#3A3A3A] bg-[#334150] cursor-pointer hover:border-red-300 transition-colors"
+                  className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#3A3A3A] bg-[#2A2A2A] cursor-pointer hover:border-red-300 transition-colors"
                 >
                   {profileData.photo ? (
                     <img
@@ -255,7 +255,7 @@ const Signup = ({
                   type="text"
                   value={profileData.firstName}
                   onChange={handleFirstNameChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getNameBorderColor(profileData.firstName)}`}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#2A2A2A] ${getNameBorderColor(profileData.firstName)}`}
                   placeholder="John"
                 />
                 {profileData.firstName && !isValidName(profileData.firstName) && (
@@ -271,7 +271,7 @@ const Signup = ({
                   type="text"
                   value={profileData.lastName}
                   onChange={handleLastNameChange}
-                  className={`w-full px-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getNameBorderColor(profileData.lastName)}`}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#2A2A2A] ${getNameBorderColor(profileData.lastName)}`}
                   placeholder="Doe"
                 />
                 {profileData.lastName && !isValidName(profileData.lastName) && (
@@ -290,7 +290,7 @@ const Signup = ({
                   type="email"
                   value={profileData.email}
                   onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getEmailBorderColor(profileData.email)}`}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#2A2A2A] ${getEmailBorderColor(profileData.email)}`}
                   placeholder="youremail@hawk.illinoistech.edu"
                 />
               </div>
@@ -307,7 +307,7 @@ const Signup = ({
                 type="text"
                 value={profileData.studentId}
                 onChange={handleStudentIdChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all font-mono bg-[#334150] ${getStudentIdBorderColor(profileData.studentId)}`}
+                className={`w-full px-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all font-mono bg-[#2A2A2A] ${getStudentIdBorderColor(profileData.studentId)}`}
                 placeholder="A20123456"
               />
               {profileData.studentId && (!isValidStudentId(profileData.studentId) || profileData.studentId.length <= 1) && (
@@ -326,7 +326,7 @@ const Signup = ({
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getPasswordBorderColor(password)}`}
+                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#2A2A2A] ${getPasswordBorderColor(password)}`}
                     placeholder="••••••••"
                   />
                 </div>
@@ -345,7 +345,7 @@ const Signup = ({
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#334150] ${getConfirmPasswordBorderColor()}`}
+                    className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-base text-white focus:outline-none focus:ring-2 transition-all bg-[#2A2A2A] ${getConfirmPasswordBorderColor()}`}
                     placeholder="••••••••"
                   />
                 </div>
@@ -373,7 +373,7 @@ const Signup = ({
                     value={securityQuestion1}
                     onChange={(e) => setSecurityQuestion1(e.target.value)}
                     title="Select your first security question"
-                    className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-[#334150] mb-2"
+                    className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A] mb-2"
                   >
                     <option value="">Select a question...</option>
                     {SECURITY_QUESTIONS.map((q, index) => (
@@ -387,7 +387,7 @@ const Signup = ({
                       type="text"
                       value={securityAnswer1}
                       onChange={(e) => setSecurityAnswer1(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-[#334150]"
+                      className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                       placeholder="Your answer"
                     />
                   )}
@@ -401,7 +401,7 @@ const Signup = ({
                     value={securityQuestion2}
                     onChange={(e) => setSecurityQuestion2(e.target.value)}
                     title="Select your second security question"
-                    className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-[#334150] mb-2"
+                    className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A] mb-2"
                   >
                     <option value="">Select a question...</option>
                     {SECURITY_QUESTIONS.map((q, index) => (
@@ -415,7 +415,7 @@ const Signup = ({
                       type="text"
                       value={securityAnswer2}
                       onChange={(e) => setSecurityAnswer2(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-[#334150]"
+                      className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                       placeholder="Your answer"
                     />
                   )}
@@ -434,7 +434,7 @@ const Signup = ({
               <textarea
                 value={profileData.bio}
                 onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all resize-none bg-[#334150] min-h-[120px]"
+                className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] transition-all resize-none bg-[#2A2A2A] min-h-[120px]"
                 placeholder="I like coding and games..."
               />
             </div>

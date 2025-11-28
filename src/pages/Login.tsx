@@ -108,7 +108,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                   placeholder="youremail@hawk.illinoistech.edu"
                 />
               </div>
@@ -125,7 +125,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="w-full pl-12 pr-12 py-3 border-2 border-[#D0D0D0] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-[#000000] transition-all bg-[#334150]"
+                  className="w-full pl-12 pr-12 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
                   placeholder="••••••••"
                 />
                 <button
@@ -135,7 +135,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                   onMouseLeave={() => setShowPassword(false)}
                   onTouchStart={() => setShowPassword(true)}
                   onTouchEnd={() => setShowPassword(false)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-[#4C6177] transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-white transition-colors"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}

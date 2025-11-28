@@ -29,6 +29,13 @@ export const resetPasswordWithVerification = async (
     }
   } catch (error) {
     logger.error('Error calling resetPasswordWithVerification:', error);
+
+    // Handle Firebase Functions errors specifically
+    if (error && typeof error === 'object' && 'code' in error && 'message' in error) {
+      const fbError = error as { code: string; message: string };
+      throw new Error(fbError.message || 'Failed to reset password');
+    }
+
     if (error instanceof Error) {
       throw error;
     }
