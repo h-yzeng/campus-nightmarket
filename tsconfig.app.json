@@ -23,5 +23,5 @@
     "noUncheckedSideEffectImports": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "public/App.tsx"]
+  "include": ["src"]
 }

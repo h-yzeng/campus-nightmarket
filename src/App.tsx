@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from './hooks/userAuth';
+import { useAuth } from './hooks/useAuth';
 import { useCart } from './hooks/useCart';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useNotifications } from './hooks/useNotifications';

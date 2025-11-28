@@ -2,7 +2,7 @@ import { Camera, AlertCircle, Mail, Lock, Shield } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../services/auth/securityService';
-import { useAuth } from '../hooks/userAuth';
+import { useAuth } from '../hooks/useAuth';
 import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 
 interface SignupProps {

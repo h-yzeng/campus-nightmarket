@@ -5,7 +5,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { uploadListingImage } from '../../services/storage/imageService';
 import { createListing } from '../../services/listings/listingService';
-import { useAuth } from '../../hooks/userAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { logger } from '../../utils/logger';
 import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
 

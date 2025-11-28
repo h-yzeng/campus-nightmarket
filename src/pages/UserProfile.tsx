@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import type { UserMode } from '../types';
 import { uploadProfilePhoto } from '../services/storage/imageService';
-import { useAuth } from '../hooks/userAuth';
+import { useAuth } from '../hooks/useAuth';
 import { logger } from '../utils/logger';
 
 interface UserProfileProps {
