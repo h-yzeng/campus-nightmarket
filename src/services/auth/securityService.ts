@@ -1,8 +1,8 @@
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../config/firebase';
-import { COLLECTIONS } from '../../types/firebase';
-import type { SecurityQuestion } from '../../types/firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { app } from '../../config/firebase';
 import { logger } from '../../utils/logger';
+
+const functions = getFunctions(app);
 
 export const SECURITY_QUESTIONS = [
   'What was the name of your first pet?',
@@ -17,96 +17,97 @@ export const SECURITY_QUESTIONS = [
   'What is your favorite movie?',
 ];
 
-const hashAnswer = async (answer: string): Promise<string> => {
-  const normalized = answer.toLowerCase().trim();
-
-  // Use Web Crypto API for secure hashing
-  const encoder = new TextEncoder();
-  const data = encoder.encode(normalized);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-
-  // Convert to hex string
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-  return hashHex;
-};
-
+/**
+ * Save security questions (hashing happens server-side with bcrypt)
+ */
 export const saveSecurityQuestions = async (
   userId: string,
   questions: Array<{ question: string; answer: string }>
 ): Promise<void> => {
   try {
-    const hashedQuestions: SecurityQuestion[] = await Promise.all(
-      questions.map(async (q) => ({
-        question: q.question,
-        answer: await hashAnswer(q.answer),
-      }))
-    );
+    const saveQuestions = httpsCallable(functions, 'saveSecurityQuestions');
 
-    const userRef = doc(db, COLLECTIONS.USERS, userId);
-    await updateDoc(userRef, {
-      securityQuestions: hashedQuestions,
-      updatedAt: new Date(),
+    const result = await saveQuestions({
+      userId,
+      questions,
     });
+
+    const data = result.data as { success: boolean; message: string };
+
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to save security questions');
+    }
   } catch (error) {
     logger.error('Error saving security questions:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to save security questions');
   }
 };
 
+/**
+ * Verify security answers (verification happens server-side with rate limiting)
+ * Returns a verification token that can be used to reset password
+ */
 export const verifySecurityAnswers = async (
   email: string,
   answers: Array<{ question: string; answer: string }>
-): Promise<{ verified: boolean; userId?: string }> => {
+): Promise<{ verified: boolean; userId?: string; token?: string }> => {
   try {
-    const { getUserByEmail } = await import('./userService');
-    const userProfile = await getUserByEmail(email);
+    const verifyAnswers = httpsCallable(functions, 'verifySecurityAnswers');
 
-    if (!userProfile || !userProfile.securityQuestions) {
+    const result = await verifyAnswers({
+      email,
+      answers,
+    });
+
+    const data = result.data as {
+      verified: boolean;
+      userId?: string;
+      token?: string;
+      message: string;
+    };
+
+    if (!data.verified) {
       return { verified: false };
     }
 
-    const verificationResults = await Promise.all(
-      answers.map(async (providedAnswer) => {
-        const storedQuestion = userProfile.securityQuestions?.find(
-          sq => sq.question === providedAnswer.question
-        );
-
-        if (!storedQuestion) return false;
-
-        const hashedProvidedAnswer = await hashAnswer(providedAnswer.answer);
-        return hashedProvidedAnswer === storedQuestion.answer;
-      })
-    );
-
-    const allCorrect = verificationResults.every(result => result === true);
-
-    if (allCorrect) {
-      return { verified: true, userId: userProfile.uid };
-    }
-
-    return { verified: false };
+    return {
+      verified: true,
+      userId: data.userId,
+      token: data.token,
+    };
   } catch (error) {
     logger.error('Error verifying security answers:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to verify security answers');
   }
 };
 
+/**
+ * Get user's security questions (without answers)
+ */
 export const getUserSecurityQuestions = async (
   email: string
 ): Promise<string[]> => {
   try {
-    const { getUserByEmail } = await import('./userService');
-    const userProfile = await getUserByEmail(email);
+    const getQuestions = httpsCallable(functions, 'getUserSecurityQuestions');
 
-    if (!userProfile || !userProfile.securityQuestions) {
-      return [];
-    }
+    const result = await getQuestions({
+      email,
+    });
 
-    return userProfile.securityQuestions.map(sq => sq.question);
+    const data = result.data as { questions: string[] };
+
+    return data.questions || [];
   } catch (error) {
     logger.error('Error getting security questions:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to get security questions');
   }
 };

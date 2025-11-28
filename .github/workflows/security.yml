@@ -1,0 +1,151 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, current-development ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly security scans every Sunday at midnight
+    - cron: '0 0 * * 0'
+
+jobs:
+  npm-audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Run npm audit fix (dry-run)
+        run: npm audit fix --dry-run
+
+  functions-audit:
+    name: Cloud Functions Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install functions dependencies
+        working-directory: ./functions
+        run: npm ci
+
+      - name: Run npm audit on functions
+        working-directory: ./functions
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  security-best-practices:
+    name: Security Best Practices Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for exposed secrets
+        run: |
+          # Check if any .env files are tracked by git
+          if git ls-files | grep -E '\.env$|\.env\.local$'; then
+            echo "ERROR: .env files should not be committed!"
+            exit 1
+          fi
+          echo "✓ No .env files in git"
+
+      - name: Check for hardcoded secrets
+        run: |
+          # Simple check for common secret patterns
+          if grep -r -E "(api[_-]?key|password|secret|token)\s*=\s*['\"][a-zA-Z0-9]{20,}" src/ --exclude-dir=node_modules --exclude="*.test.*" || true; then
+            echo "WARNING: Potential hardcoded secrets found"
+          fi
+          echo "✓ Hardcoded secrets check complete"
+
+      - name: Check Firebase security rules exist
+        run: |
+          if [ ! -f "firestore.rules" ]; then
+            echo "ERROR: firestore.rules not found!"
+            exit 1
+          fi
+          if [ ! -f "storage.rules" ]; then
+            echo "ERROR: storage.rules not found!"
+            exit 1
+          fi
+          echo "✓ Security rules files exist"
+
+  lint-security:
+    name: Security Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: true

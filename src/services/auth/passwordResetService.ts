@@ -4,10 +4,14 @@ import { logger } from '../../utils/logger';
 
 const functions = getFunctions(app);
 
+/**
+ * Reset password with verification token
+ * The token is obtained from verifying security questions
+ */
 export const resetPasswordWithVerification = async (
   email: string,
   newPassword: string,
-  userId: string
+  token: string
 ): Promise<void> => {
   try {
     const resetPassword = httpsCallable(functions, 'resetPasswordWithVerification');
@@ -15,7 +19,7 @@ export const resetPasswordWithVerification = async (
     const result = await resetPassword({
       email,
       newPassword,
-      userId,
+      token,
     });
 
     const data = result.data as { success: boolean; message: string };

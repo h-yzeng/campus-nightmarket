@@ -115,10 +115,11 @@ const UserProfile = ({
   };
 
   const isValidPassword = (password: string): boolean => {
-    return password.length >= 8 && 
-           /[A-Z]/.test(password) && 
-           /[a-z]/.test(password) && 
-           /\d/.test(password);
+    return password.length >= 12 &&
+           /[A-Z]/.test(password) &&
+           /[a-z]/.test(password) &&
+           /\d/.test(password) &&
+           /[!@#$%^&*(),.?":{}|<>]/.test(password);
   };
 
   const handlePasswordChange = async () => {
@@ -130,7 +131,7 @@ const UserProfile = ({
     }
 
     if (!isValidPassword(newPassword)) {
-      setPasswordError('Password must be 8+ characters with uppercase, lowercase, and number');
+      setPasswordError('Password must be 12+ characters with uppercase, lowercase, number, and special character');
       return;
     }
 
@@ -441,7 +442,7 @@ const UserProfile = ({
                       </button>
 
                       <p className="text-xs text-[#B08080]">
-                        Password must be 8+ characters with uppercase, lowercase, and number
+                        Password must be 12+ characters with uppercase, lowercase, number, and special character
                       </p>
                     </div>
                   )}

@@ -16,7 +16,7 @@ type Step = 'email' | 'security-questions' | 'new-password' | 'success';
 const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
-  const [userId, setUserId] = useState('');
+  const [verificationToken, setVerificationToken] = useState('');
   const [securityQuestions, setSecurityQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [newPassword, setNewPassword] = useState('');
@@ -91,14 +91,14 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
 
       const result = await verifySecurityAnswers(email, answersArray);
 
-      if (!result.verified || !result.userId) {
+      if (!result.verified || !result.token) {
         setError('Security answers are incorrect. Please try again.');
         setLoading(false);
         return;
       }
 
-      // Store userId and move to password reset step
-      setUserId(result.userId);
+      // Store verification token and move to password reset step
+      setVerificationToken(result.token);
       setStep('new-password');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to verify security answers');
@@ -111,15 +111,20 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
     setError('');
     setLoading(true);
 
-    // Validate password
-    if (!newPassword || newPassword.length < 8) {
-      setError('Password must be at least 8 characters long');
+    // Validate password (updated to 12 characters minimum)
+    if (!newPassword || newPassword.length < 12) {
+      setError('Password must be at least 12 characters long');
       setLoading(false);
       return;
     }
 
-    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/\d/.test(newPassword)) {
-      setError('Password must contain uppercase, lowercase, and number');
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+      setError('Password must contain uppercase, lowercase, number, and special character');
       setLoading(false);
       return;
     }
@@ -131,7 +136,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
     }
 
     try {
-      await resetPasswordWithVerification(email, newPassword, userId);
+      await resetPasswordWithVerification(email, newPassword, verificationToken);
       setStep('success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to reset password');
@@ -282,7 +287,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                   </div>
 
                   <div className="text-xs text-gray-400 mt-2">
-                    Password must be at least 8 characters with uppercase, lowercase, and number
+                    Password must be at least 12 characters with uppercase, lowercase, number, and special character
                   </div>
                 </div>
 

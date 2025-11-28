@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { UserMode, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { logger } from '../../utils/logger';
 
 interface CheckoutProps {
   cart: CartItem[];
@@ -91,7 +92,7 @@ const Checkout = ({
     try {
       await onPlaceOrder(selectedPayment, pickupTimesBySeller, notes);
     } catch (error) {
-      console.error('Error placing order:', error);
+      logger.error('Error placing order:', error);
     } finally {
       setIsPlacingOrder(false);
     }
