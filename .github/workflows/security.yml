@@ -119,12 +119,12 @@ jobs:
 
       - name: Check Firebase security rules exist
         run: |
-          if [ ! -f "firestore.rules" ]; then
-            echo "ERROR: firestore.rules not found!"
+          if [ ! -f "firebase/firestore.rules" ]; then
+            echo "ERROR: firebase/firestore.rules not found!"
             exit 1
           fi
-          if [ ! -f "storage.rules" ]; then
-            echo "ERROR: storage.rules not found!"
+          if [ ! -f "firebase/storage.rules" ]; then
+            echo "ERROR: firebase/storage.rules not found!"
             exit 1
           fi
           echo "✓ Security rules files exist"
