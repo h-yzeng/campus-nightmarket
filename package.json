@@ -16,14 +16,10 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@radix-ui/react-label": "^2.1.8",
-    "@radix-ui/react-slot": "^1.2.4",
     "@sentry/react": "^10.27.0",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/react-query": "^5.90.11",
     "@tanstack/react-query-devtools": "^5.91.1",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
     "firebase": "^12.6.0",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
@@ -31,7 +27,6 @@
     "react-hook-form": "^7.67.0",
     "react-router-dom": "^7.9.6",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "zod": "^4.1.13",
     "zustand": "^5.0.8"
