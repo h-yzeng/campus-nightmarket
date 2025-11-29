@@ -54,114 +54,124 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSubmit();
-    }
-  };
-
   if (showForgotPassword) {
     return <ForgotPassword onBack={() => setShowForgotPassword(false)} />;
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]" role="main">
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="mb-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#CC0000]">
+          <header className="mb-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#CC0000]" aria-hidden="true">
               <span className="text-4xl">🌙</span>
             </div>
-            <h2 className="mb-3 text-4xl font-bold text-[#CC0000]">Welcome Back!</h2>
+            <h1 className="mb-3 text-4xl font-bold text-[#CC0000]">Welcome Back!</h1>
             <p className="text-lg text-gray-400">Sign in to Night Market</p>
-          </div>
+          </header>
 
           <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-xl">
             {error && (
-              <div className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4">
-                <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
+              <div className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4" role="alert" aria-live="polite">
+                <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" aria-hidden="true" />
                 <p className="text-sm text-white">{error}</p>
               </div>
             )}
 
-            <div className="mb-6">
-              <label className="mb-2 block text-sm font-semibold text-white">Email Address</label>
-              <div className="relative">
-                <Mail
-                  size={20}
-                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-4 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
-                  placeholder="youremail@hawk.illinoistech.edu"
-                />
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} noValidate>
+              <div className="mb-6">
+                <label htmlFor="email-input" className="mb-2 block text-sm font-semibold text-white">Email Address</label>
+                <div className="relative">
+                  <Mail
+                    size={20}
+                    className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="email-input"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-4 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+                    placeholder="youremail@hawk.illinoistech.edu"
+                    aria-label="Email address"
+                    aria-required="true"
+                    autoComplete="email"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-semibold text-white">Password</label>
-              <div className="relative">
-                <Lock
-                  size={20}
-                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
-                />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
-                  placeholder="••••••••"
-                />
+              <div className="mb-4">
+                <label htmlFor="password-input" className="mb-2 block text-sm font-semibold text-white">Password</label>
+                <div className="relative">
+                  <Lock
+                    size={20}
+                    className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="password-input"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+                    placeholder="••••••••"
+                    aria-label="Password"
+                    aria-required="true"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onMouseDown={() => setShowPassword(true)}
+                    onMouseUp={() => setShowPassword(false)}
+                    onMouseLeave={() => setShowPassword(false)}
+                    onTouchStart={() => setShowPassword(true)}
+                    onTouchEnd={() => setShowPassword(false)}
+                    className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-6 text-right">
                 <button
                   type="button"
-                  onMouseDown={() => setShowPassword(true)}
-                  onMouseUp={() => setShowPassword(false)}
-                  onMouseLeave={() => setShowPassword(false)}
-                  onTouchStart={() => setShowPassword(true)}
-                  onTouchEnd={() => setShowPassword(false)}
-                  className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
-                  aria-label="Toggle password visibility"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm font-semibold text-[#CC0000] hover:underline focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#1E1E1E] rounded px-1"
+                  aria-label="Forgot your password?"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  Forgot Password?
                 </button>
               </div>
-            </div>
 
-            <div className="mb-6 text-right">
               <button
-                onClick={() => setShowForgotPassword(true)}
-                className="text-sm font-semibold text-[#CC0000] hover:underline"
+                type="submit"
+                disabled={loading}
+                className={`w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 disabled:cursor-not-allowed disabled:opacity-50 ${
+                  loading ? 'bg-gray-400' : 'bg-[#CC0000]'
+                }`}
+                aria-label={loading ? 'Signing in...' : 'Sign in to your account'}
               >
-                Forgot Password?
+                {loading ? 'Signing In...' : 'Sign In →'}
               </button>
-            </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className={`w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 ${
-                loading ? 'cursor-not-allowed bg-gray-400' : 'bg-[#CC0000]'
-              }`}
-            >
-              {loading ? 'Signing In...' : 'Sign In →'}
-            </button>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-400">
-                Don't have an account?{' '}
-                <button
-                  onClick={onGoToSignup}
-                  className="font-semibold text-[#CC0000] hover:underline"
-                >
-                  Sign Up
-                </button>
-              </p>
-            </div>
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400">
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={onGoToSignup}
+                    className="font-semibold text-[#CC0000] hover:underline focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#1E1E1E] rounded px-1"
+                    aria-label="Go to sign up page"
+                  >
+                    Sign Up
+                  </button>
+                </p>
+              </div>
+            </form>
           </div>
         </div>
       </div>

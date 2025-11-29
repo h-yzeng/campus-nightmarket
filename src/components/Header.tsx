@@ -161,6 +161,7 @@ const Header = ({
                   <img
                     src={profileData.photo}
                     alt="Profile"
+                    loading="lazy"
                     className="h-10 w-10 rounded-full border-2 border-[#3A3A3A] object-cover"
                   />
                 ) : (

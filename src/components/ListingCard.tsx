@@ -24,6 +24,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
             <img
               src={item.image}
               alt={item.name}
+              loading="lazy"
               className="h-full w-full rounded-lg object-cover"
             />
           </div>

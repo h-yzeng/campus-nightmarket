@@ -208,6 +208,7 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                     <img
                       src={profileData.photo}
                       alt="Profile"
+                      loading="lazy"
                       className="h-full w-full rounded-full object-cover"
                     />
                   ) : (

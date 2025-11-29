@@ -263,6 +263,7 @@ const CreateListing = ({
                     <img
                       src={imagePreview}
                       alt="Food preview"
+                      loading="lazy"
                       className="h-full w-full object-cover"
                     />
                   </div>

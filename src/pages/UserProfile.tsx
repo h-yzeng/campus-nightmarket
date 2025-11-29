@@ -240,6 +240,7 @@ const UserProfile = ({
                   <img
                     src={profileData.photo}
                     alt="Profile"
+                    loading="lazy"
                     className="h-full w-full object-cover"
                   />
                 ) : (
