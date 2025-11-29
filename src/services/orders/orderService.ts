@@ -95,11 +95,7 @@ export const getOrder = async (orderId: string): Promise<FirebaseOrder | null> =
 export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> => {
   try {
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
-    const q = query(
-      ordersRef,
-      where('buyerId', '==', buyerId),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(ordersRef, where('buyerId', '==', buyerId), orderBy('createdAt', 'desc'));
 
     const querySnapshot = await getDocs(q);
     const orders: FirebaseOrder[] = [];
@@ -121,11 +117,7 @@ export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> 
 export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]> => {
   try {
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
-    const q = query(
-      ordersRef,
-      where('sellerId', '==', sellerId),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(ordersRef, where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'));
 
     const querySnapshot = await getDocs(q);
     const orders: FirebaseOrder[] = [];
@@ -205,10 +197,7 @@ export const getSellerOrdersByStatus = async (
   }
 };
 
-export const updateOrder = async (
-  orderId: string,
-  updates: UpdateOrder
-): Promise<void> => {
+export const updateOrder = async (orderId: string, updates: UpdateOrder): Promise<void> => {
   try {
     const orderRef = doc(db, COLLECTIONS.ORDERS, orderId);
 
@@ -222,10 +211,7 @@ export const updateOrder = async (
   }
 };
 
-export const updateOrderStatus = async (
-  orderId: string,
-  status: OrderStatus
-): Promise<void> => {
+export const updateOrderStatus = async (orderId: string, status: OrderStatus): Promise<void> => {
   try {
     await updateOrder(orderId, { status });
   } catch (error) {

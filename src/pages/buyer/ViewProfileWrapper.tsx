@@ -28,7 +28,7 @@ const ViewProfileWrapper = ({
   onSignOut,
   onCartClick,
   onProfileClick,
-  onLogoClick
+  onLogoClick,
 }: ViewProfileWrapperProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +78,7 @@ const ViewProfileWrapper = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#040707]">
+      <div className="flex min-h-screen flex-col bg-[#040707]">
         <Header
           cartItems={cart}
           profileData={currentUserProfile}
@@ -89,9 +89,9 @@ const ViewProfileWrapper = ({
           showCart={true}
           userMode={userMode}
         />
-        <main className="flex-1 flex items-center justify-center">
+        <main className="flex flex-1 items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4">⏳</div>
+            <div className="mb-4 text-6xl">⏳</div>
             <p className="text-xl font-semibold text-white">Loading seller profile...</p>
           </div>
         </main>
@@ -102,7 +102,7 @@ const ViewProfileWrapper = ({
 
   if (error || !sellerData) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#040707]">
+      <div className="flex min-h-screen flex-col bg-[#040707]">
         <Header
           cartItems={cart}
           profileData={currentUserProfile}
@@ -113,14 +113,11 @@ const ViewProfileWrapper = ({
           showCart={true}
           userMode={userMode}
         />
-        <main className="flex-1 flex items-center justify-center">
+        <main className="flex flex-1 items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4">❌</div>
-            <p className="text-xl font-semibold text-white mb-2">{error || 'Seller not found'}</p>
-            <button
-              onClick={onBack}
-              className="text-[#CC0000] font-semibold hover:underline"
-            >
+            <div className="mb-4 text-6xl">❌</div>
+            <p className="mb-2 text-xl font-semibold text-white">{error || 'Seller not found'}</p>
+            <button onClick={onBack} className="font-semibold text-[#CC0000] hover:underline">
               ← Back to Browse
             </button>
           </div>

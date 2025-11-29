@@ -18,14 +18,14 @@ import SellerOrders from '../pages/seller/SellerOrders';
 import ViewProfileWrapper from '../pages/buyer/ViewProfileWrapper';
 import { useSellerProfile } from '../hooks/useSellerProfile';
 import type { ProfileData, Order, FoodItem } from '../types';
-import {
-  useAuthStore,
-  useCartStore,
-  useNavigationStore,
-} from '../stores';
+import { useAuthStore, useCartStore, useNavigationStore } from '../stores';
 import { useListingsQuery, useSellerListingsQuery } from '../hooks/queries/useListingsQuery';
 import { useBuyerOrdersQuery, useSellerOrdersQuery } from '../hooks/queries/useOrdersQuery';
-import { useOrderReviewQuery, useSellerRatingsQuery, useOrderReviewsQuery } from '../hooks/queries/useReviewsQuery';
+import {
+  useOrderReviewQuery,
+  useSellerRatingsQuery,
+  useOrderReviewsQuery,
+} from '../hooks/queries/useReviewsQuery';
 
 // Simplified interface - data comes from React Query, UI state from Zustand
 interface AppRoutesProps {
@@ -44,7 +44,11 @@ interface AppRoutesProps {
   handleSignOut: () => void;
 
   // Order handlers
-  handlePlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => Promise<void>;
+  handlePlaceOrder: (
+    paymentMethod: string,
+    pickupTimes: Record<string, string>,
+    notes?: string
+  ) => Promise<void>;
   handleCancelOrder: (orderId: number) => Promise<void>;
   handleUpdateOrderStatus: (orderId: number, status: Order['status']) => Promise<void>;
   handleSubmitReview: (orderId: number, rating: number, comment: string) => Promise<void>;
@@ -105,10 +109,14 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
   const navigate = useNavigate();
 
   // Get data from React Query
-  const { data: foodItems = [], isLoading: listingsLoading, error: listingsError } = useListingsQuery();
+  const {
+    data: foodItems = [],
+    isLoading: listingsLoading,
+    error: listingsError,
+  } = useListingsQuery();
 
   // Get unique seller IDs and fetch their ratings
-  const sellerIds = [...new Set(foodItems.map(item => item.sellerId))];
+  const sellerIds = [...new Set(foodItems.map((item) => item.sellerId))];
   const { data: sellerRatings = {} } = useSellerRatingsQuery(sellerIds);
 
   // Get UI state from stores
@@ -152,7 +160,9 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
   );
 };
 
-const UserProfileWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleSaveProfile' | 'handleSignOut'>) => {
+const UserProfileWrapper = (
+  props: Pick<AppRoutesProps, 'setProfileData' | 'handleSaveProfile' | 'handleSignOut'>
+) => {
   const navigate = useNavigate();
 
   // Get data from stores
@@ -211,7 +221,9 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
   );
 };
 
-const CartWrapper = (props: Pick<AppRoutesProps, 'updateCartQuantity' | 'removeFromCart' | 'handleSignOut'>) => {
+const CartWrapper = (
+  props: Pick<AppRoutesProps, 'updateCartQuantity' | 'removeFromCart' | 'handleSignOut'>
+) => {
   const navigate = useNavigate();
 
   // Get data from stores
@@ -316,7 +328,9 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   );
 };
 
-const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCancelOrder' | 'handleSubmitReview'>) => {
+const OrderDetailsWrapper = (
+  props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCancelOrder' | 'handleSubmitReview'>
+) => {
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
 
@@ -329,7 +343,7 @@ const OrderDetailsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'hand
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
 
-  const order = buyerOrders.find(o => o.id === parseInt(orderId || '0'));
+  const order = buyerOrders.find((o) => o.id === parseInt(orderId || '0'));
   const { sellerProfile } = useSellerProfile(order?.sellerId);
 
   // Fetch the review if order has been reviewed
@@ -411,7 +425,9 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
   );
 };
 
-const CreateListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCreateListing'>) => {
+const CreateListingWrapper = (
+  props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCreateListing'>
+) => {
   const navigate = useNavigate();
 
   // Get data from stores
@@ -449,7 +465,9 @@ const CreateListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'han
   );
 };
 
-const EditListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateListing'>) => {
+const EditListingWrapper = (
+  props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateListing'>
+) => {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
 
@@ -489,7 +507,9 @@ const EditListingWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handl
   );
 };
 
-const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>) => {
+const SellerListingsWrapper = (
+  props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>
+) => {
   const navigate = useNavigate();
 
   // Get data from React Query
@@ -531,17 +551,21 @@ const SellerListingsWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'ha
   );
 };
 
-const SellerOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>) => {
+const SellerOrdersWrapper = (
+  props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>
+) => {
   const navigate = useNavigate();
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
-  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(user?.uid);
+  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(
+    user?.uid
+  );
 
   // Extract order IDs that have reviews
   const orderIdsWithReviews = sellerOrders
-    .filter(order => order.status === 'completed' && order.hasReview)
-    .map(order => order.firebaseId);
+    .filter((order) => order.status === 'completed' && order.hasReview)
+    .map((order) => order.firebaseId);
 
   // Fetch reviews for completed orders
   const { data: orderReviews = {} } = useOrderReviewsQuery(orderIdsWithReviews);
@@ -589,26 +613,146 @@ export const AppRoutes = (props: AppRoutesProps) => {
       {/* Public routes */}
       <Route path="/" element={<HomeWrapper />} />
       <Route path="/login" element={<LoginWrapper handleLogin={props.handleLogin} />} />
-      <Route path="/signup" element={<SignupWrapper setProfileData={props.setProfileData} handleCreateProfile={props.handleCreateProfile} />} />
+      <Route
+        path="/signup"
+        element={
+          <SignupWrapper
+            setProfileData={props.setProfileData}
+            handleCreateProfile={props.handleCreateProfile}
+          />
+        }
+      />
 
       {/* Buyer routes */}
-      <Route path="/browse" element={<RequireAuth user={user}><BrowseWrapper addToCart={props.addToCart} /></RequireAuth>} />
-      <Route path="/profile" element={<RequireAuth user={user}><UserProfileWrapper setProfileData={props.setProfileData} handleSaveProfile={props.handleSaveProfile} handleSignOut={props.handleSignOut} /></RequireAuth>} />
-      <Route path="/seller/:sellerId" element={<RequireAuth user={user}><ViewSellerProfileWrapper handleSignOut={props.handleSignOut} /></RequireAuth>} />
-      <Route path="/cart" element={<RequireAuth user={user}><CartWrapper updateCartQuantity={props.updateCartQuantity} removeFromCart={props.removeFromCart} handleSignOut={props.handleSignOut} /></RequireAuth>} />
-      <Route path="/checkout" element={<RequireAuth user={user}><CheckoutWrapper handlePlaceOrder={props.handlePlaceOrder} handleSignOut={props.handleSignOut} /></RequireAuth>} />
-      <Route path="/orders" element={<RequireAuth user={user}><UserOrdersWrapper handleSignOut={props.handleSignOut} /></RequireAuth>} />
-      <Route path="/orders/:orderId" element={<RequireAuth user={user}><OrderDetailsWrapper handleSignOut={props.handleSignOut} handleCancelOrder={props.handleCancelOrder} handleSubmitReview={props.handleSubmitReview} /></RequireAuth>} />
+      <Route
+        path="/browse"
+        element={
+          <RequireAuth user={user}>
+            <BrowseWrapper addToCart={props.addToCart} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <RequireAuth user={user}>
+            <UserProfileWrapper
+              setProfileData={props.setProfileData}
+              handleSaveProfile={props.handleSaveProfile}
+              handleSignOut={props.handleSignOut}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/seller/:sellerId"
+        element={
+          <RequireAuth user={user}>
+            <ViewSellerProfileWrapper handleSignOut={props.handleSignOut} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <RequireAuth user={user}>
+            <CartWrapper
+              updateCartQuantity={props.updateCartQuantity}
+              removeFromCart={props.removeFromCart}
+              handleSignOut={props.handleSignOut}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/checkout"
+        element={
+          <RequireAuth user={user}>
+            <CheckoutWrapper
+              handlePlaceOrder={props.handlePlaceOrder}
+              handleSignOut={props.handleSignOut}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <RequireAuth user={user}>
+            <UserOrdersWrapper handleSignOut={props.handleSignOut} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/orders/:orderId"
+        element={
+          <RequireAuth user={user}>
+            <OrderDetailsWrapper
+              handleSignOut={props.handleSignOut}
+              handleCancelOrder={props.handleCancelOrder}
+              handleSubmitReview={props.handleSubmitReview}
+            />
+          </RequireAuth>
+        }
+      />
 
       {/* Seller routes */}
-      <Route path="/seller/dashboard" element={<RequireAuth user={user}><SellerDashboardWrapper handleSignOut={props.handleSignOut} /></RequireAuth>} />
-      <Route path="/seller/listings/create" element={<RequireAuth user={user}><CreateListingWrapper handleSignOut={props.handleSignOut} handleCreateListing={props.handleCreateListing} /></RequireAuth>} />
-      <Route path="/seller/listings/:listingId/edit" element={<RequireAuth user={user}><EditListingWrapper handleSignOut={props.handleSignOut} handleUpdateListing={props.handleUpdateListing} /></RequireAuth>} />
-      <Route path="/seller/listings" element={<RequireAuth user={user}><SellerListingsWrapper handleSignOut={props.handleSignOut} handleToggleAvailability={props.handleToggleAvailability} handleDeleteListing={props.handleDeleteListing} /></RequireAuth>} />
-      <Route path="/seller/orders" element={<RequireAuth user={user}><SellerOrdersWrapper handleSignOut={props.handleSignOut} handleUpdateOrderStatus={props.handleUpdateOrderStatus} /></RequireAuth>} />
+      <Route
+        path="/seller/dashboard"
+        element={
+          <RequireAuth user={user}>
+            <SellerDashboardWrapper handleSignOut={props.handleSignOut} />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/seller/listings/create"
+        element={
+          <RequireAuth user={user}>
+            <CreateListingWrapper
+              handleSignOut={props.handleSignOut}
+              handleCreateListing={props.handleCreateListing}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/seller/listings/:listingId/edit"
+        element={
+          <RequireAuth user={user}>
+            <EditListingWrapper
+              handleSignOut={props.handleSignOut}
+              handleUpdateListing={props.handleUpdateListing}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/seller/listings"
+        element={
+          <RequireAuth user={user}>
+            <SellerListingsWrapper
+              handleSignOut={props.handleSignOut}
+              handleToggleAvailability={props.handleToggleAvailability}
+              handleDeleteListing={props.handleDeleteListing}
+            />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/seller/orders"
+        element={
+          <RequireAuth user={user}>
+            <SellerOrdersWrapper
+              handleSignOut={props.handleSignOut}
+              handleUpdateOrderStatus={props.handleUpdateOrderStatus}
+            />
+          </RequireAuth>
+        }
+      />
 
       {/* Fallback route */}
-      <Route path="*" element={<Navigate to={user ? "/browse" : "/"} replace />} />
+      <Route path="*" element={<Navigate to={user ? '/browse' : '/'} replace />} />
     </Routes>
   );
 };

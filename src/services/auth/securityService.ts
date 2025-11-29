@@ -7,7 +7,7 @@ const functions = getFunctions(app);
 export const SECURITY_QUESTIONS = [
   'What was the name of your first pet?',
   'What city were you born in?',
-  'What is your mother\'s maiden name?',
+  "What is your mother's maiden name?",
   'What was the name of your elementary school?',
   'What is your favorite book?',
   'What was your childhood nickname?',
@@ -104,9 +104,7 @@ export const verifySecurityAnswers = async (
 /**
  * Get user's security questions (without answers)
  */
-export const getUserSecurityQuestions = async (
-  email: string
-): Promise<string[]> => {
+export const getUserSecurityQuestions = async (email: string): Promise<string[]> => {
   try {
     const getQuestions = httpsCallable(functions, 'getUserSecurityQuestions');
 

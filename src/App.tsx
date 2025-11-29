@@ -1,20 +1,21 @@
 import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 import { useAuth } from './hooks/useAuth';
 import { useCart } from './hooks/useCart';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useNotifications } from './hooks/useNotifications';
-import { useDeleteListingMutation, useToggleListingAvailabilityMutation } from './hooks/mutations/useListingMutations';
+import {
+  useDeleteListingMutation,
+  useToggleListingAvailabilityMutation,
+} from './hooks/mutations/useListingMutations';
 import { createReview } from './services/reviews/reviewService';
 import { updateOrder } from './services/orders/orderService';
 import { AppRoutes } from './routes';
 import ErrorBoundary from './components/ErrorBoundary';
 import type { Order, CartItem } from './types';
-import {
-  useAuthStore,
-  useNotificationStore,
-} from './stores';
+import { useAuthStore, useNotificationStore } from './stores';
 import { logger } from './utils/logger';
 import { rateLimiter } from './utils/rateLimiter';
 
@@ -101,7 +102,11 @@ function App() {
     await deleteListingMutation.mutateAsync(String(listingId));
   };
 
-  const wrappedHandlePlaceOrder = async (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => {
+  const wrappedHandlePlaceOrder = async (
+    paymentMethod: string,
+    pickupTimes: Record<string, string>,
+    notes?: string
+  ) => {
     await handlePlaceOrder(cart, paymentMethod, pickupTimes, () => {}, clearCart, notes);
   };
 
@@ -117,7 +122,7 @@ function App() {
     try {
       // Get the order from React Query cache
       const ordersData = queryClient.getQueryData<Order[]>(['orders', 'buyer', user.uid]);
-      const order = ordersData?.find(o => o.id === orderId);
+      const order = ordersData?.find((o) => o.id === orderId);
 
       if (!order) {
         throw new Error('Order not found');
@@ -151,6 +156,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <Toaster position="top-right" richColors closeButton />
         <div className="app">
           <AppRoutes
             setProfileData={setProfileData}

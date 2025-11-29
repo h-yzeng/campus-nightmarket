@@ -13,18 +13,10 @@ export const PAYMENT_METHODS = {
   ZELLE: 'Zelle',
 } as const;
 
-export const VALID_PAYMENT_METHODS: PaymentMethod[] = [
-  'Cash',
-  'CashApp',
-  'Venmo',
-  'Zelle',
-];
+export const VALID_PAYMENT_METHODS: PaymentMethod[] = ['Cash', 'CashApp', 'Venmo', 'Zelle'];
 
 export function isValidPaymentMethod(value: unknown): value is PaymentMethod {
-  return (
-    typeof value === 'string' &&
-    VALID_PAYMENT_METHODS.includes(value as PaymentMethod)
-  );
+  return typeof value === 'string' && VALID_PAYMENT_METHODS.includes(value as PaymentMethod);
 }
 
 export function validatePaymentMethod(value: unknown): PaymentMethod {
@@ -54,10 +46,7 @@ export const VALID_ORDER_STATUSES: OrderStatus[] = [
 ];
 
 export function isValidOrderStatus(value: unknown): value is OrderStatus {
-  return (
-    typeof value === 'string' &&
-    VALID_ORDER_STATUSES.includes(value as OrderStatus)
-  );
+  return typeof value === 'string' && VALID_ORDER_STATUSES.includes(value as OrderStatus);
 }
 
 export function validateOrderStatus(value: unknown): OrderStatus {
@@ -72,11 +61,7 @@ export function validateOrderStatus(value: unknown): OrderStatus {
 // Price Validation
 export function isValidPrice(value: unknown): value is number {
   return (
-    typeof value === 'number' &&
-    !isNaN(value) &&
-    isFinite(value) &&
-    value > 0 &&
-    value <= 10000 // Maximum price limit
+    typeof value === 'number' && !isNaN(value) && isFinite(value) && value > 0 && value <= 10000 // Maximum price limit
   );
 }
 
@@ -90,10 +75,7 @@ export function validatePrice(value: unknown): number {
 // Quantity Validation
 export function isValidQuantity(value: unknown): value is number {
   return (
-    typeof value === 'number' &&
-    Number.isInteger(value) &&
-    value > 0 &&
-    value <= 100 // Maximum quantity limit
+    typeof value === 'number' && Number.isInteger(value) && value > 0 && value <= 100 // Maximum quantity limit
   );
 }
 
@@ -186,20 +168,15 @@ export const VALID_CATEGORIES = [
   'Other',
 ] as const;
 
-export type ListingCategory = typeof VALID_CATEGORIES[number];
+export type ListingCategory = (typeof VALID_CATEGORIES)[number];
 
 export function isValidCategory(value: unknown): value is ListingCategory {
-  return (
-    typeof value === 'string' &&
-    VALID_CATEGORIES.includes(value as ListingCategory)
-  );
+  return typeof value === 'string' && VALID_CATEGORIES.includes(value as ListingCategory);
 }
 
 export function validateCategory(value: unknown): ListingCategory {
   if (!isValidCategory(value)) {
-    throw new Error(
-      `Invalid category: ${value}. Must be one of: ${VALID_CATEGORIES.join(', ')}`
-    );
+    throw new Error(`Invalid category: ${value}. Must be one of: ${VALID_CATEGORIES.join(', ')}`);
   }
   return value;
 }

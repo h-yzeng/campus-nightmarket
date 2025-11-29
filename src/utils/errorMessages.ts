@@ -18,73 +18,73 @@ export const ErrorCategory = {
   UNKNOWN: 'UNKNOWN',
 } as const;
 
-export type ErrorCategory = typeof ErrorCategory[keyof typeof ErrorCategory];
+export type ErrorCategory = (typeof ErrorCategory)[keyof typeof ErrorCategory];
 
 // Error codes for specific scenarios
 export const ErrorCode = {
   // Auth errors
-  AUTH_INVALID_CREDENTIALS : 'AUTH_INVALID_CREDENTIALS',
-  AUTH_USER_NOT_FOUND : 'AUTH_USER_NOT_FOUND',
-  AUTH_EMAIL_IN_USE : 'AUTH_EMAIL_IN_USE',
-  AUTH_WEAK_PASSWORD : 'AUTH_WEAK_PASSWORD',
-  AUTH_NETWORK_FAILED : 'AUTH_NETWORK_FAILED',
-  AUTH_TOO_MANY_REQUESTS : 'AUTH_TOO_MANY_REQUESTS',
-  AUTH_INVALID_EMAIL : 'AUTH_INVALID_EMAIL',
+  AUTH_INVALID_CREDENTIALS: 'AUTH_INVALID_CREDENTIALS',
+  AUTH_USER_NOT_FOUND: 'AUTH_USER_NOT_FOUND',
+  AUTH_EMAIL_IN_USE: 'AUTH_EMAIL_IN_USE',
+  AUTH_WEAK_PASSWORD: 'AUTH_WEAK_PASSWORD',
+  AUTH_NETWORK_FAILED: 'AUTH_NETWORK_FAILED',
+  AUTH_TOO_MANY_REQUESTS: 'AUTH_TOO_MANY_REQUESTS',
+  AUTH_INVALID_EMAIL: 'AUTH_INVALID_EMAIL',
 
   // Validation errors
-  VALIDATION_REQUIRED_FIELD : 'VALIDATION_REQUIRED_FIELD',
-  VALIDATION_INVALID_EMAIL : 'VALIDATION_INVALID_EMAIL',
-  VALIDATION_INVALID_STUDENT_ID : 'VALIDATION_INVALID_STUDENT_ID',
-  VALIDATION_INVALID_PASSWORD : 'VALIDATION_INVALID_PASSWORD',
-  VALIDATION_PASSWORDS_MISMATCH : 'VALIDATION_PASSWORDS_MISMATCH',
-  VALIDATION_IMAGE_TOO_LARGE : 'VALIDATION_IMAGE_TOO_LARGE',
-  VALIDATION_INVALID_FILE_TYPE : 'VALIDATION_INVALID_FILE_TYPE',
+  VALIDATION_REQUIRED_FIELD: 'VALIDATION_REQUIRED_FIELD',
+  VALIDATION_INVALID_EMAIL: 'VALIDATION_INVALID_EMAIL',
+  VALIDATION_INVALID_STUDENT_ID: 'VALIDATION_INVALID_STUDENT_ID',
+  VALIDATION_INVALID_PASSWORD: 'VALIDATION_INVALID_PASSWORD',
+  VALIDATION_PASSWORDS_MISMATCH: 'VALIDATION_PASSWORDS_MISMATCH',
+  VALIDATION_IMAGE_TOO_LARGE: 'VALIDATION_IMAGE_TOO_LARGE',
+  VALIDATION_INVALID_FILE_TYPE: 'VALIDATION_INVALID_FILE_TYPE',
 
   // Network errors
-  NETWORK_OFFLINE : 'NETWORK_OFFLINE',
-  NETWORK_TIMEOUT : 'NETWORK_TIMEOUT',
-  NETWORK_CONNECTION_FAILED : 'NETWORK_CONNECTION_FAILED',
+  NETWORK_OFFLINE: 'NETWORK_OFFLINE',
+  NETWORK_TIMEOUT: 'NETWORK_TIMEOUT',
+  NETWORK_CONNECTION_FAILED: 'NETWORK_CONNECTION_FAILED',
 
   // Firestore errors
-  FIRESTORE_PERMISSION_DENIED : 'FIRESTORE_PERMISSION_DENIED',
-  FIRESTORE_NOT_FOUND : 'FIRESTORE_NOT_FOUND',
-  FIRESTORE_ALREADY_EXISTS : 'FIRESTORE_ALREADY_EXISTS',
-  FIRESTORE_WRITE_FAILED : 'FIRESTORE_WRITE_FAILED',
+  FIRESTORE_PERMISSION_DENIED: 'FIRESTORE_PERMISSION_DENIED',
+  FIRESTORE_NOT_FOUND: 'FIRESTORE_NOT_FOUND',
+  FIRESTORE_ALREADY_EXISTS: 'FIRESTORE_ALREADY_EXISTS',
+  FIRESTORE_WRITE_FAILED: 'FIRESTORE_WRITE_FAILED',
 
   // Storage errors
-  STORAGE_UPLOAD_FAILED : 'STORAGE_UPLOAD_FAILED',
-  STORAGE_PERMISSION_DENIED : 'STORAGE_PERMISSION_DENIED',
-  STORAGE_QUOTA_EXCEEDED : 'STORAGE_QUOTA_EXCEEDED',
+  STORAGE_UPLOAD_FAILED: 'STORAGE_UPLOAD_FAILED',
+  STORAGE_PERMISSION_DENIED: 'STORAGE_PERMISSION_DENIED',
+  STORAGE_QUOTA_EXCEEDED: 'STORAGE_QUOTA_EXCEEDED',
 
   // Order errors
-  ORDER_CREATE_FAILED : 'ORDER_CREATE_FAILED',
-  ORDER_NOT_FOUND : 'ORDER_NOT_FOUND',
-  ORDER_CANCEL_FAILED : 'ORDER_CANCEL_FAILED',
-  ORDER_UPDATE_FAILED : 'ORDER_UPDATE_FAILED',
-  ORDER_EMPTY_CART : 'ORDER_EMPTY_CART',
+  ORDER_CREATE_FAILED: 'ORDER_CREATE_FAILED',
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',
+  ORDER_CANCEL_FAILED: 'ORDER_CANCEL_FAILED',
+  ORDER_UPDATE_FAILED: 'ORDER_UPDATE_FAILED',
+  ORDER_EMPTY_CART: 'ORDER_EMPTY_CART',
 
   // Listing errors
-  LISTING_CREATE_FAILED : 'LISTING_CREATE_FAILED',
-  LISTING_UPDATE_FAILED : 'LISTING_UPDATE_FAILED',
-  LISTING_DELETE_FAILED : 'LISTING_DELETE_FAILED',
-  LISTING_NOT_FOUND : 'LISTING_NOT_FOUND',
+  LISTING_CREATE_FAILED: 'LISTING_CREATE_FAILED',
+  LISTING_UPDATE_FAILED: 'LISTING_UPDATE_FAILED',
+  LISTING_DELETE_FAILED: 'LISTING_DELETE_FAILED',
+  LISTING_NOT_FOUND: 'LISTING_NOT_FOUND',
 
   // Payment errors
-  PAYMENT_METHOD_REQUIRED : 'PAYMENT_METHOD_REQUIRED',
-  PAYMENT_INFO_MISSING : 'PAYMENT_INFO_MISSING',
+  PAYMENT_METHOD_REQUIRED: 'PAYMENT_METHOD_REQUIRED',
+  PAYMENT_INFO_MISSING: 'PAYMENT_INFO_MISSING',
 
   // Rate limit errors
-  RATE_LIMIT_EXCEEDED : 'RATE_LIMIT_EXCEEDED',
+  RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
 
   // Permission errors
-  PERMISSION_DENIED : 'PERMISSION_DENIED',
-  PERMISSION_NOT_OWNER : 'PERMISSION_NOT_OWNER',
+  PERMISSION_DENIED: 'PERMISSION_DENIED',
+  PERMISSION_NOT_OWNER: 'PERMISSION_NOT_OWNER',
 
   // Unknown
   UNKNOWN_ERROR: 'UNKNOWN_ERROR',
 } as const;
 
-export type ErrorCode = typeof ErrorCode[keyof typeof ErrorCode];
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
 
 // User-friendly error messages
 const errorMessages: Record<string, string> = {
@@ -92,7 +92,8 @@ const errorMessages: Record<string, string> = {
   [ErrorCode.AUTH_INVALID_CREDENTIALS]: 'Invalid email or password. Please try again.',
   [ErrorCode.AUTH_USER_NOT_FOUND]: 'No account found with this email address.',
   [ErrorCode.AUTH_EMAIL_IN_USE]: 'This email is already registered. Please sign in instead.',
-  [ErrorCode.AUTH_WEAK_PASSWORD]: 'Password must be at least 8 characters with uppercase, lowercase, and a number.',
+  [ErrorCode.AUTH_WEAK_PASSWORD]:
+    'Password must be at least 8 characters with uppercase, lowercase, and a number.',
   [ErrorCode.AUTH_NETWORK_FAILED]: 'Network error. Please check your connection and try again.',
   [ErrorCode.AUTH_TOO_MANY_REQUESTS]: 'Too many attempts. Please try again later.',
   [ErrorCode.AUTH_INVALID_EMAIL]: 'Please enter a valid @hawk.illinoistech.edu email address.',
@@ -101,7 +102,8 @@ const errorMessages: Record<string, string> = {
   [ErrorCode.VALIDATION_REQUIRED_FIELD]: 'Please fill out all required fields.',
   [ErrorCode.VALIDATION_INVALID_EMAIL]: 'Please use your @hawk.illinoistech.edu email address.',
   [ErrorCode.VALIDATION_INVALID_STUDENT_ID]: 'Student ID must start with "A" followed by numbers.',
-  [ErrorCode.VALIDATION_INVALID_PASSWORD]: 'Password must be 8+ characters with uppercase, lowercase, and number.',
+  [ErrorCode.VALIDATION_INVALID_PASSWORD]:
+    'Password must be 8+ characters with uppercase, lowercase, and number.',
   [ErrorCode.VALIDATION_PASSWORDS_MISMATCH]: 'Passwords do not match.',
   [ErrorCode.VALIDATION_IMAGE_TOO_LARGE]: 'Image must be less than 5MB.',
   [ErrorCode.VALIDATION_INVALID_FILE_TYPE]: 'Please select a valid image file (PNG, JPG, JPEG).',
@@ -109,17 +111,18 @@ const errorMessages: Record<string, string> = {
   // Network
   [ErrorCode.NETWORK_OFFLINE]: 'You appear to be offline. Please check your internet connection.',
   [ErrorCode.NETWORK_TIMEOUT]: 'Request timed out. Please try again.',
-  [ErrorCode.NETWORK_CONNECTION_FAILED]: 'Unable to connect. Please check your internet connection.',
+  [ErrorCode.NETWORK_CONNECTION_FAILED]:
+    'Unable to connect. Please check your internet connection.',
 
   // Firestore
-  [ErrorCode.FIRESTORE_PERMISSION_DENIED]: 'You don\'t have permission to perform this action.',
+  [ErrorCode.FIRESTORE_PERMISSION_DENIED]: "You don't have permission to perform this action.",
   [ErrorCode.FIRESTORE_NOT_FOUND]: 'The requested item was not found.',
   [ErrorCode.FIRESTORE_ALREADY_EXISTS]: 'This item already exists.',
   [ErrorCode.FIRESTORE_WRITE_FAILED]: 'Failed to save changes. Please try again.',
 
   // Storage
   [ErrorCode.STORAGE_UPLOAD_FAILED]: 'Failed to upload image. Please try again.',
-  [ErrorCode.STORAGE_PERMISSION_DENIED]: 'You don\'t have permission to upload files.',
+  [ErrorCode.STORAGE_PERMISSION_DENIED]: "You don't have permission to upload files.",
   [ErrorCode.STORAGE_QUOTA_EXCEEDED]: 'Storage quota exceeded. Please contact support.',
 
   // Order
@@ -143,7 +146,7 @@ const errorMessages: Record<string, string> = {
   [ErrorCode.RATE_LIMIT_EXCEEDED]: 'Too many requests. Please wait a moment and try again.',
 
   // Permission
-  [ErrorCode.PERMISSION_DENIED]: 'You don\'t have permission to perform this action.',
+  [ErrorCode.PERMISSION_DENIED]: "You don't have permission to perform this action.",
   [ErrorCode.PERMISSION_NOT_OWNER]: 'You can only modify your own items.',
 
   // Unknown

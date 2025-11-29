@@ -59,10 +59,7 @@ export const getUserProfile = async (uid: string): Promise<FirebaseUserProfile |
   }
 };
 
-export const updateUserProfile = async (
-  uid: string,
-  updates: UpdateUserProfile
-): Promise<void> => {
+export const updateUserProfile = async (uid: string, updates: UpdateUserProfile): Promise<void> => {
   try {
     const userRef = doc(db, COLLECTIONS.USERS, uid);
 
@@ -84,7 +81,9 @@ export const becomeSeller = async (
   try {
     // Require email verification to become a seller
     if (!emailVerified) {
-      throw new Error('Please verify your email before becoming a seller. Check your inbox for a verification link.');
+      throw new Error(
+        'Please verify your email before becoming a seller. Check your inbox for a verification link.'
+      );
     }
 
     await updateUserProfile(uid, {

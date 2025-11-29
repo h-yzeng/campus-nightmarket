@@ -17,42 +17,38 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
     item.name.toLowerCase().includes('taco');
 
   return (
-    <div className="bg-[#1E1E1E] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-1 border-2 border-[#3A3A3A]">
-      <div className="relative p-6 pb-4 bg-[#2A2A2A]">
+    <div className="transform overflow-hidden rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] shadow-md transition-all hover:-translate-y-1 hover:shadow-xl">
+      <div className="relative bg-[#2A2A2A] p-6 pb-4">
         {item.image.startsWith('http') ? (
-          <div className="w-full h-40 flex items-center justify-center">
+          <div className="flex h-40 w-full items-center justify-center">
             <img
               src={item.image}
               alt={item.name}
-              className="w-full h-full object-cover rounded-lg"
+              className="h-full w-full rounded-lg object-cover"
             />
           </div>
         ) : (
-          <div className="text-7xl text-center mb-2">{item.image}</div>
+          <div className="mb-2 text-center text-7xl">{item.image}</div>
         )}
         {isPopular && (
-          <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full text-white font-bold shadow-md bg-[#FF9900]">
+          <span className="absolute top-3 right-3 rounded-full bg-[#FF9900] px-3 py-1 text-xs font-bold text-white shadow-md">
             POPULAR
           </span>
         )}
       </div>
 
       <div className="p-4 pt-3">
-        <h3 className="font-bold text-lg mb-1 leading-tight text-[#E0E0E0]">
-          {item.name}
-        </h3>
-        <p className="text-sm mb-1 text-[#A0A0A0]">
-          {item.description}
-        </p>
+        <h3 className="mb-1 text-lg leading-tight font-bold text-[#E0E0E0]">{item.name}</h3>
+        <p className="mb-1 text-sm text-[#A0A0A0]">{item.description}</p>
         <button
           type="button"
           onClick={() => onViewProfile(item.sellerId)}
-          className="text-sm mb-3 font-medium text-[#FF4444] hover:text-[#CC0000] hover:underline transition-colors"
+          className="mb-3 text-sm font-medium text-[#FF4444] transition-colors hover:text-[#CC0000] hover:underline"
         >
           by {item.seller.split(' ')[0]}
         </button>
 
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <MapPin size={14} className="text-[#888888]" />
           <span className="text-xs text-[#B0B0B0]">{item.location}</span>
           {sellerRating && (
@@ -64,13 +60,11 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <span className="text-3xl font-bold text-[#CC0000]">
-            ${item.price}
-          </span>
+          <span className="text-3xl font-bold text-[#CC0000]">${item.price}</span>
           <button
             type="button"
             onClick={() => onAddToCart(item)}
-            className="px-5 py-2.5 text-white text-sm font-bold rounded-lg hover:shadow-lg transition-all transform hover:scale-105 active:scale-95 bg-[#CC0000]"
+            className="transform rounded-lg bg-[#CC0000] px-5 py-2.5 text-sm font-bold text-white transition-all hover:scale-105 hover:shadow-lg active:scale-95"
           >
             Add +
           </button>

@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  getBuyerOrders,
-  getSellerOrders,
-} from '../../services/orders/orderService';
+import { getBuyerOrders, getSellerOrders } from '../../services/orders/orderService';
 import type { FirebaseOrder } from '../../types/firebase';
 import type { Order, CartItem } from '../../types';
 
@@ -11,14 +8,14 @@ const hashStringToNumber = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return Math.abs(hash);
 };
 
 const convertFirebaseOrderToApp = (firebaseOrder: FirebaseOrder): Order => {
-  const items: CartItem[] = firebaseOrder.items.map(item => ({
+  const items: CartItem[] = firebaseOrder.items.map((item) => ({
     id: hashStringToNumber(item.listingId),
     name: item.name,
     price: item.price,
@@ -42,15 +39,17 @@ const convertFirebaseOrderToApp = (firebaseOrder: FirebaseOrder): Order => {
     status: firebaseOrder.status,
     paymentMethod: firebaseOrder.paymentMethod,
     pickupTime: firebaseOrder.pickupTime,
-    orderDate: firebaseOrder.createdAt?.toDate?.().toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }) || new Date().toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }),
+    orderDate:
+      firebaseOrder.createdAt?.toDate?.().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }) ||
+      new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
     notes: firebaseOrder.notes,
     buyerName: firebaseOrder.buyerName,
     reviewId: firebaseOrder.reviewId,

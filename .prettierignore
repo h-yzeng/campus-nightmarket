@@ -1,0 +1,32 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+dist
+build
+.vite
+
+# Firebase
+.firebase
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# Env files
+.env
+.env.local
+.env.production
+
+# Generated files
+coverage
+*.min.js
+*.min.css

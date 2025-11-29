@@ -42,6 +42,11 @@ export default defineConfig({
     tailwindcss(),
     injectEnvToServiceWorker(),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   build: {
     rollupOptions: {
       output: {

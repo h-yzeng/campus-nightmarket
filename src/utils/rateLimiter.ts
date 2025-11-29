@@ -66,9 +66,7 @@ class RateLimiter {
     }
 
     // Remove attempts outside the time window
-    entry.attempts = entry.attempts.filter(
-      (timestamp) => now - timestamp < config.windowMs
-    );
+    entry.attempts = entry.attempts.filter((timestamp) => now - timestamp < config.windowMs);
 
     // Check if limit exceeded
     if (entry.attempts.length >= config.maxAttempts) {
@@ -176,10 +174,10 @@ export const RATE_LIMITS = {
     maxAttempts: typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 10 : 3,
     windowMs: 60 * 60 * 1000, // 1 hour window
     progressiveBlocking: {
-      4: 5 * 60 * 1000,   // Block for 5 minutes after 4th failed attempt
-      5: 10 * 60 * 1000,  // Block for 10 minutes after 5th failed attempt
-      6: 15 * 60 * 1000,  // Block for 15 minutes after 6th failed attempt
-      7: 30 * 60 * 1000,  // Block for 30 minutes after 7th+ failed attempts
+      4: 5 * 60 * 1000, // Block for 5 minutes after 4th failed attempt
+      5: 10 * 60 * 1000, // Block for 10 minutes after 5th failed attempt
+      6: 15 * 60 * 1000, // Block for 15 minutes after 6th failed attempt
+      7: 30 * 60 * 1000, // Block for 30 minutes after 7th+ failed attempts
     },
   },
 } as const;

@@ -67,7 +67,7 @@ const compressImage = async (file: File, maxWidth = 1200, maxHeight = 1200): Pro
 };
 
 const validateImage = (file: File): void => {
-  const maxSize = 5 * 1024 * 1024; 
+  const maxSize = 5 * 1024 * 1024;
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   if (!allowedTypes.includes(file.type)) {
@@ -79,10 +79,7 @@ const validateImage = (file: File): void => {
   }
 };
 
-export const uploadProfilePhoto = async (
-  userId: string,
-  file: File
-): Promise<string> => {
+export const uploadProfilePhoto = async (userId: string, file: File): Promise<string> => {
   try {
     validateImage(file);
     const compressedImage = await compressImage(file, 800, 800);
@@ -101,10 +98,7 @@ export const uploadProfilePhoto = async (
   }
 };
 
-export const uploadListingImage = async (
-  userId: string,
-  file: File
-): Promise<string> => {
+export const uploadListingImage = async (userId: string, file: File): Promise<string> => {
   try {
     validateImage(file);
 

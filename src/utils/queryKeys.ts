@@ -137,7 +137,11 @@ export const invalidationHelpers = {
  */
 export const prefetchHelpers = {
   // Prefetch listing details when hovering over a listing card
-  prefetchListingDetails: async (queryClient: QueryClient, listingId: string, fetchFn: () => Promise<unknown>) => {
+  prefetchListingDetails: async (
+    queryClient: QueryClient,
+    listingId: string,
+    fetchFn: () => Promise<unknown>
+  ) => {
     await queryClient.prefetchQuery({
       queryKey: queryKeys.listings.detail(listingId),
       queryFn: fetchFn,
@@ -146,7 +150,11 @@ export const prefetchHelpers = {
   },
 
   // Prefetch order details when user navigates to orders page
-  prefetchOrderDetails: async (queryClient: QueryClient, orderId: string, fetchFn: () => Promise<unknown>) => {
+  prefetchOrderDetails: async (
+    queryClient: QueryClient,
+    orderId: string,
+    fetchFn: () => Promise<unknown>
+  ) => {
     await queryClient.prefetchQuery({
       queryKey: queryKeys.orders.detail(orderId),
       queryFn: fetchFn,
@@ -155,7 +163,11 @@ export const prefetchHelpers = {
   },
 
   // Prefetch seller profile when hovering over seller name
-  prefetchSellerProfile: async (queryClient: QueryClient, sellerId: string, fetchFn: () => Promise<unknown>) => {
+  prefetchSellerProfile: async (
+    queryClient: QueryClient,
+    sellerId: string,
+    fetchFn: () => Promise<unknown>
+  ) => {
     await queryClient.prefetchQuery({
       queryKey: queryKeys.user.sellerProfile(sellerId),
       queryFn: fetchFn,

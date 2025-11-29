@@ -40,16 +40,17 @@ const ViewProfile = ({
   onSignOut,
   onCartClick,
   onProfileClick,
-  onLogoClick
+  onLogoClick,
 }: ViewProfileProps) => {
-  const averageRating = reviews.length > 0
-    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-    : 'N/A';
+  const averageRating =
+    reviews.length > 0
+      ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+      : 'N/A';
 
   const totalSales = reviews.length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#040707]">
+    <div className="flex min-h-screen flex-col bg-[#040707]">
       <Header
         cartItems={cart}
         profileData={currentUserProfile}
@@ -60,72 +61,68 @@ const ViewProfile = ({
         showCart={true}
         userMode={userMode}
       />
-      
-      <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">
+
+      <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="text-[#CC0000] font-semibold hover:underline flex items-center gap-2"
+            className="flex items-center gap-2 font-semibold text-[#CC0000] hover:underline"
           >
             ← Back to Browse
           </button>
         </div>
 
-        <div className="bg-neutral-800 rounded-2xl shadow-xl border-2 border-neutral-700 p-8">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-32 h-32 rounded-full flex items-center justify-center border-4 border-[#3A3A3A] bg-[#252525] overflow-hidden mb-4">
+        <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-8 shadow-xl">
+          <div className="mb-8 flex flex-col items-center">
+            <div className="mb-4 flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[#3A3A3A] bg-[#252525]">
               {sellerPhoto ? (
-                <img
-                  src={sellerPhoto}
-                  alt={sellerName}
-                  className="w-full h-full object-cover"
-                />
+                <img src={sellerPhoto} alt={sellerName} className="h-full w-full object-cover" />
               ) : (
                 <User size={48} className="text-[#888888]" />
               )}
             </div>
-            
-            <h1 className="text-3xl font-bold text-white mb-2">{sellerName}</h1>
-            
-            <div className="flex items-center gap-2 text-gray-400 mb-2">
+
+            <h1 className="mb-2 text-3xl font-bold text-white">{sellerName}</h1>
+
+            <div className="mb-2 flex items-center gap-2 text-gray-400">
               <IdCard size={16} />
-              <span className="text-sm font-mono">{sellerStudentId}</span>
+              <span className="font-mono text-sm">{sellerStudentId}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-400 mb-4">
+            <div className="mb-4 flex items-center gap-2 text-gray-400">
               <MapPin size={16} />
               <span className="text-sm">{sellerLocation}</span>
             </div>
 
-            <div className="flex gap-8 mb-4">
+            <div className="mb-4 flex gap-8">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-2xl font-bold text-[#CC0000]">
                   <Star size={24} className="fill-current" />
                   {averageRating}
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Rating</p>
+                <p className="mt-1 text-xs text-gray-400">Rating</p>
               </div>
-              
+
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-2xl font-bold text-white">
                   <ShoppingBag size={24} />
                   {totalSales}
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Sales</p>
+                <p className="mt-1 text-xs text-gray-400">Sales</p>
               </div>
             </div>
           </div>
 
           {sellerBio && (
-            <div className="mb-8 p-4 bg-[#2A2A2A] rounded-xl border-2 border-[#3A3A3A]">
-              <h2 className="text-sm font-bold text-white mb-2">About</h2>
+            <div className="mb-8 rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] p-4">
+              <h2 className="mb-2 text-sm font-bold text-white">About</h2>
               <p className="text-sm text-[#E0E0E0]">{sellerBio}</p>
             </div>
           )}
 
           {/* Reviews Section */}
-          <div className="border-t-2 border-neutral-700 pt-6 mb-6">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <div className="mb-6 border-t-2 border-neutral-700 pt-6">
+            <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
               <Star size={20} className="text-[#CC0000]" />
               Customer Reviews ({reviews.length})
             </h2>
@@ -140,7 +137,7 @@ const ViewProfile = ({
           {/* Transaction History */}
           {transactions.length > 0 && (
             <div className="border-t-2 border-neutral-700 pt-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
                 <ShoppingBag size={20} className="text-[#CC0000]" />
                 Recent Transactions ({transactions.length})
               </h2>
@@ -149,29 +146,31 @@ const ViewProfile = ({
                 {transactions.slice(0, 5).map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="p-4 bg-[#2A2A2A] rounded-xl border-2 border-[#3A3A3A] hover:border-[#4A4A4A] transition-colors"
+                    className="rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] p-4 transition-colors hover:border-[#4A4A4A]"
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="mb-2 flex items-start justify-between">
                       <div>
                         <h3 className="font-bold text-white">{transaction.itemName}</h3>
                         <p className="text-sm text-[#A0A0A0]">Bought by {transaction.buyerName}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-[#CC0000]">${transaction.price}</p>
-                        <div className="flex items-center gap-1 justify-end mt-1">
+                        <div className="mt-1 flex items-center justify-end gap-1">
                           <Star size={14} className="fill-current text-[#FF9900]" />
-                          <span className="text-sm font-semibold text-white">{transaction.rating}</span>
+                          <span className="text-sm font-semibold text-white">
+                            {transaction.rating}
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-[#888888] mb-2">
+                    <div className="mb-2 flex items-center gap-2 text-xs text-[#888888]">
                       <Calendar size={12} />
                       <span>{transaction.date}</span>
                     </div>
 
                     {transaction.review && (
-                      <div className="mt-3 p-3 bg-[#1E1E1E] rounded-lg border border-[#3A3A3A]">
+                      <div className="mt-3 rounded-lg border border-[#3A3A3A] bg-[#1E1E1E] p-3">
                         <p className="text-sm text-[#E0E0E0] italic">"{transaction.review}"</p>
                       </div>
                     )}

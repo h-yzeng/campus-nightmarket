@@ -27,10 +27,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
     }
 
     // Check if rate limited
-    const rateLimit = rateLimiter.checkLimit(
-      `login_failed_${email}`,
-      RATE_LIMITS.LOGIN_FAILED
-    );
+    const rateLimit = rateLimiter.checkLimit(`login_failed_${email}`, RATE_LIMITS.LOGIN_FAILED);
     if (!rateLimit.allowed) {
       setError(rateLimit.message || 'Too many failed login attempts. Please try again later.');
       setLoading(false);
@@ -42,10 +39,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
 
       if (!success) {
         // Track failed login attempt for rate limiting
-        rateLimiter.checkLimit(
-          `login_failed_${email}`,
-          RATE_LIMITS.LOGIN_FAILED
-        );
+        rateLimiter.checkLimit(`login_failed_${email}`, RATE_LIMITS.LOGIN_FAILED);
         setError('Invalid email or password. Please try again.');
       } else {
         // Reset rate limit on successful login
@@ -53,10 +47,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
       }
     } catch (err) {
       // Track failed attempt
-      rateLimiter.checkLimit(
-        `login_failed_${email}`,
-        RATE_LIMITS.LOGIN_FAILED
-      );
+      rateLimiter.checkLimit(`login_failed_${email}`, RATE_LIMITS.LOGIN_FAILED);
       setError(err instanceof Error ? err.message : 'Failed to sign in');
     } finally {
       setLoading(false);
@@ -74,58 +65,56 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-[#CC0000]">
+          <div className="mb-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#CC0000]">
               <span className="text-4xl">🌙</span>
             </div>
-            <h2 className="text-4xl font-bold mb-3 text-[#CC0000]">
-              Welcome Back!
-            </h2>
-            <p className="text-lg text-gray-400">
-              Sign in to Night Market
-            </p>
+            <h2 className="mb-3 text-4xl font-bold text-[#CC0000]">Welcome Back!</h2>
+            <p className="text-lg text-gray-400">Sign in to Night Market</p>
           </div>
 
-          <div className="bg-[#1E1E1E] rounded-2xl shadow-xl border-2 border-[#3A3A3A] p-8">
+          <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-xl">
             {error && (
-              <div className="flex gap-3 p-4 rounded-xl mb-6 bg-red-950 border-2 border-red-800">
-                <AlertCircle size={20} className="text-[#CC0000] shrink-0 mt-0.5" />
+              <div className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4">
+                <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
                 <p className="text-sm text-white">{error}</p>
               </div>
             )}
 
             <div className="mb-6">
-              <label className="block text-sm font-semibold mb-2 text-white">
-                Email Address
-              </label>
+              <label className="mb-2 block text-sm font-semibold text-white">Email Address</label>
               <div className="relative">
-                <Mail size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                <Mail
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
+                  className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-4 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                   placeholder="youremail@hawk.illinoistech.edu"
                 />
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-2 text-white">
-                Password
-              </label>
+              <label className="mb-2 block text-sm font-semibold text-white">Password</label>
               <div className="relative">
-                <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                <Lock
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="w-full pl-12 pr-12 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
+                  className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                   placeholder="••••••••"
                 />
                 <button
@@ -135,7 +124,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                   onMouseLeave={() => setShowPassword(false)}
                   onTouchStart={() => setShowPassword(true)}
                   onTouchEnd={() => setShowPassword(false)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-white transition-colors"
+                  className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -146,7 +135,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
             <div className="mb-6 text-right">
               <button
                 onClick={() => setShowForgotPassword(true)}
-                className="text-sm text-[#CC0000] font-semibold hover:underline"
+                className="text-sm font-semibold text-[#CC0000] hover:underline"
               >
                 Forgot Password?
               </button>
@@ -155,8 +144,8 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 ${
-                loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#CC0000]'
+              className={`w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 ${
+                loading ? 'cursor-not-allowed bg-gray-400' : 'bg-[#CC0000]'
               }`}
             >
               {loading ? 'Signing In...' : 'Sign In →'}
@@ -167,7 +156,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                 Don't have an account?{' '}
                 <button
                   onClick={onGoToSignup}
-                  className="text-[#CC0000] font-semibold hover:underline"
+                  className="font-semibold text-[#CC0000] hover:underline"
                 >
                   Sign Up
                 </button>

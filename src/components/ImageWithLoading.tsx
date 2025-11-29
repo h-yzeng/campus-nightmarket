@@ -12,7 +12,7 @@ export const ImageWithLoading = ({
   src,
   alt,
   className = '',
-  aspectRatio = 'auto'
+  aspectRatio = 'auto',
 }: ImageWithLoadingProps) => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -20,14 +20,16 @@ export const ImageWithLoading = ({
   const aspectClasses = {
     square: 'aspect-square',
     video: 'aspect-video',
-    auto: ''
+    auto: '',
   };
 
   if (error) {
     return (
-      <div className={`flex items-center justify-center bg-gray-800 ${aspectClasses[aspectRatio]} ${className}`}>
+      <div
+        className={`flex items-center justify-center bg-gray-800 ${aspectClasses[aspectRatio]} ${className}`}
+      >
         <div className="text-center text-gray-500">
-          <ImageOff className="w-12 h-12 mx-auto mb-2" />
+          <ImageOff className="mx-auto mb-2 h-12 w-12" />
           <p className="text-sm">Failed to load image</p>
         </div>
       </div>
@@ -38,8 +40,8 @@ export const ImageWithLoading = ({
     <div className={`relative ${aspectClasses[aspectRatio]} ${className}`}>
       {/* Loading placeholder */}
       {!loaded && (
-        <div className="absolute inset-0 bg-gray-700 animate-pulse flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-gray-600 border-t-[#CC0000] rounded-full animate-spin"></div>
+        <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-gray-700">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-[#CC0000]"></div>
         </div>
       )}
 
@@ -50,7 +52,7 @@ export const ImageWithLoading = ({
         loading="lazy"
         onLoad={() => setLoaded(true)}
         onError={() => setError(true)}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${
+        className={`h-full w-full object-cover transition-opacity duration-300 ${
           loaded ? 'opacity-100' : 'opacity-0'
         } ${className}`}
       />

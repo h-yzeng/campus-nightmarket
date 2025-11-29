@@ -50,22 +50,22 @@ const NotificationBell = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 hover:bg-[#252525] rounded-lg transition-colors"
+        className="relative rounded-lg p-2 transition-colors hover:bg-[#252525]"
         type="button"
         aria-label="Notifications"
       >
         <Bell size={24} className="text-[#B0B0B0]" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white rounded-full bg-[#CC0000]">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-[#252525] rounded-xl shadow-xl border-2 border-[#3A3A3A] overflow-hidden max-h-[500px] flex flex-col">
+        <div className="absolute right-0 mt-2 flex max-h-[500px] w-96 flex-col overflow-hidden rounded-xl border-2 border-[#3A3A3A] bg-[#252525] shadow-xl">
           {/* Header */}
-          <div className="p-4 border-b border-[#3A3A3A] flex items-center justify-between">
+          <div className="flex items-center justify-between border-b border-[#3A3A3A] p-4">
             <h3 className="font-semibold text-[#E0E0E0]">Notifications</h3>
             {notifications.length > 0 && (
               <div className="flex gap-2">
@@ -90,38 +90,38 @@ const NotificationBell = ({
           </div>
 
           {/* Notifications List */}
-          <div className="overflow-y-auto flex-1">
+          <div className="flex-1 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell size={48} className="text-[#4A4A4A] mx-auto mb-3" />
+                <Bell size={48} className="mx-auto mb-3 text-[#4A4A4A]" />
                 <p className="text-[#888888]">No notifications yet</p>
               </div>
             ) : (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b border-[#3A3A3A] hover:bg-[#2A2A2A] transition-colors ${
+                  className={`border-b border-[#3A3A3A] p-4 transition-colors hover:bg-[#2A2A2A] ${
                     !notification.read ? 'bg-[#2A1A1A]' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
                         {!notification.read && (
-                          <div className="w-2 h-2 rounded-full bg-[#CC0000]" />
+                          <div className="h-2 w-2 rounded-full bg-[#CC0000]" />
                         )}
-                        <h4 className="font-semibold text-[#E0E0E0] text-sm">
+                        <h4 className="text-sm font-semibold text-[#E0E0E0]">
                           {notification.title}
                         </h4>
                       </div>
-                      <p className="text-sm text-[#B0B0B0] mb-2">{notification.body}</p>
+                      <p className="mb-2 text-sm text-[#B0B0B0]">{notification.body}</p>
                       <p className="text-xs text-[#888888]">{formatTime(notification.timestamp)}</p>
                     </div>
                     <div className="flex gap-1">
                       {!notification.read && (
                         <button
                           onClick={() => onMarkAsRead(notification.id)}
-                          className="text-xs text-[#CC0000] hover:underline whitespace-nowrap"
+                          className="text-xs whitespace-nowrap text-[#CC0000] hover:underline"
                           type="button"
                         >
                           Mark read

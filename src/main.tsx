@@ -1,12 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import App from './App.tsx'
-import ErrorBoundary from './components/ErrorBoundary.tsx'
-import './styles/index.css'
-import { logger } from './utils/logger'
-import { initializeSentry } from './config/sentry.tsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import App from './App.tsx';
+import ErrorBoundary from './components/ErrorBoundary.tsx';
+import './styles/index.css';
+import { logger } from './utils/logger';
+import { initializeSentry } from './config/sentry.tsx';
 
 // Initialize Sentry for error tracking
 initializeSentry();
@@ -56,8 +56,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ErrorBoundary>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
 
 // Register service worker for push notifications
 if ('serviceWorker' in navigator) {

@@ -3,25 +3,21 @@ import { memo } from 'react';
 
 const Footer = () => {
   return (
-    <footer className="border-t-2 border-[#3A3A3A] bg-[#1A1A1B] mt-auto">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+    <footer className="mt-auto border-t-2 border-[#3A3A3A] bg-[#1A1A1B]">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-6 grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* About Section */}
           <div>
-            <h3 className="text-lg font-bold mb-3 text-[#CC0000]">
-              About Night Market
-            </h3>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              A safe and verified platform for IIT students to buy, sell, and trade food
-              on campus during late-night hours.
+            <h3 className="mb-3 text-lg font-bold text-[#CC0000]">About Night Market</h3>
+            <p className="text-sm leading-relaxed text-gray-400">
+              A safe and verified platform for IIT students to buy, sell, and trade food on campus
+              during late-night hours.
             </p>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-bold mb-3 text-[#CC0000]">
-              Contact
-            </h3>
+            <h3 className="mb-3 text-lg font-bold text-[#CC0000]">Contact</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li className="flex items-center gap-2">
                 <Mail size={16} className="text-[#CC0000]" />
@@ -32,7 +28,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t border-[#3A3A3A] flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-[#3A3A3A] pt-6 md:flex-row">
           <p className="text-xs text-gray-500">
             © 2025 Night Market. All rights reserved. | For verified IIT students only.
           </p>

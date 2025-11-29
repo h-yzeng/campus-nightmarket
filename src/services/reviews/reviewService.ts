@@ -10,11 +10,7 @@ import {
   getDoc,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import {
-  type FirebaseReview,
-  type CreateReview,
-  COLLECTIONS,
-} from '../../types/firebase';
+import { type FirebaseReview, type CreateReview, COLLECTIONS } from '../../types/firebase';
 import { logger } from '../../utils/logger';
 
 export const createReview = async (reviewData: CreateReview): Promise<string> => {
@@ -56,11 +52,7 @@ export const getReview = async (reviewId: string): Promise<FirebaseReview | null
 export const getSellerReviews = async (sellerId: string): Promise<FirebaseReview[]> => {
   try {
     const reviewsRef = collection(db, COLLECTIONS.REVIEWS);
-    const q = query(
-      reviewsRef,
-      where('sellerId', '==', sellerId),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(reviewsRef, where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'));
 
     const querySnapshot = await getDocs(q);
     const reviews: FirebaseReview[] = [];
@@ -82,11 +74,7 @@ export const getSellerReviews = async (sellerId: string): Promise<FirebaseReview
 export const getBuyerReviews = async (buyerId: string): Promise<FirebaseReview[]> => {
   try {
     const reviewsRef = collection(db, COLLECTIONS.REVIEWS);
-    const q = query(
-      reviewsRef,
-      where('buyerId', '==', buyerId),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(reviewsRef, where('buyerId', '==', buyerId), orderBy('createdAt', 'desc'));
 
     const querySnapshot = await getDocs(q);
     const reviews: FirebaseReview[] = [];

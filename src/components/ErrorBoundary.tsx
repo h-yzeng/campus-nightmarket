@@ -69,64 +69,60 @@ class ErrorBoundary extends Component<Props, State> {
 
       // Default fallback UI
       return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full bg-gray-800 rounded-lg shadow-xl p-8">
-            <div className="flex items-center justify-center mb-6">
-              <div className="bg-red-500/10 p-4 rounded-full">
-                <AlertTriangle className="w-12 h-12 text-red-500" />
+        <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
+          <div className="w-full max-w-2xl rounded-lg bg-gray-800 p-8 shadow-xl">
+            <div className="mb-6 flex items-center justify-center">
+              <div className="rounded-full bg-red-500/10 p-4">
+                <AlertTriangle className="h-12 w-12 text-red-500" />
               </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-white text-center mb-4">
+            <h1 className="mb-4 text-center text-3xl font-bold text-white">
               Oops! Something went wrong
             </h1>
 
-            <p className="text-gray-400 text-center mb-6">
-              We're sorry for the inconvenience. An unexpected error occurred.
-              Please try refreshing the page or return to the home page.
+            <p className="mb-6 text-center text-gray-400">
+              We're sorry for the inconvenience. An unexpected error occurred. Please try refreshing
+              the page or return to the home page.
             </p>
 
-            <div className="flex gap-4 justify-center mb-8">
+            <div className="mb-8 flex justify-center gap-4">
               <button
                 onClick={this.handleReset}
-                className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-red-600 px-6 py-3 text-white transition-colors hover:bg-red-700"
               >
-                <RefreshCw className="w-5 h-5" />
+                <RefreshCw className="h-5 w-5" />
                 Try Again
               </button>
 
               <button
                 onClick={this.handleGoHome}
-                className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-gray-700 px-6 py-3 text-white transition-colors hover:bg-gray-600"
               >
-                <Home className="w-5 h-5" />
+                <Home className="h-5 w-5" />
                 Go Home
               </button>
             </div>
 
             {/* Show error details in development */}
             {import.meta.env.DEV && this.state.error && (
-              <div className="mt-8 p-4 bg-gray-900 rounded-lg border border-gray-700">
-                <h2 className="text-lg font-semibold text-red-400 mb-2">
+              <div className="mt-8 rounded-lg border border-gray-700 bg-gray-900 p-4">
+                <h2 className="mb-2 text-lg font-semibold text-red-400">
                   Error Details (Development Only)
                 </h2>
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-gray-400 mb-1">
-                      Error Message:
-                    </p>
-                    <p className="text-sm text-red-400 font-mono bg-gray-950 p-3 rounded">
+                    <p className="mb-1 text-sm font-medium text-gray-400">Error Message:</p>
+                    <p className="rounded bg-gray-950 p-3 font-mono text-sm text-red-400">
                       {this.state.error.message}
                     </p>
                   </div>
 
                   {this.state.error.stack && (
                     <div>
-                      <p className="text-sm font-medium text-gray-400 mb-1">
-                        Stack Trace:
-                      </p>
-                      <pre className="text-xs text-gray-300 bg-gray-950 p-3 rounded overflow-x-auto">
+                      <p className="mb-1 text-sm font-medium text-gray-400">Stack Trace:</p>
+                      <pre className="overflow-x-auto rounded bg-gray-950 p-3 text-xs text-gray-300">
                         {this.state.error.stack}
                       </pre>
                     </div>
@@ -134,10 +130,8 @@ class ErrorBoundary extends Component<Props, State> {
 
                   {this.state.errorInfo && (
                     <div>
-                      <p className="text-sm font-medium text-gray-400 mb-1">
-                        Component Stack:
-                      </p>
-                      <pre className="text-xs text-gray-300 bg-gray-950 p-3 rounded overflow-x-auto">
+                      <p className="mb-1 text-sm font-medium text-gray-400">Component Stack:</p>
+                      <pre className="overflow-x-auto rounded bg-gray-950 p-3 text-xs text-gray-300">
                         {this.state.errorInfo.componentStack}
                       </pre>
                     </div>

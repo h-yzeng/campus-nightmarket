@@ -5,9 +5,7 @@ import type { SignupData } from '../services/auth/authService';
 import type { FirebaseUserProfile } from '../types/firebase';
 import { logger } from '../utils/logger';
 
-const convertFirebaseProfileToApp = (
-  firebaseProfile: FirebaseUserProfile | null
-): ProfileData => {
+const convertFirebaseProfileToApp = (firebaseProfile: FirebaseUserProfile | null): ProfileData => {
   if (!firebaseProfile) {
     return {
       email: '',
@@ -63,7 +61,13 @@ export const useAuth = () => {
     if (firebaseProfile && currentPage === 'home') {
       setCurrentPage('browse');
     }
-    if (!firebaseProfile && !loading && currentPage !== 'home' && currentPage !== 'login' && currentPage !== 'signup') {
+    if (
+      !firebaseProfile &&
+      !loading &&
+      currentPage !== 'home' &&
+      currentPage !== 'login' &&
+      currentPage !== 'signup'
+    ) {
       setCurrentPage('home');
     }
   }, [firebaseProfile, loading, currentPage]);
@@ -114,8 +118,10 @@ export const useAuth = () => {
 
       if (profileData.sellerInfo) {
         updates.sellerInfo = profileData.sellerInfo;
-        if (profileData.sellerInfo.paymentMethods &&
-            Object.keys(profileData.sellerInfo.paymentMethods).length > 0) {
+        if (
+          profileData.sellerInfo.paymentMethods &&
+          Object.keys(profileData.sellerInfo.paymentMethods).length > 0
+        ) {
           updates.isSeller = true;
         }
       }
@@ -151,7 +157,7 @@ export const useAuth = () => {
 
       await firebaseBecomeSeller(sellerInfo);
 
-      setProfileData(prev => ({
+      setProfileData((prev) => ({
         ...prev,
         isSeller: true,
         sellerInfo,

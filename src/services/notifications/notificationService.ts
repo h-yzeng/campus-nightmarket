@@ -77,21 +77,23 @@ export const onForegroundMessage = (callback: (payload: unknown) => void) => {
   let unsubscribe: (() => void) | null = null;
 
   // Initialize messaging asynchronously
-  initializeMessaging().then(async (messaging) => {
-    if (!messaging) {
-      logger.error('Firebase Messaging not initialized');
-      return;
-    }
+  initializeMessaging()
+    .then(async (messaging) => {
+      if (!messaging) {
+        logger.error('Firebase Messaging not initialized');
+        return;
+      }
 
-    // Dynamically import onMessage
-    const { onMessage } = await import('firebase/messaging');
-    unsubscribe = onMessage(messaging, (payload) => {
-      logger.debug('Foreground message received:', payload);
-      callback(payload);
+      // Dynamically import onMessage
+      const { onMessage } = await import('firebase/messaging');
+      unsubscribe = onMessage(messaging, (payload) => {
+        logger.debug('Foreground message received:', payload);
+        callback(payload);
+      });
+    })
+    .catch((error) => {
+      logger.error('Error setting up foreground message listener:', error);
     });
-  }).catch((error) => {
-    logger.error('Error setting up foreground message listener:', error);
-  });
 
   // Return cleanup function
   return () => {

@@ -70,7 +70,11 @@ interface AppRouterProps {
   updateCartQuantity: (itemId: number, newQuantity: number) => void;
   removeFromCart: (itemId: number) => void;
   handleCheckout: () => void;
-  handlePlaceOrder: (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => Promise<void>;
+  handlePlaceOrder: (
+    paymentMethod: string,
+    pickupTimes: Record<string, string>,
+    notes?: string
+  ) => Promise<void>;
   handleCancelOrder: (orderId: number) => Promise<void>;
   handleCreateListing: () => Promise<void>;
   handleToggleAvailability: (listingId: number) => void;
@@ -135,9 +139,8 @@ export const AppRouter = ({
   handleUpdateOrderStatus,
 }: AppRouterProps) => {
   // Get the current order if viewing order details
-  const currentOrder = currentPage === 'orderDetails'
-    ? buyerOrders.find(o => o.id === selectedOrderId)
-    : undefined;
+  const currentOrder =
+    currentPage === 'orderDetails' ? buyerOrders.find((o) => o.id === selectedOrderId) : undefined;
 
   // Fetch seller profile for order details page
   const { sellerProfile } = useSellerProfile(currentOrder?.sellerId);

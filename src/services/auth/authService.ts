@@ -123,7 +123,10 @@ export const resetPassword = async (email: string): Promise<void> => {
   }
 };
 
-export const changePassword = async (currentPassword: string, newPassword: string): Promise<void> => {
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string
+): Promise<void> => {
   try {
     const user = auth.currentUser;
     if (!user || !user.email) {

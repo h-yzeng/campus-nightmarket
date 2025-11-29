@@ -1,9 +1,23 @@
 import type { ProfileData } from '../types';
 
-export type PageType = 'home' | 'login' | 'signup' | 'browse' | 'cart' | 'checkout' | 'profile' | 'viewProfile' | 'userOrders' | 'orderDetails' | 'sellerDashboard' | 'createListing' | 'sellerListings' | 'sellerOrders';
+export type PageType =
+  | 'home'
+  | 'login'
+  | 'signup'
+  | 'browse'
+  | 'cart'
+  | 'checkout'
+  | 'profile'
+  | 'viewProfile'
+  | 'userOrders'
+  | 'orderDetails'
+  | 'sellerDashboard'
+  | 'createListing'
+  | 'sellerListings'
+  | 'sellerOrders';
 
 export const STORAGE_KEYS = {
-  CURRENT_USER: 'nightmarket_current_user'
+  CURRENT_USER: 'nightmarket_current_user',
 } as const;
 
 export const getInitialUser = (): { profile: ProfileData; page: PageType } => {
@@ -11,7 +25,7 @@ export const getInitialUser = (): { profile: ProfileData; page: PageType } => {
   if (savedUser) {
     return {
       profile: JSON.parse(savedUser),
-      page: 'browse'
+      page: 'browse',
     };
   }
   return {
@@ -22,9 +36,9 @@ export const getInitialUser = (): { profile: ProfileData; page: PageType } => {
       studentId: '',
       bio: '',
       photo: null,
-      isSeller: false
+      isSeller: false,
     },
-    page: 'home'
+    page: 'home',
   };
 };
 

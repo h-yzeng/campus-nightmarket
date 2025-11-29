@@ -49,15 +49,15 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75">
-      <div className="bg-[#1E1E1E] rounded-2xl shadow-2xl border-2 border-[#3A3A3A] max-w-lg w-full">
+    <div className="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+      <div className="w-full max-w-lg rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b-2 border-[#3A3A3A]">
+        <div className="flex items-center justify-between border-b-2 border-[#3A3A3A] p-6">
           <h2 className="text-2xl font-bold text-white">Leave a Review</h2>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
-            className="text-[#A0A0A0] hover:text-white transition-colors disabled:opacity-50"
+            className="text-[#A0A0A0] transition-colors hover:text-white disabled:opacity-50"
             aria-label="Close modal"
           >
             <X size={24} />
@@ -65,19 +65,19 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="space-y-6 p-6">
           {/* Seller Info */}
           <div>
-            <p className="text-sm text-[#A0A0A0] mb-1">Reviewing order from</p>
+            <p className="mb-1 text-sm text-[#A0A0A0]">Reviewing order from</p>
             <p className="text-lg font-semibold text-white">{sellerName}</p>
             {itemNames.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs text-[#888888] mb-1">Items:</p>
+                <p className="mb-1 text-xs text-[#888888]">Items:</p>
                 <div className="flex flex-wrap gap-2">
                   {itemNames.map((item, index) => (
                     <span
                       key={index}
-                      className="text-xs px-2 py-1 bg-[#2A2A2A] text-[#E0E0E0] rounded-lg"
+                      className="rounded-lg bg-[#2A2A2A] px-2 py-1 text-xs text-[#E0E0E0]"
                     >
                       {item}
                     </span>
@@ -89,7 +89,7 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
 
           {/* Star Rating */}
           <div>
-            <label className="block text-sm font-semibold mb-3 text-[#E0E0E0]">
+            <label className="mb-3 block text-sm font-semibold text-[#E0E0E0]">
               Rating <span className="text-[#CC0000]">*</span>
             </label>
             <div className="flex gap-2">
@@ -101,7 +101,7 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
                   onMouseEnter={() => setHoveredRating(star)}
                   onMouseLeave={() => setHoveredRating(0)}
                   disabled={isSubmitting}
-                  className="transition-all transform hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+                  className="transform transition-all hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
                   aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                 >
                   <Star
@@ -116,7 +116,7 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
               ))}
             </div>
             {rating > 0 && (
-              <p className="text-sm text-[#A0A0A0] mt-2">
+              <p className="mt-2 text-sm text-[#A0A0A0]">
                 {rating === 1 && 'Poor'}
                 {rating === 2 && 'Fair'}
                 {rating === 3 && 'Good'}
@@ -128,46 +128,46 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
 
           {/* Comment */}
           <div>
-            <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+            <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
               Comment (Optional)
             </label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               disabled={isSubmitting}
-              className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all resize-none bg-[#252525] disabled:opacity-50"
+              className="w-full resize-none rounded-xl border-2 border-[#3A3A3A] bg-[#252525] px-4 py-3 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none disabled:opacity-50"
               placeholder="Share your experience with this seller..."
               rows={4}
               maxLength={500}
             />
-            <p className="text-xs text-[#888888] mt-1">{comment.length}/500 characters</p>
+            <p className="mt-1 text-xs text-[#888888]">{comment.length}/500 characters</p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="flex gap-3 p-4 rounded-xl bg-[#2A0A0A] border-2 border-[#4A1A1A]">
-              <AlertCircle size={20} className="text-[#CC0000] shrink-0 mt-0.5" />
+            <div className="flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4">
+              <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
               <p className="text-sm text-[#FFB0B0]">{error}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-6 border-t-2 border-[#3A3A3A]">
+        <div className="flex gap-3 border-t-2 border-[#3A3A3A] p-6">
           <button
             onClick={handleClose}
             disabled={isSubmitting}
-            className="flex-1 py-3 bg-[#3A3A3A] text-white text-base font-semibold rounded-xl hover:bg-[#4A4A4A] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-xl bg-[#3A3A3A] py-3 text-base font-semibold text-white transition-all hover:bg-[#4A4A4A] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || rating === 0}
-            className={`flex-1 py-3 text-white text-base font-semibold rounded-xl transition-all ${
+            className={`flex-1 rounded-xl py-3 text-base font-semibold text-white transition-all ${
               rating > 0 && !isSubmitting
                 ? 'bg-[#CC0000] hover:bg-[#AA0000] hover:shadow-lg'
-                : 'bg-[#666666] cursor-not-allowed'
+                : 'cursor-not-allowed bg-[#666666]'
             }`}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Review'}

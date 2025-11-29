@@ -23,11 +23,7 @@ import {
   COLLECTIONS,
 } from '../../types/firebase';
 import { logger } from '../../utils/logger';
-import {
-  validatePrice,
-  validateCategory,
-  sanitizeString,
-} from '../../utils/validation';
+import { validatePrice, validateCategory, sanitizeString } from '../../utils/validation';
 
 export const createListing = async (listingData: CreateListing): Promise<string> => {
   try {
@@ -118,7 +114,11 @@ export const getPaginatedListings = async (
   pageSize: number = 20,
   lastDoc?: QueryDocumentSnapshot | null,
   onlyAvailable = true
-): Promise<{ listings: FirebaseListing[]; lastDoc: QueryDocumentSnapshot | null; hasMore: boolean }> => {
+): Promise<{
+  listings: FirebaseListing[];
+  lastDoc: QueryDocumentSnapshot | null;
+  hasMore: boolean;
+}> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
 
@@ -166,10 +166,7 @@ export const getPaginatedListings = async (
 export const getListingsBySeller = async (sellerId: string): Promise<FirebaseListing[]> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
-    const q = query(
-      listingsRef,
-      where('sellerId', '==', sellerId)
-    );
+    const q = query(listingsRef, where('sellerId', '==', sellerId));
 
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
@@ -252,10 +249,7 @@ export const getListingsByCategory = async (category: string): Promise<FirebaseL
   }
 };
 
-export const updateListing = async (
-  listingId: string,
-  updates: UpdateListing
-): Promise<void> => {
+export const updateListing = async (listingId: string, updates: UpdateListing): Promise<void> => {
   try {
     const listingRef = doc(db, COLLECTIONS.LISTINGS, listingId);
 

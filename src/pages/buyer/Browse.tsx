@@ -48,28 +48,36 @@ const Browse = ({
   onSellerDashboardClick,
   onLogoClick,
   loading = false,
-  error = null
+  error = null,
 }: BrowseProps) => {
   const filteredItems = useMemo(() => {
-    return foodItems.filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.seller.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesLocation = selectedLocation === 'All Dorms' || item.location === selectedLocation;
+    return foodItems.filter((item) => {
+      const matchesSearch =
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.seller.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesLocation =
+        selectedLocation === 'All Dorms' || item.location === selectedLocation;
       return matchesSearch && matchesLocation;
     });
   }, [foodItems, searchQuery, selectedLocation]);
 
   // Memoize callbacks to prevent ListingCard re-renders
-  const handleAddToCart = useCallback((item: FoodItem) => {
-    addToCart(item);
-  }, [addToCart]);
+  const handleAddToCart = useCallback(
+    (item: FoodItem) => {
+      addToCart(item);
+    },
+    [addToCart]
+  );
 
-  const handleViewProfile = useCallback((sellerId: string) => {
-    onViewProfile(sellerId);
-  }, [onViewProfile]);
+  const handleViewProfile = useCallback(
+    (sellerId: string) => {
+      onViewProfile(sellerId);
+    },
+    [onViewProfile]
+  );
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -86,22 +94,22 @@ const Browse = ({
 
       <main className="flex-1">
         {error && (
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex gap-3 p-4 rounded-xl bg-[#2A0A0A] border-2 border-[#4A1A1A]">
-              <AlertCircle size={20} className="text-[#FF4444] shrink-0 mt-0.5" />
+          <div className="mx-auto max-w-7xl px-6 py-4">
+            <div className="flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4">
+              <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#FF4444]" />
               <div>
-                <p className="text-sm font-semibold text-[#FFCCCC] mb-1">Error Loading Listings</p>
+                <p className="mb-1 text-sm font-semibold text-[#FFCCCC]">Error Loading Listings</p>
                 <p className="text-sm text-[#FFB0B0]">{error}</p>
               </div>
             </div>
           </div>
         )}
-        <div className="bg-[#1A1A1B] border-b-2 border-[#2A2A2A] shadow-sm">
-          <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="md:col-span-2 relative">
-                <Search 
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-[#76777B]" 
+        <div className="border-b-2 border-[#2A2A2A] bg-[#1A1A1B] shadow-sm">
+          <div className="mx-auto max-w-7xl px-6 py-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="relative md:col-span-2">
+                <Search
+                  className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
                   size={20}
                 />
                 <input
@@ -109,7 +117,7 @@ const Browse = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for food or sellers..."
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#252525]"
+                  className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#252525] py-3 pr-4 pl-12 text-base text-[#E0E0E0] placeholder-gray-500 transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                 />
               </div>
 
@@ -118,7 +126,7 @@ const Browse = ({
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="flex-1 px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base font-medium text-[#E0E0E0] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#252525]"
+                  className="flex-1 rounded-xl border-2 border-[#3A3A3A] bg-[#252525] px-4 py-3 text-base font-medium text-[#E0E0E0] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                   title="Location Filter"
                 >
                   <option>All Dorms</option>
@@ -134,21 +142,21 @@ const Browse = ({
               </div>
             </div>
 
-            <p className="text-sm font-medium text-[#B0B0B0] mt-4">
+            <p className="mt-4 text-sm font-medium text-[#B0B0B0]">
               {filteredItems.length} items available
             </p>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mx-auto max-w-7xl px-6 py-8">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
-              <Loader2 size={48} className="text-[#CC0000] animate-spin mb-4" />
+              <Loader2 size={48} className="mb-4 animate-spin text-[#CC0000]" />
               <p className="text-lg text-[#B0B0B0]">Loading listings...</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredItems.map(item => (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredItems.map((item) => (
                 <ListingCard
                   key={item.id}
                   item={item}
@@ -159,8 +167,8 @@ const Browse = ({
               ))}
 
               {filteredItems.length === 0 && !loading && (
-                <div className="col-span-full text-center py-16">
-                  <p className="text-xl text-gray-500 mb-2">No items found</p>
+                <div className="col-span-full py-16 text-center">
+                  <p className="mb-2 text-xl text-gray-500">No items found</p>
                   <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
                 </div>
               )}

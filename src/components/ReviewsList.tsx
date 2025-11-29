@@ -7,12 +7,16 @@ interface ReviewsListProps {
   emptyMessage?: string;
 }
 
-const ReviewsList = ({ reviews, loading = false, emptyMessage = 'No reviews yet' }: ReviewsListProps) => {
+const ReviewsList = ({
+  reviews,
+  loading = false,
+  emptyMessage = 'No reviews yet',
+}: ReviewsListProps) => {
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="text-5xl mb-3">⏳</div>
+          <div className="mb-3 text-5xl">⏳</div>
           <p className="text-[#A0A0A0]">Loading reviews...</p>
         </div>
       </div>
@@ -21,8 +25,8 @@ const ReviewsList = ({ reviews, loading = false, emptyMessage = 'No reviews yet'
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-12 bg-[#1E1E1E] rounded-xl border-2 border-[#3A3A3A]">
-        <div className="text-6xl mb-3">💬</div>
+      <div className="rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-12 text-center">
+        <div className="mb-3 text-6xl">💬</div>
         <p className="text-lg font-semibold text-[#A0A0A0]">{emptyMessage}</p>
       </div>
     );
@@ -36,9 +40,7 @@ const ReviewsList = ({ reviews, loading = false, emptyMessage = 'No reviews yet'
             key={star}
             size={16}
             className={`${
-              star <= rating
-                ? 'fill-[#FFD700] text-[#FFD700]'
-                : 'fill-none text-[#4A4A4A]'
+              star <= rating ? 'fill-[#FFD700] text-[#FFD700]' : 'fill-none text-[#4A4A4A]'
             }`}
           />
         ))}
@@ -64,13 +66,13 @@ const ReviewsList = ({ reviews, loading = false, emptyMessage = 'No reviews yet'
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="bg-[#1E1E1E] rounded-xl border-2 border-[#3A3A3A] p-5 hover:border-[#4A4A4A] transition-all"
+          className="rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-5 transition-all hover:border-[#4A4A4A]"
         >
           {/* Review Header */}
-          <div className="flex items-start justify-between mb-3">
+          <div className="mb-3 flex items-start justify-between">
             <div className="flex items-start gap-3">
               {/* Avatar */}
-              <div className="w-10 h-10 rounded-full bg-[#3A3A3A] flex items-center justify-center shrink-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3A3A3A]">
                 <User size={20} className="text-[#A0A0A0]" />
               </div>
 
@@ -92,7 +94,7 @@ const ReviewsList = ({ reviews, loading = false, emptyMessage = 'No reviews yet'
                 {review.itemNames.map((item, index) => (
                   <span
                     key={index}
-                    className="text-xs px-2 py-1 bg-[#2A2A2A] text-[#A0A0A0] rounded-lg"
+                    className="rounded-lg bg-[#2A2A2A] px-2 py-1 text-xs text-[#A0A0A0]"
                   >
                     {item}
                   </span>
@@ -102,9 +104,7 @@ const ReviewsList = ({ reviews, loading = false, emptyMessage = 'No reviews yet'
           )}
 
           {/* Review Comment */}
-          {review.comment && (
-            <p className="text-[#E0E0E0] leading-relaxed">{review.comment}</p>
-          )}
+          {review.comment && <p className="leading-relaxed text-[#E0E0E0]">{review.comment}</p>}
         </div>
       ))}
     </div>

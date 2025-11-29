@@ -1,5 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useCreateOrderMutation, useCancelOrderMutation, useUpdateOrderStatusMutation } from './mutations/useOrderMutations';
+import {
+  useCreateOrderMutation,
+  useCancelOrderMutation,
+  useUpdateOrderStatusMutation,
+} from './mutations/useOrderMutations';
 import type { CartItem, Order, ProfileData } from '../types';
 import type { CreateOrder, FirebaseOrderItem } from '../types/firebase';
 import type { PageType } from './useNavigation';
@@ -12,10 +16,7 @@ interface UseOrderManagementProps {
   profileData: ProfileData;
 }
 
-export const useOrderManagement = ({
-  user,
-  profileData,
-}: UseOrderManagementProps) => {
+export const useOrderManagement = ({ user, profileData }: UseOrderManagementProps) => {
   const queryClient = useQueryClient();
   const createOrderMutation = useCreateOrderMutation();
   const cancelOrderMutation = useCancelOrderMutation();
@@ -44,20 +45,23 @@ export const useOrderManagement = ({
     }
 
     // Group cart items by sellerId (not seller name)
-    const itemsBySeller = cart.reduce((acc, item) => {
-      if (!acc[item.sellerId]) {
-        acc[item.sellerId] = [];
-      }
-      acc[item.sellerId].push(item);
-      return acc;
-    }, {} as Record<string, CartItem[]>);
+    const itemsBySeller = cart.reduce(
+      (acc, item) => {
+        if (!acc[item.sellerId]) {
+          acc[item.sellerId] = [];
+        }
+        acc[item.sellerId].push(item);
+        return acc;
+      },
+      {} as Record<string, CartItem[]>
+    );
 
     try {
       const orderPromises = Object.entries(itemsBySeller).map(async ([sellerId, items]) => {
         const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
         const sellerName = items[0].seller; // Get seller name from first item
 
-        const orderItems: FirebaseOrderItem[] = items.map(item => ({
+        const orderItems: FirebaseOrderItem[] = items.map((item) => ({
           listingId: item.id.toString(),
           name: item.name,
           price: item.price,
@@ -85,7 +89,9 @@ export const useOrderManagement = ({
         logger.general('[useOrderManagement] Creating order:', orderData);
         return {
           sellerName,
-          result: await createOrderMutation.mutateAsync(orderData).catch((err: unknown) => ({ error: err })),
+          result: await createOrderMutation
+            .mutateAsync(orderData)
+            .catch((err: unknown) => ({ error: err })),
         };
       });
 
@@ -100,10 +106,16 @@ export const useOrderManagement = ({
           const { sellerName, result: orderResult } = result.value;
           if (typeof orderResult === 'object' && orderResult !== null && 'error' in orderResult) {
             failedOrders.push(sellerName);
-            logger.error(`[useOrderManagement] Order failed for ${sellerName}:`, (orderResult as { error: unknown }).error);
+            logger.error(
+              `[useOrderManagement] Order failed for ${sellerName}:`,
+              (orderResult as { error: unknown }).error
+            );
           } else {
             successfulOrders.push(sellerName);
-            logger.general(`[useOrderManagement] Order created successfully for ${sellerName}:`, orderResult);
+            logger.general(
+              `[useOrderManagement] Order created successfully for ${sellerName}:`,
+              orderResult
+            );
           }
         } else {
           failedOrders.push('Unknown seller');
@@ -131,8 +143,8 @@ export const useOrderManagement = ({
 
         alert(
           `${successfulOrders.length} order(s) placed successfully!\n` +
-          `${failedOrders.length} order(s) failed for: ${failedOrders.join(', ')}\n\n` +
-          'Please review your cart and try again for failed orders.'
+            `${failedOrders.length} order(s) failed for: ${failedOrders.join(', ')}\n\n` +
+            'Please review your cart and try again for failed orders.'
         );
 
         setCurrentPage('userOrders');
@@ -146,7 +158,7 @@ export const useOrderManagement = ({
   const handleCancelOrder = async (orderId: number, setCurrentPage: (page: PageType) => void) => {
     // Get buyer orders from React Query cache
     const buyerOrders = queryClient.getQueryData<Order[]>(['orders', 'buyer', user?.uid]) || [];
-    const order = buyerOrders.find(o => o.id === orderId);
+    const order = buyerOrders.find((o) => o.id === orderId);
 
     if (!order) {
       logger.error('[useOrderManagement] Order not found:', orderId);
@@ -167,7 +179,7 @@ export const useOrderManagement = ({
   const handleUpdateOrderStatus = async (orderId: number, status: Order['status']) => {
     // Get seller orders from React Query cache
     const sellerOrders = queryClient.getQueryData<Order[]>(['orders', 'seller', user?.uid]) || [];
-    const order = sellerOrders.find(o => o.id === orderId);
+    const order = sellerOrders.find((o) => o.id === orderId);
 
     if (!order) {
       logger.error('[useOrderManagement] Order not found:', orderId);

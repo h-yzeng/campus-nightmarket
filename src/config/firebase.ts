@@ -2,11 +2,7 @@ import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
-import {
-  initializeAppCheck,
-  ReCaptchaV3Provider,
-  type AppCheck
-} from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaV3Provider, type AppCheck } from 'firebase/app-check';
 import { logger } from '../utils/logger';
 
 // Firebase configuration
@@ -37,8 +33,8 @@ const missingKeys = requiredKeys.filter(
 if (missingKeys.length > 0) {
   logger.error(
     `Missing Firebase configuration keys: ${missingKeys.join(', ')}\n` +
-    'Please check your .env.local file and ensure all required variables are set.\n' +
-    'See .env.local.example for required variables.'
+      'Please check your .env.local file and ensure all required variables are set.\n' +
+      'See .env.local.example for required variables.'
   );
 }
 
@@ -64,7 +60,7 @@ try {
       if (siteKey) {
         appCheck = initializeAppCheck(app, {
           provider: new ReCaptchaV3Provider(siteKey),
-          isTokenAutoRefreshEnabled: true
+          isTokenAutoRefreshEnabled: true,
         });
         logger.info('Firebase App Check initialized with ReCaptcha V3');
       } else {

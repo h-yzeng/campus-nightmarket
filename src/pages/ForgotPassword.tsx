@@ -1,9 +1,6 @@
 import { Mail, AlertCircle, CheckCircle, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import {
-  getUserSecurityQuestions,
-  verifySecurityAnswers,
-} from '../services/auth/securityService';
+import { getUserSecurityQuestions, verifySecurityAnswers } from '../services/auth/securityService';
 import { resetPasswordWithVerification } from '../services/auth/passwordResetService';
 import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 
@@ -47,7 +44,9 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
       const questions = await getUserSecurityQuestions(email);
 
       if (questions.length === 0) {
-        setError('No security questions found for this email. Please contact support or use the email reset link option.');
+        setError(
+          'No security questions found for this email. Please contact support or use the email reset link option.'
+        );
         setLoading(false);
         return;
       }
@@ -66,17 +65,16 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
     setLoading(true);
 
     // Rate limiting check
-    const rateLimit = rateLimiter.checkLimit(
-      `password_reset_${email}`,
-      RATE_LIMITS.PASSWORD_RESET
-    );
+    const rateLimit = rateLimiter.checkLimit(`password_reset_${email}`, RATE_LIMITS.PASSWORD_RESET);
     if (!rateLimit.allowed) {
       setError(rateLimit.message || 'Too many password reset attempts. Please try again later.');
       setLoading(false);
       return;
     }
 
-    const unansweredQuestions = securityQuestions.filter(q => !answers[q] || answers[q].trim() === '');
+    const unansweredQuestions = securityQuestions.filter(
+      (q) => !answers[q] || answers[q].trim() === ''
+    );
     if (unansweredQuestions.length > 0) {
       setError('Please answer all security questions');
       setLoading(false);
@@ -84,7 +82,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
     }
 
     try {
-      const answersArray = securityQuestions.map(q => ({
+      const answersArray = securityQuestions.map((q) => ({
         question: q,
         answer: answers[q],
       }));
@@ -146,14 +144,14 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-[#CC0000]">
+          <div className="mb-10 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#CC0000]">
               <span className="text-4xl">🔐</span>
             </div>
-            <h2 className="text-4xl font-bold mb-3 text-[#CC0000]">
+            <h2 className="mb-3 text-4xl font-bold text-[#CC0000]">
               {step === 'email' && 'Reset Password'}
               {step === 'security-questions' && 'Security Questions'}
               {step === 'new-password' && 'Create New Password'}
@@ -167,10 +165,10 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
             </p>
           </div>
 
-          <div className="bg-[#1E1E1E] rounded-2xl shadow-xl border-2 border-[#3A3A3A] p-8">
+          <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-xl">
             {error && (
-              <div className="flex gap-3 p-4 rounded-xl mb-6 bg-red-950 border-2 border-red-800">
-                <AlertCircle size={20} className="text-[#CC0000] shrink-0 mt-0.5" />
+              <div className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4">
+                <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
                 <p className="text-sm text-white">{error}</p>
               </div>
             )}
@@ -178,16 +176,19 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
             {step === 'email' && (
               <>
                 <div className="mb-6">
-                  <label className="block text-sm font-semibold mb-2 text-white">
+                  <label className="mb-2 block text-sm font-semibold text-white">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                    <Mail
+                      size={20}
+                      className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                    />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
+                      className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-4 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                       placeholder="youremail@hawk.illinoistech.edu"
                       onKeyPress={(e) => e.key === 'Enter' && handleEmailSubmit()}
                     />
@@ -197,8 +198,8 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                 <button
                   onClick={handleEmailSubmit}
                   disabled={loading}
-                  className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 mb-4 ${
-                    loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#CC0000]'
+                  className={`mb-4 w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 ${
+                    loading ? 'cursor-not-allowed bg-gray-400' : 'bg-[#CC0000]'
                   }`}
                 >
                   {loading ? 'Loading...' : 'Continue →'}
@@ -211,14 +212,14 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                 <div className="mb-6 space-y-4">
                   {securityQuestions.map((question, index) => (
                     <div key={index}>
-                      <label className="block text-sm font-semibold mb-2 text-white">
+                      <label className="mb-2 block text-sm font-semibold text-white">
                         {question}
                       </label>
                       <input
                         type="text"
                         value={answers[question] || ''}
                         onChange={(e) => setAnswers({ ...answers, [question]: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
+                        className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                         placeholder="Your answer"
                       />
                     </div>
@@ -228,8 +229,8 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                 <button
                   onClick={handleSecurityQuestionsSubmit}
                   disabled={loading}
-                  className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 mb-4 ${
-                    loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#CC0000]'
+                  className={`mb-4 w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 ${
+                    loading ? 'cursor-not-allowed bg-gray-400' : 'bg-[#CC0000]'
                   }`}
                 >
                   {loading ? 'Verifying...' : 'Verify Answers →'}
@@ -241,22 +242,25 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
               <>
                 <div className="mb-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-white">
+                    <label className="mb-2 block text-sm font-semibold text-white">
                       New Password
                     </label>
                     <div className="relative">
-                      <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                      <Lock
+                        size={20}
+                        className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                      />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
+                        className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                         placeholder="Enter new password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-white transition-colors"
+                        className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -264,38 +268,42 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold mb-2 text-white">
+                    <label className="mb-2 block text-sm font-semibold text-white">
                       Confirm Password
                     </label>
                     <div className="relative">
-                      <Lock size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#76777B]" />
+                      <Lock
+                        size={20}
+                        className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                      />
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full pl-12 pr-12 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-white focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#2A2A2A]"
+                        className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                         placeholder="Confirm new password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#76777B] hover:text-white transition-colors"
+                        className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
                       >
                         {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="text-xs text-gray-400 mt-2">
-                    Password must be at least 12 characters with uppercase, lowercase, number, and special character
+                  <div className="mt-2 text-xs text-gray-400">
+                    Password must be at least 12 characters with uppercase, lowercase, number, and
+                    special character
                   </div>
                 </div>
 
                 <button
                   onClick={handlePasswordReset}
                   disabled={loading}
-                  className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 mb-4 ${
-                    loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#CC0000]'
+                  className={`mb-4 w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 ${
+                    loading ? 'cursor-not-allowed bg-gray-400' : 'bg-[#CC0000]'
                   }`}
                 >
                   {loading ? 'Resetting Password...' : 'Reset Password →'}
@@ -305,19 +313,22 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
 
             {step === 'success' && (
               <>
-                <div className="flex gap-3 p-4 rounded-xl mb-6 bg-green-950 border-2 border-green-800">
-                  <CheckCircle size={20} className="text-green-400 shrink-0 mt-0.5" />
+                <div className="mb-6 flex gap-3 rounded-xl border-2 border-green-800 bg-green-950 p-4">
+                  <CheckCircle size={20} className="mt-0.5 shrink-0 text-green-400" />
                   <div>
-                    <p className="text-sm font-semibold text-white mb-1">Password Reset Successful!</p>
+                    <p className="mb-1 text-sm font-semibold text-white">
+                      Password Reset Successful!
+                    </p>
                     <p className="text-sm text-gray-300">
-                      Your password has been successfully changed. You can now sign in with your new password.
+                      Your password has been successfully changed. You can now sign in with your new
+                      password.
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={onBack}
-                  className="w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 bg-[#CC0000]"
+                  className="w-full transform rounded-xl bg-[#CC0000] py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98"
                 >
                   Go to Sign In →
                 </button>
@@ -326,7 +337,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
 
             <button
               onClick={onBack}
-              className="w-full py-3 text-gray-300 text-base font-semibold rounded-xl border-2 border-neutral-700 hover:bg-[#0A0A0B] transition-all flex items-center justify-center gap-2 mt-4"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-neutral-700 py-3 text-base font-semibold text-gray-300 transition-all hover:bg-[#0A0A0B]"
             >
               <ArrowLeft size={20} />
               Back to Sign In

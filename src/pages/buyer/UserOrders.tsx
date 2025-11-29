@@ -1,4 +1,14 @@
-import { Clock, MapPin, Package, CheckCircle, XCircle, ChevronRight, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import {
+  Clock,
+  MapPin,
+  Package,
+  CheckCircle,
+  XCircle,
+  ChevronRight,
+  ArrowLeft,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem } from '../../types';
 import Header from '../../components/Header';
@@ -37,15 +47,18 @@ const UserOrders = ({
   onSellerDashboardClick,
   onModeChange,
   onLogoClick,
-  loading = false
+  loading = false,
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
   // Pending includes: pending, confirmed, and ready (all active statuses from buyer's perspective)
-  const pendingOrders = orders.filter(order =>
-    order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready'
+  const pendingOrders = orders.filter(
+    (order) =>
+      order.status === 'pending' || order.status === 'confirmed' || order.status === 'ready'
   );
-  const completedOrders = orders.filter(order => order.status === 'completed' || order.status === 'cancelled');
+  const completedOrders = orders.filter(
+    (order) => order.status === 'completed' || order.status === 'cancelled'
+  );
 
   const displayOrders = activeTab === 'pending' ? pendingOrders : completedOrders;
 
@@ -84,7 +97,7 @@ const UserOrders = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -99,11 +112,11 @@ const UserOrders = ({
         userMode={userMode}
       />
 
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
         <div className="mb-6">
           <button
             onClick={onBackToBrowse}
-            className="text-[#CC0000] font-semibold hover:underline flex items-center gap-2"
+            className="flex items-center gap-2 font-semibold text-[#CC0000] hover:underline"
           >
             <ArrowLeft size={20} />
             Back to Browse
@@ -111,17 +124,17 @@ const UserOrders = ({
         </div>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">My Orders</h1>
+          <h1 className="mb-2 text-3xl font-bold text-white">My Orders</h1>
           <p className="text-[#A0A0A0]">Track and manage your food orders</p>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b-2 border-[#3A3A3A]">
+        <div className="mb-6 flex gap-4 border-b-2 border-[#3A3A3A]">
           <button
             onClick={() => setActiveTab('pending')}
             className={`px-6 py-3 font-semibold transition-all ${
               activeTab === 'pending'
-                ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
+                ? '-mb-0.5 border-b-4 border-[#CC0000] text-[#CC0000]'
                 : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
@@ -131,7 +144,7 @@ const UserOrders = ({
             onClick={() => setActiveTab('completed')}
             className={`px-6 py-3 font-semibold transition-all ${
               activeTab === 'completed'
-                ? 'text-[#CC0000] border-b-4 border-[#CC0000] -mb-0.5'
+                ? '-mb-0.5 border-b-4 border-[#CC0000] text-[#CC0000]'
                 : 'text-[#A0A0A0] hover:text-[#E0E0E0]'
             }`}
           >
@@ -142,25 +155,23 @@ const UserOrders = ({
         {/* Orders List */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 size={48} className="text-[#CC0000] animate-spin mb-4" />
+            <Loader2 size={48} className="mb-4 animate-spin text-[#CC0000]" />
             <p className="text-lg text-[#A0A0A0]">Loading your orders...</p>
           </div>
         ) : displayOrders.length === 0 ? (
-          <div className="text-center py-16 bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A]">
-            <div className="text-7xl mb-4">
-              {activeTab === 'pending' ? '📦' : '✅'}
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">
+          <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-16 text-center shadow-md">
+            <div className="mb-4 text-7xl">{activeTab === 'pending' ? '📦' : '✅'}</div>
+            <h2 className="mb-2 text-2xl font-bold text-white">
               {activeTab === 'pending' ? 'No pending orders' : 'No completed orders yet'}
             </h2>
-            <p className="text-[#A0A0A0] mb-6">
+            <p className="mb-6 text-[#A0A0A0]">
               {activeTab === 'pending'
                 ? 'Start browsing to place your first order!'
                 : 'Your completed orders will appear here'}
             </p>
             <button
               onClick={onBackToBrowse}
-              className="px-8 py-3 text-white text-base font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95 bg-[#CC0000]"
+              className="transform rounded-xl bg-[#CC0000] px-8 py-3 text-base font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
             >
               Browse Food
             </button>
@@ -171,39 +182,37 @@ const UserOrders = ({
               <div
                 key={order.id}
                 onClick={() => onViewOrderDetails(order.id)}
-                className="bg-[#1E1E1E] rounded-2xl shadow-md border-2 border-[#3A3A3A] p-6 hover:shadow-xl hover:border-neutral-600 transition-all cursor-pointer"
+                className="cursor-pointer rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-md transition-all hover:border-neutral-600 hover:shadow-xl"
               >
-                <div className="flex items-start justify-between mb-4">
+                <div className="mb-4 flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-[#E0E0E0]">
-                        Order #{order.id}
-                      </h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border-2 flex items-center gap-1 ${getStatusColor(order.status)}`}>
+                    <div className="mb-2 flex items-center gap-3">
+                      <h3 className="text-xl font-bold text-[#E0E0E0]">Order #{order.id}</h3>
+                      <span
+                        className={`flex items-center gap-1 rounded-full border-2 px-3 py-1 text-xs font-bold ${getStatusColor(order.status)}`}
+                      >
                         {getStatusIcon(order.status)}
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </span>
                     </div>
-                    <p className="text-sm text-[#A0A0A0]">
-                      Ordered on {order.orderDate}
-                    </p>
+                    <p className="text-sm text-[#A0A0A0]">Ordered on {order.orderDate}</p>
                   </div>
                   <ChevronRight size={24} className="text-[#A0A0A0]" />
                 </div>
 
                 {/* Order Items Preview */}
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b-2 border-[#3A3A3A]">
+                <div className="mb-4 flex items-center gap-3 border-b-2 border-[#3A3A3A] pb-4">
                   <div className="flex -space-x-2">
                     {order.items.slice(0, 3).map((item, index) => (
                       <div
                         key={index}
-                        className="w-12 h-12 rounded-full bg-[#252525] border-2 border-[#3A3A3A] flex items-center justify-center overflow-hidden"
+                        className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-[#3A3A3A] bg-[#252525]"
                       >
                         {item.image.startsWith('http') ? (
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="w-full h-full object-cover"
+                            className="h-full w-full object-cover"
                           />
                         ) : (
                           <span className="text-xl">{item.image}</span>
@@ -211,7 +220,7 @@ const UserOrders = ({
                       </div>
                     ))}
                     {order.items.length > 3 && (
-                      <div className="w-12 h-12 rounded-full bg-[#3A3A3A] border-2 border-[#3A3A3A] flex items-center justify-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#3A3A3A] bg-[#3A3A3A]">
                         <span className="text-xs font-bold text-gray-700">
                           +{order.items.length - 3}
                         </span>
@@ -222,14 +231,12 @@ const UserOrders = ({
                     <p className="font-semibold text-[#E0E0E0]">
                       {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                     </p>
-                    <p className="text-sm text-[#A0A0A0]">
-                      from {order.sellerName.split(' ')[0]}
-                    </p>
+                    <p className="text-sm text-[#A0A0A0]">from {order.sellerName.split(' ')[0]}</p>
                   </div>
                 </div>
 
                 {/* Order Details */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div className="flex items-center gap-2">
                     <Clock size={16} className="text-[#888888]" />
                     <div>
@@ -256,15 +263,21 @@ const UserOrders = ({
                 </div>
 
                 {/* Payment Method */}
-                <div className="mt-4 pt-4 border-t-2 border-[#3A3A3A]">
-                  <p className="text-xs text-[#888888] mb-1">Payment Method</p>
+                <div className="mt-4 border-t-2 border-[#3A3A3A] pt-4">
+                  <p className="mb-1 text-xs text-[#888888]">Payment Method</p>
                   <div className="flex items-center gap-2">
                     <span className="text-lg">
-                      {order.paymentMethod === 'Cash' ? '💵' : 
-                       order.paymentMethod === 'CashApp' ? '💸' : 
-                       order.paymentMethod === 'Venmo' ? '💳' : '🏦'}
+                      {order.paymentMethod === 'Cash'
+                        ? '💵'
+                        : order.paymentMethod === 'CashApp'
+                          ? '💸'
+                          : order.paymentMethod === 'Venmo'
+                            ? '💳'
+                            : '🏦'}
                     </span>
-                    <span className="text-sm font-semibold text-[#E0E0E0]">{order.paymentMethod}</span>
+                    <span className="text-sm font-semibold text-[#E0E0E0]">
+                      {order.paymentMethod}
+                    </span>
                   </div>
                 </div>
               </div>

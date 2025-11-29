@@ -36,7 +36,7 @@ const CreateListing = ({
   onProfileClick,
   onOrdersClick,
   onSellerDashboardClick,
-  onLogoClick
+  onLogoClick,
 }: CreateListingProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,18 +61,10 @@ const CreateListing = ({
     'Rowe North',
     'Rowe Middle',
     'Rowe South',
-    'The Quad'
+    'The Quad',
   ];
 
-  const categories = [
-    'Breakfast',
-    'Lunch',
-    'Dinner',
-    'Snacks',
-    'Desserts',
-    'Drinks',
-    'Other'
-  ];
+  const categories = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts', 'Drinks', 'Other'];
 
   const isFormValid =
     name.trim() !== '' &&
@@ -167,7 +159,7 @@ const CreateListing = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -182,101 +174,104 @@ const CreateListing = ({
         showCart={true}
       />
 
-      <main className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">
+      <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">
         <div className="mb-6">
           <button
             onClick={onBackToDashboard}
-            className="text-[#CC0000] font-semibold hover:underline flex items-center gap-2"
+            className="flex items-center gap-2 font-semibold text-[#CC0000] hover:underline"
           >
             <ArrowLeft size={20} />
             Back to Dashboard
           </button>
         </div>
 
-        <div className="bg-[#1E1E1E] rounded-2xl shadow-xl border-2 border-[#3A3A3A] p-8">
+        <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#CC0000] mb-2">Create New Listing</h1>
+            <h1 className="mb-2 text-3xl font-bold text-[#CC0000]">Create New Listing</h1>
             <p className="text-[#A0A0A0]">Post a new food item for sale on Night Market</p>
           </div>
 
           {error && (
-            <div className="flex gap-3 p-4 rounded-xl mb-6 bg-[#2A0A0A] border-2 border-[#4A1A1A]">
-              <AlertCircle size={20} className="text-[#CC0000] shrink-0 mt-0.5" />
+            <div className="mb-6 flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4">
+              <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
               <p className="text-sm text-[#FFB0B0]">{error}</p>
             </div>
           )}
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
                 Food Name <span className="text-[#CC0000]">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#1E1E1E]"
+                className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] px-4 py-3 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                 placeholder="e.g., Homemade Ramen"
                 maxLength={50}
               />
-              <p className="text-xs text-[#888888] mt-1">{name.length}/50 characters</p>
+              <p className="mt-1 text-xs text-[#888888]">{name.length}/50 characters</p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
                 Description <span className="text-[#CC0000]">*</span>
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all resize-none bg-[#1E1E1E] min-h-[100px]"
+                className="min-h-[100px] w-full resize-none rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] px-4 py-3 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                 placeholder="Describe your food item..."
                 maxLength={200}
               />
-              <p className="text-xs text-[#888888] mt-1">{description.length}/200 characters</p>
+              <p className="mt-1 text-xs text-[#888888]">{description.length}/200 characters</p>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
                 Price <span className="text-[#CC0000]">*</span>
               </label>
               <div className="relative">
-                <DollarSign size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#888888]" />
+                <DollarSign
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#888888]"
+                />
                 <input
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   min="0"
                   step="0.01"
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#1E1E1E]"
+                  className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-3 pr-4 pl-12 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                   placeholder="5.00"
                 />
               </div>
               {price && parseFloat(price) <= 0 && (
-                <p className="text-xs text-[#CC0000] mt-1">Price must be greater than $0</p>
+                <p className="mt-1 text-xs text-[#CC0000]">Price must be greater than $0</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
                 Food Image <span className="text-[#CC0000]">*</span>
               </label>
 
               {imagePreview ? (
-                <div className="flex items-start gap-4 mb-3">
-                  <div className="w-32 h-32 rounded-xl overflow-hidden border-2 border-[#3A3A3A]">
+                <div className="mb-3 flex items-start gap-4">
+                  <div className="h-32 w-32 overflow-hidden rounded-xl border-2 border-[#3A3A3A]">
                     <img
                       src={imagePreview}
                       alt="Food preview"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-white mb-2">Image selected</p>
+                    <p className="mb-2 text-sm font-semibold text-white">Image selected</p>
                     <button
                       type="button"
                       onClick={handleImageClick}
-                      className="text-sm text-[#CC0000] font-semibold hover:underline"
+                      className="text-sm font-semibold text-[#CC0000] hover:underline"
                     >
                       Change Image
                     </button>
@@ -286,16 +281,14 @@ const CreateListing = ({
                 <button
                   type="button"
                   onClick={handleImageClick}
-                  className="w-full p-8 border-2 border-dashed border-[#3A3A3A] rounded-xl hover:border-[#CC0000] hover:bg-[#2A0A0A] transition-all flex flex-col items-center gap-3"
+                  className="flex w-full flex-col items-center gap-3 rounded-xl border-2 border-dashed border-[#3A3A3A] p-8 transition-all hover:border-[#CC0000] hover:bg-[#2A0A0A]"
                 >
                   <Upload size={40} className="text-[#A0A0A0]" />
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-white mb-1">
+                    <p className="mb-1 text-sm font-semibold text-white">
                       Click to upload food image
                     </p>
-                    <p className="text-xs text-[#888888]">
-                      PNG, JPG up to 5MB
-                    </p>
+                    <p className="text-xs text-[#888888]">PNG, JPG up to 5MB</p>
                   </div>
                 </button>
               )}
@@ -311,50 +304,60 @@ const CreateListing = ({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
                 Pickup Location <span className="text-[#CC0000]">*</span>
               </label>
               <div className="relative">
-                <MapPin size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#888888]" />
+                <MapPin
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#888888]"
+                />
                 <select
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#1E1E1E] appearance-none"
+                  className="w-full appearance-none rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-3 pr-4 pl-12 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                   title="Select a location"
                 >
                   <option value="">Select a location</option>
                   {locations.map((loc) => (
-                    <option key={loc} value={loc}>{loc}</option>
+                    <option key={loc} value={loc}>
+                      {loc}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2 text-[#E0E0E0]">
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
                 Category <span className="text-[#CC0000]">*</span>
               </label>
               <div className="relative">
-                <Tag size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[#888888]" />
+                <Tag
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#888888]"
+                />
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-[#3A3A3A] rounded-xl text-base text-[#E0E0E0] placeholder-[#888888] focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:border-[#CC0000] transition-all bg-[#1E1E1E] appearance-none"
+                  className="w-full appearance-none rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-3 pr-4 pl-12 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
                   title="Select a category"
                 >
                   <option value="">Select a category</option>
                   {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            <div className="flex gap-3 p-4 rounded-xl bg-[#0A1A2A] border-2 border-[#1A3A4A]">
-              <AlertCircle size={20} className="text-blue-400 shrink-0 mt-0.5" />
+            <div className="flex gap-3 rounded-xl border-2 border-[#1A3A4A] bg-[#0A1A2A] p-4">
+              <AlertCircle size={20} className="mt-0.5 shrink-0 text-blue-400" />
               <div>
-                <p className="text-sm font-semibold text-white mb-1">Listing Tips</p>
-                <ul className="text-sm text-[#90A0C0] space-y-1">
+                <p className="mb-1 text-sm font-semibold text-white">Listing Tips</p>
+                <ul className="space-y-1 text-sm text-[#90A0C0]">
                   <li>• Be clear and descriptive in your food name</li>
                   <li>• Include ingredients or dietary info in the description</li>
                   <li>• Price fairly based on portion size and ingredients</li>
@@ -366,11 +369,19 @@ const CreateListing = ({
             <button
               onClick={handleSubmit}
               disabled={!isFormValid || creating || uploading}
-              className={`w-full py-4 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-102 active:scale-98 disabled:transform-none disabled:hover:shadow-lg ${
-                isFormValid && !creating && !uploading ? 'bg-[#CC0000] cursor-pointer' : 'bg-[#999999] cursor-not-allowed'
+              className={`w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 disabled:transform-none disabled:hover:shadow-lg ${
+                isFormValid && !creating && !uploading
+                  ? 'cursor-pointer bg-[#CC0000]'
+                  : 'cursor-not-allowed bg-[#999999]'
               }`}
             >
-              {uploading ? 'Uploading Image...' : creating ? 'Creating Listing...' : isFormValid ? 'Create Listing →' : 'Fill Required Fields'}
+              {uploading
+                ? 'Uploading Image...'
+                : creating
+                  ? 'Creating Listing...'
+                  : isFormValid
+                    ? 'Create Listing →'
+                    : 'Fill Required Fields'}
             </button>
           </div>
         </div>

@@ -84,7 +84,6 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
         photoURL: null,
         isSeller: false,
       });
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign up';
       setError(errorMessage);
@@ -126,9 +125,7 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     }
   };
 
-  const handleUpdateProfile = async (
-    updates: Partial<FirebaseUserProfile>
-  ): Promise<void> => {
+  const handleUpdateProfile = async (updates: Partial<FirebaseUserProfile>): Promise<void> => {
     if (!user) {
       setError('No user is signed in');
       throw new Error('No user is signed in');

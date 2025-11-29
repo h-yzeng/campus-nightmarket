@@ -1,4 +1,18 @@
-import { ArrowLeft, Clock, MapPin, Package, Wallet, User, Phone, Mail, MessageSquare, CheckCircle, XCircle, AlertCircle, Star } from 'lucide-react';
+import {
+  ArrowLeft,
+  Clock,
+  MapPin,
+  Package,
+  Wallet,
+  User,
+  Phone,
+  Mail,
+  MessageSquare,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Star,
+} from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem, Review } from '../../types';
 import Header from '../../components/Header';
@@ -42,7 +56,7 @@ const OrderDetails = ({
   onCartClick,
   onSignOut,
   onProfileClick,
-  onLogoClick
+  onLogoClick,
 }: OrderDetailsProps) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -110,7 +124,7 @@ const OrderDetails = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A0A0B]">
+    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -122,11 +136,11 @@ const OrderDetails = ({
         userMode={userMode}
       />
 
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
         <div className="mb-6">
           <button
             onClick={onBackToOrders}
-            className="text-[#CC0000] font-semibold hover:underline flex items-center gap-2"
+            className="flex items-center gap-2 font-semibold text-[#CC0000] hover:underline"
           >
             <ArrowLeft size={20} />
             Back to Orders
@@ -134,89 +148,98 @@ const OrderDetails = ({
         </div>
 
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Order #{order.id}</h1>
+              <h1 className="mb-2 text-3xl font-bold text-white">Order #{order.id}</h1>
               <p className="text-[#A0A0A0]">Placed on {order.orderDate}</p>
             </div>
-            <span className={`px-4 py-2 rounded-full text-sm font-bold border-2 flex items-center gap-2 ${getStatusColor(order.status)}`}>
+            <span
+              className={`flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-bold ${getStatusColor(order.status)}`}
+            >
               {getStatusIcon(order.status)}
               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Order Items */}
-            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
                 <Package size={20} />
                 Order Items
               </h2>
 
               <div className="space-y-3">
                 {order.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4"
+                  >
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-xl bg-[#1E1E1E] flex items-center justify-center border-2 border-[#3A3A3A] overflow-hidden">
+                      <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E]">
                         {item.image.startsWith('http') ? (
                           <img
                             src={item.image}
                             alt={item.name}
-                            className="w-full h-full object-cover"
+                            className="h-full w-full object-cover"
                           />
                         ) : (
                           <span className="text-3xl">{item.image}</span>
                         )}
                       </div>
                       <div>
-                        <p className="font-bold text-[#E0E0E0] text-lg">{item.name}</p>
-                        {item.description && <p className="text-sm text-[#B0B0B0]">{item.description}</p>}
-                        <p className="text-sm text-[#888888] mt-1">Quantity: {item.quantity}</p>
+                        <p className="text-lg font-bold text-[#E0E0E0]">{item.name}</p>
+                        {item.description && (
+                          <p className="text-sm text-[#B0B0B0]">{item.description}</p>
+                        )}
+                        <p className="mt-1 text-sm text-[#888888]">Quantity: {item.quantity}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-[#CC0000] text-lg">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-lg font-bold text-[#CC0000]">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </p>
                       <p className="text-sm text-[#888888]">${item.price.toFixed(2)} each</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 pt-4 border-t-2 border-neutral-700 flex justify-between items-center">
+              <div className="mt-4 flex items-center justify-between border-t-2 border-neutral-700 pt-4">
                 <span className="text-xl font-bold text-white">Total</span>
                 <span className="text-2xl font-bold text-[#CC0000]">${order.total.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Pickup Information */}
-            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
                 <MapPin size={20} />
                 Pickup Information
               </h2>
 
               <div className="space-y-4">
-                <div className="flex items-start gap-3 p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
-                  <Clock size={20} className="text-[#CC0000] mt-1" />
+                <div className="flex items-start gap-3 rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4">
+                  <Clock size={20} className="mt-1 text-[#CC0000]" />
                   <div>
                     <p className="text-sm font-semibold text-[#B0B0B0]">Pickup Time</p>
                     <p className="text-lg font-bold text-[#E0E0E0]">{order.pickupTime}</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
-                  <MapPin size={20} className="text-[#CC0000] mt-1" />
+                <div className="flex items-start gap-3 rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4">
+                  <MapPin size={20} className="mt-1 text-[#CC0000]" />
                   <div>
                     <p className="text-sm font-semibold text-[#B0B0B0]">Location</p>
                     <p className="text-lg font-bold text-[#E0E0E0]">{order.sellerLocation}</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3 p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
-                  <User size={20} className="text-[#CC0000] mt-1" />
+                <div className="flex items-start gap-3 rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4">
+                  <User size={20} className="mt-1 text-[#CC0000]" />
                   <div>
                     <p className="text-sm font-semibold text-[#B0B0B0]">Seller</p>
                     <p className="text-lg font-bold text-[#E0E0E0]">{order.sellerName}</p>
@@ -227,12 +250,12 @@ const OrderDetails = ({
 
             {/* Special Instructions */}
             {order.notes && (
-              <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+                <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
                   <MessageSquare size={20} />
                   Special Instructions
                 </h2>
-                <div className="p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
+                <div className="rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4">
                   <p className="text-[#E0E0E0]">{order.notes}</p>
                 </div>
               </div>
@@ -240,43 +263,47 @@ const OrderDetails = ({
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="space-y-6 lg:col-span-1">
             {/* Payment Information */}
-            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <div className="sticky top-24 rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+              <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
                 <Wallet size={20} />
                 Payment
               </h2>
 
               <div className="space-y-4">
-                <div className="p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
-                  <p className="text-sm font-semibold text-[#B0B0B0] mb-2">Payment Method</p>
+                <div className="rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4">
+                  <p className="mb-2 text-sm font-semibold text-[#B0B0B0]">Payment Method</p>
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">
-                      {order.paymentMethod === 'Cash' ? '💵' :
-                       order.paymentMethod === 'CashApp' ? '💸' :
-                       order.paymentMethod === 'Venmo' ? '💳' : '🏦'}
+                      {order.paymentMethod === 'Cash'
+                        ? '💵'
+                        : order.paymentMethod === 'CashApp'
+                          ? '💸'
+                          : order.paymentMethod === 'Venmo'
+                            ? '💳'
+                            : '🏦'}
                     </span>
                     <span className="text-lg font-bold text-[#E0E0E0]">{order.paymentMethod}</span>
                   </div>
                 </div>
 
-                <div className="p-4 bg-[#0A1A2A] rounded-xl border-2 border-[#1A3A4A]">
-                  <p className="text-sm font-semibold text-[#B0B0B0] mb-2">Payment Details</p>
+                <div className="rounded-xl border-2 border-[#1A3A4A] bg-[#0A1A2A] p-4">
+                  <p className="mb-2 text-sm font-semibold text-[#B0B0B0]">Payment Details</p>
                   {order.paymentMethod !== 'Cash' && (
-                    <p className="text-xs text-[#88CCFF] mb-2 opacity-80">
+                    <p className="mb-2 text-xs text-[#88CCFF] opacity-80">
                       💡 Send ${order.total.toFixed(2)} to the seller using:
                     </p>
                   )}
-                  <p className="text-sm text-[#88CCFF] font-medium">{getPaymentInfo()}</p>
+                  <p className="text-sm font-medium text-[#88CCFF]">{getPaymentInfo()}</p>
                 </div>
               </div>
             </div>
 
             {/* Seller Contact Information */}
-            <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-neutral-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-2">Contact Seller</h2>
-              <p className="text-xs text-[#A0A0A0] mb-4">
+            <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+              <h2 className="mb-2 text-xl font-bold text-white">Contact Seller</h2>
+              <p className="mb-4 text-xs text-[#A0A0A0]">
                 Reach out for pickup coordination or questions
               </p>
 
@@ -284,12 +311,12 @@ const OrderDetails = ({
                 {sellerEmail && (
                   <a
                     href={`mailto:${sellerEmail}`}
-                    className="flex items-center gap-3 p-3 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A] hover:border-[#CC0000] transition-all"
+                    className="flex items-center gap-3 rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-3 transition-all hover:border-[#CC0000]"
                   >
                     <Mail size={18} className="text-[#CC0000]" />
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs text-[#888888]">Email</p>
-                      <p className="text-sm font-semibold text-[#E0E0E0] truncate">{sellerEmail}</p>
+                      <p className="truncate text-sm font-semibold text-[#E0E0E0]">{sellerEmail}</p>
                     </div>
                   </a>
                 )}
@@ -297,7 +324,7 @@ const OrderDetails = ({
                 {sellerPhone && (
                   <a
                     href={`tel:${sellerPhone}`}
-                    className="flex items-center gap-3 p-3 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A] hover:border-[#CC0000] transition-all"
+                    className="flex items-center gap-3 rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-3 transition-all hover:border-[#CC0000]"
                   >
                     <Phone size={18} className="text-[#CC0000]" />
                     <div>
@@ -308,7 +335,7 @@ const OrderDetails = ({
                 )}
 
                 {!sellerPhone && !sellerEmail && (
-                  <div className="p-4 bg-[#2A1A0A] rounded-xl border-2 border-[#4A2A1A]">
+                  <div className="rounded-xl border-2 border-[#4A2A1A] bg-[#2A1A0A] p-4">
                     <p className="text-sm text-[#FFD699]">
                       Contact information will be shared after order confirmation
                     </p>
@@ -321,7 +348,7 @@ const OrderDetails = ({
             {order.status === 'pending' && !showCancelConfirm && (
               <button
                 onClick={() => setShowCancelConfirm(true)}
-                className="w-full py-3 bg-neutral-800 text-[#FF8888] font-bold rounded-xl border-2 border-[#4A1A1A] hover:bg-[#2A0A0A] transition-all"
+                className="w-full rounded-xl border-2 border-[#4A1A1A] bg-neutral-800 py-3 font-bold text-[#FF8888] transition-all hover:bg-[#2A0A0A]"
               >
                 Cancel Order
               </button>
@@ -329,24 +356,24 @@ const OrderDetails = ({
 
             {/* Cancel Confirmation */}
             {showCancelConfirm && (
-              <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-[#4A1A1A] p-6">
-                <div className="flex items-center gap-2 mb-4">
+              <div className="rounded-2xl border-2 border-[#4A1A1A] bg-neutral-800 p-6 shadow-md">
+                <div className="mb-4 flex items-center gap-2">
                   <AlertCircle size={20} className="text-[#FF8888]" />
                   <h3 className="text-lg font-bold text-white">Cancel Order?</h3>
                 </div>
-                <p className="text-sm text-[#B0B0B0] mb-4">
+                <p className="mb-4 text-sm text-[#B0B0B0]">
                   Are you sure you want to cancel this order? This action cannot be undone.
                 </p>
                 <div className="flex gap-3">
                   <button
                     onClick={handleCancelOrder}
-                    className="flex-1 py-2 bg-[#CC0000] text-white font-bold rounded-xl hover:bg-[#AA0000] transition-all"
+                    className="flex-1 rounded-xl bg-[#CC0000] py-2 font-bold text-white transition-all hover:bg-[#AA0000]"
                   >
                     Yes, Cancel
                   </button>
                   <button
                     onClick={() => setShowCancelConfirm(false)}
-                    className="flex-1 py-2 bg-[#2A2A2A] text-[#E0E0E0] font-bold rounded-xl border-2 border-[#3A3A3A] hover:bg-[#3A3A3A] transition-all"
+                    className="flex-1 rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] py-2 font-bold text-[#E0E0E0] transition-all hover:bg-[#3A3A3A]"
                   >
                     Keep Order
                   </button>
@@ -359,7 +386,7 @@ const OrderDetails = ({
               <button
                 type="button"
                 onClick={() => setShowReviewModal(true)}
-                className="w-full py-3 bg-[#CC0000] text-white font-bold rounded-xl hover:bg-[#AA0000] transition-all flex items-center justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#CC0000] py-3 font-bold text-white transition-all hover:bg-[#AA0000]"
               >
                 <Star size={20} />
                 Leave a Review
@@ -368,20 +395,22 @@ const OrderDetails = ({
 
             {/* Already Reviewed */}
             {order.status === 'completed' && order.hasReview && review && (
-              <div className="bg-neutral-800 rounded-2xl shadow-md border-2 border-[#1A4A1A] p-6">
-                <div className="flex items-center gap-2 mb-4">
+              <div className="rounded-2xl border-2 border-[#1A4A1A] bg-neutral-800 p-6 shadow-md">
+                <div className="mb-4 flex items-center gap-2">
                   <CheckCircle size={20} className="text-[#88FF88]" />
                   <h3 className="text-lg font-bold text-white">Your Review</h3>
                 </div>
 
                 {/* Star Rating */}
-                <div className="flex items-center gap-2 mb-3">
+                <div className="mb-3 flex items-center gap-2">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
                         size={20}
-                        className={star <= review.rating ? 'text-[#FFD700] fill-[#FFD700]' : 'text-[#3A3A3A]'}
+                        className={
+                          star <= review.rating ? 'fill-[#FFD700] text-[#FFD700]' : 'text-[#3A3A3A]'
+                        }
                       />
                     ))}
                   </div>
@@ -392,16 +421,17 @@ const OrderDetails = ({
 
                 {/* Review Comment */}
                 {review.comment && (
-                  <div className="p-4 bg-[#2A2A2A] rounded-xl border border-[#3A3A3A]">
+                  <div className="rounded-xl border border-[#3A3A3A] bg-[#2A2A2A] p-4">
                     <p className="text-sm text-[#E0E0E0] italic">"{review.comment}"</p>
                   </div>
                 )}
 
-                <p className="text-xs text-[#888888] mt-3">
-                  Submitted on {new Date(review.createdAt).toLocaleDateString('en-US', {
+                <p className="mt-3 text-xs text-[#888888]">
+                  Submitted on{' '}
+                  {new Date(review.createdAt).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
-                    year: 'numeric'
+                    year: 'numeric',
                   })}
                 </p>
               </div>
@@ -418,7 +448,7 @@ const OrderDetails = ({
         onClose={() => setShowReviewModal(false)}
         onSubmit={handleSubmitReview}
         sellerName={order.sellerName}
-        itemNames={order.items.map(item => item.name)}
+        itemNames={order.items.map((item) => item.name)}
       />
     </div>
   );

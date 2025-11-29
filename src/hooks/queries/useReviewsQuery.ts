@@ -1,5 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { getSellerReviews, getBuyerReviews, getOrderReview } from '../../services/reviews/reviewService';
+import {
+  getSellerReviews,
+  getBuyerReviews,
+  getOrderReview,
+} from '../../services/reviews/reviewService';
 import type { FirebaseReview } from '../../types/firebase';
 import type { Review } from '../../types';
 
@@ -8,7 +12,7 @@ const hashStringToNumber = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return Math.abs(hash);
@@ -25,7 +29,7 @@ const convertFirebaseReviewToApp = (firebaseReview: FirebaseReview): Review => {
     rating: firebaseReview.rating,
     comment: firebaseReview.comment,
     itemNames: firebaseReview.itemNames,
-    listingIds: firebaseReview.listingIds.map(id => hashStringToNumber(id)),
+    listingIds: firebaseReview.listingIds.map((id) => hashStringToNumber(id)),
     createdAt: firebaseReview.createdAt?.toDate?.().toISOString() || new Date().toISOString(),
   };
 };
@@ -76,18 +80,24 @@ export const useSellerRatingsQuery = (sellerIds: string[]) => {
       const ratings = await Promise.all(
         sellerIds.map(async (sellerId) => {
           const reviews = await getSellerReviews(sellerId);
-          const avgRating = reviews.length > 0
-            ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-            : null;
+          const avgRating =
+            reviews.length > 0
+              ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(
+                  1
+                )
+              : null;
           return { sellerId, rating: avgRating };
         })
       );
 
       // Convert to a map of sellerId -> rating
-      return ratings.reduce((acc, { sellerId, rating }) => {
-        acc[sellerId] = rating;
-        return acc;
-      }, {} as Record<string, string | null>);
+      return ratings.reduce(
+        (acc, { sellerId, rating }) => {
+          acc[sellerId] = rating;
+          return acc;
+        },
+        {} as Record<string, string | null>
+      );
     },
     enabled: sellerIds.length > 0,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -106,18 +116,21 @@ export const useOrderReviewsQuery = (orderIds: string[]) => {
           const firebaseReview = await getOrderReview(orderId);
           return {
             orderId,
-            review: firebaseReview ? convertFirebaseReviewToApp(firebaseReview) : null
+            review: firebaseReview ? convertFirebaseReviewToApp(firebaseReview) : null,
           };
         })
       );
 
       // Convert to a map of orderId -> review (only include reviews that exist)
-      return reviews.reduce((acc, { orderId, review }) => {
-        if (review) {
-          acc[orderId] = review;
-        }
-        return acc;
-      }, {} as Record<string, Review>);
+      return reviews.reduce(
+        (acc, { orderId, review }) => {
+          if (review) {
+            acc[orderId] = review;
+          }
+          return acc;
+        },
+        {} as Record<string, Review>
+      );
     },
     enabled: orderIds.length > 0,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
