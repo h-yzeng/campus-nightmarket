@@ -13,10 +13,7 @@ interface VirtualizedOrderListProps {
   renderOrderContent: (order: Order, isExpanded: boolean) => ReactElement;
 }
 
-const VirtualizedOrderList = ({
-  orders,
-  renderOrderContent,
-}: VirtualizedOrderListProps) => {
+const VirtualizedOrderList = ({ orders, renderOrderContent }: VirtualizedOrderListProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -32,14 +29,8 @@ const VirtualizedOrderList = ({
   }
 
   return (
-    <div
-      ref={parentRef}
-      className="h-[calc(100vh-400px)] overflow-auto contain-strict"
-    >
-      <div
-        style={{ '--list-height': `${virtualizer.getTotalSize()}px` } as React.CSSProperties}
-        className="relative w-full h(--list-height)]"
-      >
+    <div ref={parentRef} className="h-[calc(100vh-400px)] overflow-auto contain-strict">
+      <div className="relative w-full" style={{ height: `${virtualizer.getTotalSize()}px` }}>
         {virtualizer.getVirtualItems().map((virtualItem) => {
           const order = orders[virtualItem.index];
           return (
@@ -47,8 +38,8 @@ const VirtualizedOrderList = ({
               key={virtualItem.key}
               data-index={virtualItem.index}
               ref={virtualizer.measureElement}
-              style={{ '--item-y': `${virtualItem.start}px` } as React.CSSProperties}
-              className="absolute top-0 left-0 w-full pb-4 translate-y(--item-y)]"
+              className="absolute top-0 left-0 w-full pb-4"
+              style={{ transform: `translateY(${virtualItem.start}px)` }}
             >
               {renderOrderContent(order, false)}
             </div>

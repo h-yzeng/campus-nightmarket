@@ -34,7 +34,15 @@ const FiltersPanel = ({
 }: FiltersPanelProps) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  const categories = ['All Categories', 'Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Drinks', 'Desserts'];
+  const categories = [
+    'All Categories',
+    'Breakfast',
+    'Lunch',
+    'Dinner',
+    'Snacks',
+    'Drinks',
+    'Desserts',
+  ];
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
     { value: 'price-low', label: 'Price: Low to High' },
@@ -106,10 +114,16 @@ const FiltersPanel = ({
 
         {/* Advanced Filters */}
         {showAdvancedFilters && (
-          <div id="advanced-filters" className="mt-4 grid grid-cols-1 gap-4 rounded-xl border-2 border-[#3A3A3A] bg-[#252525] p-4 md:grid-cols-2 lg:grid-cols-4">
+          <div
+            id="advanced-filters"
+            className="mt-4 grid grid-cols-1 gap-4 rounded-xl border-2 border-[#3A3A3A] bg-[#252525] p-4 md:grid-cols-2 lg:grid-cols-4"
+          >
             {/* Category */}
             <div>
-              <label htmlFor="category-filter" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#B0B0B0]">
+              <label
+                htmlFor="category-filter"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#B0B0B0]"
+              >
                 <Filter size={14} />
                 Category
               </label>
@@ -129,7 +143,10 @@ const FiltersPanel = ({
 
             {/* Price Range */}
             <div>
-              <label htmlFor="price-range" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#B0B0B0]">
+              <label
+                htmlFor="price-range"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#B0B0B0]"
+              >
                 <DollarSign size={14} />
                 Price Range
               </label>
@@ -153,7 +170,10 @@ const FiltersPanel = ({
 
             {/* Sort By */}
             <div>
-              <label htmlFor="sort-by" className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#B0B0B0]">
+              <label
+                htmlFor="sort-by"
+                className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#B0B0B0]"
+              >
                 <SlidersHorizontal size={14} />
                 Sort By
               </label>
@@ -173,7 +193,10 @@ const FiltersPanel = ({
 
             {/* Availability Toggle */}
             <div>
-              <label htmlFor="available-only" className="mb-2 block text-sm font-semibold text-[#B0B0B0]">
+              <label
+                htmlFor="available-only"
+                className="mb-2 block text-sm font-semibold text-[#B0B0B0]"
+              >
                 Availability
               </label>
               <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-[#3A3A3A] bg-[#1E1E1E] px-3 py-2">

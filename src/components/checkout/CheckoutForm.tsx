@@ -165,16 +165,11 @@ const CheckoutForm = ({
       })}
 
       {/* Payment Method */}
-      <PaymentMethodSelector
-        selectedPayment={selectedPayment}
-        onPaymentChange={onPaymentChange}
-      />
+      <PaymentMethodSelector selectedPayment={selectedPayment} onPaymentChange={onPaymentChange} />
 
       {/* Special Instructions */}
       <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
-        <h2 className="mb-4 text-xl font-bold text-[#E0E0E0]">
-          Special Instructions (Optional)
-        </h2>
+        <h2 className="mb-4 text-xl font-bold text-[#E0E0E0]">Special Instructions (Optional)</h2>
 
         <textarea
           value={notes}

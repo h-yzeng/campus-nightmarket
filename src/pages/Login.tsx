@@ -63,7 +63,10 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
       <div className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <header className="mb-10 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#CC0000]" aria-hidden="true">
+            <div
+              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#CC0000]"
+              aria-hidden="true"
+            >
               <span className="text-4xl">🌙</span>
             </div>
             <h1 className="mb-3 text-4xl font-bold text-[#CC0000]">Welcome Back!</h1>
@@ -72,15 +75,34 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
 
           <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-xl">
             {error && (
-              <div className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4" role="alert" aria-live="polite">
-                <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" aria-hidden="true" />
+              <div
+                className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4"
+                role="alert"
+                aria-live="polite"
+              >
+                <AlertCircle
+                  size={20}
+                  className="mt-0.5 shrink-0 text-[#CC0000]"
+                  aria-hidden="true"
+                />
                 <p className="text-sm text-white">{error}</p>
               </div>
             )}
 
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} noValidate>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+              noValidate
+            >
               <div className="mb-6">
-                <label htmlFor="email-input" className="mb-2 block text-sm font-semibold text-white">Email Address</label>
+                <label
+                  htmlFor="email-input"
+                  className="mb-2 block text-sm font-semibold text-white"
+                >
+                  Email Address
+                </label>
                 <div className="relative">
                   <Mail
                     size={20}
@@ -102,7 +124,12 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="password-input" className="mb-2 block text-sm font-semibold text-white">Password</label>
+                <label
+                  htmlFor="password-input"
+                  className="mb-2 block text-sm font-semibold text-white"
+                >
+                  Password
+                </label>
                 <div className="relative">
                   <Lock
                     size={20}
@@ -131,7 +158,11 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     tabIndex={-1}
                   >
-                    {showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
+                    {showPassword ? (
+                      <EyeOff size={20} aria-hidden="true" />
+                    ) : (
+                      <Eye size={20} aria-hidden="true" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -140,7 +171,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                 <button
                   type="button"
                   onClick={() => setShowForgotPassword(true)}
-                  className="text-sm font-semibold text-[#CC0000] hover:underline focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#1E1E1E] rounded px-1"
+                  className="rounded px-1 text-sm font-semibold text-[#CC0000] hover:underline focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:outline-none"
                   aria-label="Forgot your password?"
                 >
                   Forgot Password?
@@ -164,7 +195,7 @@ const Login = ({ onLogin, onGoToSignup }: LoginProps) => {
                   <button
                     type="button"
                     onClick={onGoToSignup}
-                    className="font-semibold text-[#CC0000] hover:underline focus:outline-none focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#1E1E1E] rounded px-1"
+                    className="rounded px-1 font-semibold text-[#CC0000] hover:underline focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:outline-none"
                     aria-label="Go to sign up page"
                   >
                     Sign Up

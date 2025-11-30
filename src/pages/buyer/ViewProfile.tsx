@@ -76,7 +76,12 @@ const ViewProfile = ({
           <div className="mb-8 flex flex-col items-center">
             <div className="mb-4 flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-[#3A3A3A] bg-[#252525]">
               {sellerPhoto ? (
-                <img src={sellerPhoto} alt={sellerName} loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  src={sellerPhoto}
+                  alt={sellerName}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <User size={48} className="text-[#888888]" />
               )}

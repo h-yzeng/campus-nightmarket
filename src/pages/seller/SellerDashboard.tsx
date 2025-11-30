@@ -44,8 +44,8 @@ const SellerDashboard = ({
 
   const hasPaymentInfo = Boolean(
     profileData.sellerInfo?.paymentMethods?.cashApp ||
-      profileData.sellerInfo?.paymentMethods?.venmo ||
-      profileData.sellerInfo?.paymentMethods?.zelle
+    profileData.sellerInfo?.paymentMethods?.venmo ||
+    profileData.sellerInfo?.paymentMethods?.zelle
   );
 
   return (

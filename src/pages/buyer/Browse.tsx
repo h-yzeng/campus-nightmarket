@@ -68,7 +68,8 @@ const Browse = ({
         (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
       // Location filter
-      const matchesLocation = selectedLocation === 'All Dorms' || item.location === selectedLocation;
+      const matchesLocation =
+        selectedLocation === 'All Dorms' || item.location === selectedLocation;
 
       // Category filter
       const matchesCategory =
@@ -79,9 +80,11 @@ const Browse = ({
       const matchesPrice = item.price >= priceRange[0] && item.price <= priceRange[1];
 
       // Availability filter
-      const matchesAvailability = !showAvailableOnly || (item.isAvailable !== false);
+      const matchesAvailability = !showAvailableOnly || item.isAvailable !== false;
 
-      return matchesSearch && matchesLocation && matchesCategory && matchesPrice && matchesAvailability;
+      return (
+        matchesSearch && matchesLocation && matchesCategory && matchesPrice && matchesAvailability
+      );
     });
 
     // Sort items
@@ -180,7 +183,11 @@ const Browse = ({
 
         <div className="mx-auto max-w-7xl px-6 py-8">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-16" role="status" aria-live="polite">
+            <div
+              className="flex flex-col items-center justify-center py-16"
+              role="status"
+              aria-live="polite"
+            >
               <Loader2 size={48} className="mb-4 animate-spin text-[#CC0000]" />
               <p className="text-lg text-[#B0B0B0]">Loading listings...</p>
             </div>

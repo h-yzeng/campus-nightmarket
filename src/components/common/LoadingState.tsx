@@ -9,7 +9,12 @@ interface LoadingStateProps {
   className?: string;
 }
 
-const LoadingState = ({ variant = 'spinner', size = 'md', text, className = '' }: LoadingStateProps) => {
+const LoadingState = ({
+  variant = 'spinner',
+  size = 'md',
+  text,
+  className = '',
+}: LoadingStateProps) => {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
@@ -18,7 +23,11 @@ const LoadingState = ({ variant = 'spinner', size = 'md', text, className = '' }
 
   if (variant === 'spinner') {
     return (
-      <div className={`flex items-center justify-center ${className}`} role="status" aria-live="polite">
+      <div
+        className={`flex items-center justify-center ${className}`}
+        role="status"
+        aria-live="polite"
+      >
         <Loader2 className={`${sizeClasses[size]} animate-spin text-[#CC0000]`} />
         {text && <span className="ml-3 text-[#E0E0E0]">{text}</span>}
         <span className="sr-only">{text || 'Loading...'}</span>
@@ -28,7 +37,11 @@ const LoadingState = ({ variant = 'spinner', size = 'md', text, className = '' }
 
   if (variant === 'inline') {
     return (
-      <div className={`inline-flex items-center gap-2 ${className}`} role="status" aria-live="polite">
+      <div
+        className={`inline-flex items-center gap-2 ${className}`}
+        role="status"
+        aria-live="polite"
+      >
         <div
           className={`${sizeClasses[size]} animate-spin rounded-full border-2 border-[#CC0000] border-t-transparent`}
         />
@@ -40,7 +53,11 @@ const LoadingState = ({ variant = 'spinner', size = 'md', text, className = '' }
 
   if (variant === 'dots') {
     return (
-      <div className={`flex items-center justify-center gap-2 ${className}`} role="status" aria-live="polite">
+      <div
+        className={`flex items-center justify-center gap-2 ${className}`}
+        role="status"
+        aria-live="polite"
+      >
         <div className="flex space-x-2">
           <div className="h-2 w-2 animate-bounce rounded-full bg-[#CC0000] [animation-delay:0ms]" />
           <div className="h-2 w-2 animate-bounce rounded-full bg-[#CC0000] [animation-delay:150ms]" />

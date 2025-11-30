@@ -68,11 +68,7 @@ const ErrorAlert = ({
         <Icon className={`mt-0.5 shrink-0 ${config.iconColor}`} size={20} aria-hidden="true" />
 
         <div className="flex-1">
-          {title && (
-            <h3 className={`mb-1 font-bold ${config.textColor}`}>
-              {title}
-            </h3>
-          )}
+          {title && <h3 className={`mb-1 font-bold ${config.textColor}`}>{title}</h3>}
           <p className={`text-sm ${config.textColor}`}>{message}</p>
 
           {retry && (
