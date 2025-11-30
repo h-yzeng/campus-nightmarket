@@ -8,6 +8,9 @@ export interface FoodItem {
   location: string;
   rating: string;
   description: string;
+  category?: string;
+  isAvailable?: boolean;
+  datePosted?: string;
 }
 
 export interface CartItem extends FoodItem {

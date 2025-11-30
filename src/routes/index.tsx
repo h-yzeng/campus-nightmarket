@@ -1,21 +1,24 @@
 import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
-import type { ReactElement } from 'react';
+import { lazy, Suspense, type ReactElement } from 'react';
 import type { User } from 'firebase/auth';
-import Home from '../pages/Home';
-import Signup from '../pages/Signup';
-import Login from '../pages/Login';
-import Browse from '../pages/buyer/Browse';
-import UserProfile from '../pages/UserProfile';
-import Cart from '../pages/buyer/Cart';
-import Checkout from '../pages/buyer/Checkout';
-import UserOrders from '../pages/buyer/UserOrders';
-import OrderDetails from '../pages/buyer/OrderDetails';
-import SellerDashboard from '../pages/seller/SellerDashboard';
-import CreateListing from '../pages/seller/CreateListing';
-import EditListing from '../pages/seller/EditListing';
-import SellerListings from '../pages/seller/SellerListings';
-import SellerOrders from '../pages/seller/SellerOrders';
-import ViewProfileWrapper from '../pages/buyer/ViewProfileWrapper';
+import LoadingState from '../components/common/LoadingState';
+
+// Lazy load all page components for code splitting
+const Home = lazy(() => import('../pages/Home'));
+const Signup = lazy(() => import('../pages/Signup'));
+const Login = lazy(() => import('../pages/Login'));
+const Browse = lazy(() => import('../pages/buyer/Browse'));
+const UserProfile = lazy(() => import('../pages/UserProfile'));
+const Cart = lazy(() => import('../pages/buyer/Cart'));
+const Checkout = lazy(() => import('../pages/buyer/Checkout'));
+const UserOrders = lazy(() => import('../pages/buyer/UserOrders'));
+const OrderDetails = lazy(() => import('../pages/buyer/OrderDetails'));
+const SellerDashboard = lazy(() => import('../pages/seller/SellerDashboard'));
+const CreateListing = lazy(() => import('../pages/seller/CreateListing'));
+const EditListing = lazy(() => import('../pages/seller/EditListing'));
+const SellerListings = lazy(() => import('../pages/seller/SellerListings'));
+const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
+const ViewProfileWrapper = lazy(() => import('../pages/buyer/ViewProfileWrapper'));
 import { useSellerProfile } from '../hooks/useSellerProfile';
 import type { ProfileData, Order, FoodItem } from '../types';
 import { useAuthStore, useCartStore, useNavigationStore } from '../stores';
@@ -60,16 +63,27 @@ interface AppRoutesProps {
   handleUpdateListing: () => Promise<void>;
 }
 
+// Loading fallback component for lazy loaded routes
+const PageLoadingFallback = () => (
+  <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B]">
+    <LoadingState variant="spinner" size="lg" text="Loading page..." />
+  </div>
+);
+
 const RequireAuth = ({ children, user }: { children: ReactElement; user: User | null }) => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  return children;
+  return <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>;
 };
 
 const HomeWrapper = () => {
   const navigate = useNavigate();
-  return <Home onGetStarted={() => navigate('/signup')} onLogin={() => navigate('/login')} />;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <Home onGetStarted={() => navigate('/signup')} onLogin={() => navigate('/login')} />
+    </Suspense>
+  );
 };
 
 const LoginWrapper = (props: Pick<AppRoutesProps, 'handleLogin'>) => {
@@ -83,7 +97,11 @@ const LoginWrapper = (props: Pick<AppRoutesProps, 'handleLogin'>) => {
     return success;
   };
 
-  return <Login onLogin={handleLoginWithNavigation} onGoToSignup={() => navigate('/signup')} />;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <Login onLogin={handleLoginWithNavigation} onGoToSignup={() => navigate('/signup')} />
+    </Suspense>
+  );
 };
 
 const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCreateProfile'>) => {
@@ -96,12 +114,14 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCre
   };
 
   return (
-    <Signup
-      profileData={profileData}
-      setProfileData={props.setProfileData}
-      onCreateProfile={handleSignupWithNavigation}
-      onGoToLogin={() => navigate('/login')}
-    />
+    <Suspense fallback={<PageLoadingFallback />}>
+      <Signup
+        profileData={profileData}
+        setProfileData={props.setProfileData}
+        onCreateProfile={handleSignupWithNavigation}
+        onGoToLogin={() => navigate('/login')}
+      />
+    </Suspense>
   );
 };
 
