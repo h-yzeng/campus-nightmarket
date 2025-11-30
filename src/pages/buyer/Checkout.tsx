@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
@@ -38,6 +38,7 @@ const Checkout = ({
   const [pickupTimesBySeller, setPickupTimesBySeller] = useState<Record<string, string>>({});
   const [notes, setNotes] = useState<string>('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [validationError, setValidationError] = useState<string>('');
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -65,15 +66,17 @@ const Checkout = ({
     const missingTimes = sellers.filter((seller) => !pickupTimesBySeller[seller]);
 
     if (missingTimes.length > 0) {
-      alert(`Please select a pickup time for: ${missingTimes.join(', ')}`);
+      setValidationError(`Please select a pickup time for: ${missingTimes.join(', ')}`);
       return;
     }
 
+    setValidationError('');
     setIsPlacingOrder(true);
     try {
       await onPlaceOrder(selectedPayment, pickupTimesBySeller, notes);
     } catch (error) {
       logger.error('Error placing order:', error);
+      setValidationError('Failed to place order. Please try again.');
     } finally {
       setIsPlacingOrder(false);
     }
@@ -107,6 +110,13 @@ const Checkout = ({
         </div>
 
         <h1 className="mb-8 text-3xl font-bold text-white">Checkout</h1>
+
+        {validationError && (
+          <div className="mb-6 flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4" role="alert">
+            <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
+            <p className="text-sm text-[#FFB0B0]">{validationError}</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <CheckoutForm

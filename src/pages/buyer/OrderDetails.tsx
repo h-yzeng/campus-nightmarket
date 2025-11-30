@@ -18,6 +18,7 @@ import type { UserMode, Order, ProfileData, CartItem, Review } from '../../types
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ReviewModal from '../../components/ReviewModal';
+import OrderTimeline from '../../components/orders/OrderTimeline';
 
 interface OrderDetailsProps {
   order: Order;
@@ -165,6 +166,9 @@ const OrderDetails = ({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Main Content */}
           <div className="space-y-6 lg:col-span-2">
+            {/* Order Timeline */}
+            <OrderTimeline status={order.status} />
+
             {/* Order Items */}
             <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
               <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">

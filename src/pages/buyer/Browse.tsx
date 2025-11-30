@@ -204,9 +204,21 @@ const Browse = ({
               ))}
 
               {filteredAndSortedItems.length === 0 && !loading && (
-                <div className="col-span-full py-16 text-center">
-                  <p className="mb-2 text-xl text-gray-500">No items found</p>
-                  <p className="text-sm text-gray-400">Try adjusting your search or filters</p>
+                <div className="col-span-full rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-16 text-center shadow-md">
+                  <div className="mb-4 text-7xl">🔍</div>
+                  <h2 className="mb-2 text-2xl font-bold text-white">No items found</h2>
+                  <p className="mb-6 text-[#A0A0A0]">
+                    Try adjusting your search query or filters to find more listings
+                  </p>
+                  <div className="mx-auto max-w-md space-y-2 text-left">
+                    <p className="text-sm text-[#B0B0B0]">💡 Tips:</p>
+                    <ul className="space-y-1 text-sm text-[#888888]">
+                      <li>• Try broader search terms</li>
+                      <li>• Check if "Available Only" filter is limiting results</li>
+                      <li>• Expand your location or price range</li>
+                      <li>• Browse all categories</li>
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>

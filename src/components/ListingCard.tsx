@@ -31,11 +31,24 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
         ) : (
           <div className="mb-2 text-center text-7xl">{item.image}</div>
         )}
-        {isPopular && (
-          <span className="absolute top-3 right-3 rounded-full bg-[#FF9900] px-3 py-1 text-xs font-bold text-white shadow-md">
-            POPULAR
-          </span>
-        )}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+          {isPopular && (
+            <span className="rounded-full bg-[#FF9900] px-3 py-1 text-xs font-bold text-white shadow-md">
+              POPULAR
+            </span>
+          )}
+          {item.isAvailable !== undefined && (
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-bold shadow-md ${
+                item.isAvailable
+                  ? 'bg-[#0A6A0A] text-[#88FF88]'
+                  : 'bg-[#6A0A0A] text-[#FF8888]'
+              }`}
+            >
+              {item.isAvailable ? '✓ AVAILABLE' : '✕ SOLD OUT'}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="p-4 pt-3">

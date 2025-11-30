@@ -54,6 +54,7 @@ const SellerOrders = ({
 }: SellerOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('active');
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
 
   const pendingOrders = incomingOrders.filter((order) => order.status === 'pending');
   const activeOrders = incomingOrders.filter(
@@ -102,6 +103,15 @@ const SellerOrders = ({
 
   const toggleOrderExpanded = (orderId: number) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
+  };
+
+  const handleUpdateOrderStatus = async (orderId: number, status: Order['status']) => {
+    setUpdatingOrderId(orderId);
+    try {
+      await onUpdateOrderStatus(orderId, status);
+    } finally {
+      setUpdatingOrderId(null);
+    }
   };
 
   return (
@@ -442,18 +452,38 @@ const SellerOrders = ({
                       {order.status === 'pending' && (
                         <div className="flex gap-3">
                           <button
-                            onClick={() => onUpdateOrderStatus(order.id, 'confirmed')}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-base font-bold text-white transition-all hover:bg-blue-700"
+                            onClick={() => handleUpdateOrderStatus(order.id, 'confirmed')}
+                            disabled={updatingOrderId === order.id}
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-base font-bold text-white transition-all hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            <CheckCircle size={20} />
-                            Confirm Order
+                            {updatingOrderId === order.id ? (
+                              <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle size={20} />
+                                Confirm Order
+                              </>
+                            )}
                           </button>
                           <button
-                            onClick={() => onUpdateOrderStatus(order.id, 'cancelled')}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-3 text-base font-bold text-white transition-all hover:bg-red-700"
+                            onClick={() => handleUpdateOrderStatus(order.id, 'cancelled')}
+                            disabled={updatingOrderId === order.id}
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-3 text-base font-bold text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            <XCircle size={20} />
-                            Cancel Order
+                            {updatingOrderId === order.id ? (
+                              <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              <>
+                                <XCircle size={20} />
+                                Cancel Order
+                              </>
+                            )}
                           </button>
                         </div>
                       )}
@@ -461,18 +491,38 @@ const SellerOrders = ({
                       {order.status === 'confirmed' && (
                         <div className="flex gap-3">
                           <button
-                            onClick={() => onUpdateOrderStatus(order.id, 'ready')}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-purple-600 py-3 text-base font-bold text-white transition-all hover:bg-purple-700"
+                            onClick={() => handleUpdateOrderStatus(order.id, 'ready')}
+                            disabled={updatingOrderId === order.id}
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-purple-600 py-3 text-base font-bold text-white transition-all hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            <Package size={20} />
-                            Mark as Ready for Pickup
+                            {updatingOrderId === order.id ? (
+                              <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              <>
+                                <Package size={20} />
+                                Mark as Ready for Pickup
+                              </>
+                            )}
                           </button>
                           <button
-                            onClick={() => onUpdateOrderStatus(order.id, 'cancelled')}
-                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-3 text-base font-bold text-white transition-all hover:bg-red-700"
+                            onClick={() => handleUpdateOrderStatus(order.id, 'cancelled')}
+                            disabled={updatingOrderId === order.id}
+                            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 py-3 text-base font-bold text-white transition-all hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            <XCircle size={20} />
-                            Cancel Order
+                            {updatingOrderId === order.id ? (
+                              <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              <>
+                                <XCircle size={20} />
+                                Cancel Order
+                              </>
+                            )}
                           </button>
                         </div>
                       )}
@@ -480,11 +530,21 @@ const SellerOrders = ({
                       {order.status === 'ready' && (
                         <div>
                           <button
-                            onClick={() => onUpdateOrderStatus(order.id, 'completed')}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-base font-bold text-white transition-all hover:bg-green-700"
+                            onClick={() => handleUpdateOrderStatus(order.id, 'completed')}
+                            disabled={updatingOrderId === order.id}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 py-3 text-base font-bold text-white transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            <CheckCircle size={20} />
-                            Mark as Completed
+                            {updatingOrderId === order.id ? (
+                              <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Updating...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle size={20} />
+                                Mark as Completed
+                              </>
+                            )}
                           </button>
                           <p className="mt-2 text-center text-xs text-[#A0A0A0]">
                             💡 Only mark as completed after buyer has picked up and paid
