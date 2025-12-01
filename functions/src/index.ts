@@ -1,8 +1,8 @@
-import {onDocumentCreated, onDocumentUpdated} from 'firebase-functions/v2/firestore';
-import {onSchedule} from 'firebase-functions/v2/scheduler';
-import {onCall} from 'firebase-functions/v2/https';
-import {onObjectFinalized} from 'firebase-functions/v2/storage';
-import {logger} from 'firebase-functions';
+import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { onCall } from 'firebase-functions/v2/https';
+import { onObjectFinalized } from 'firebase-functions/v2/storage';
+import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as bcrypt from 'bcrypt';
 
@@ -41,10 +41,10 @@ const BCRYPT_ROUNDS = 12; // Security strength for password hashing
  * - 7+ attempts: 30 minutes
  */
 const PROGRESSIVE_BLOCKING = {
-  4: 5 * 60 * 1000,   // 5 minutes
-  5: 10 * 60 * 1000,  // 10 minutes
-  6: 15 * 60 * 1000,  // 15 minutes
-  7: 30 * 60 * 1000,  // 30 minutes
+  4: 5 * 60 * 1000, // 5 minutes
+  5: 10 * 60 * 1000, // 10 minutes
+  6: 15 * 60 * 1000, // 15 minutes
+  7: 30 * 60 * 1000, // 30 minutes
 };
 
 // Verification tokens storage - now using Firestore instead of in-memory Map
@@ -55,18 +55,24 @@ const TOKEN_EXPIRY = 10 * 60 * 1000; // 10 minutes
  * Store verification token in Firestore
  */
 async function storeVerificationToken(token: string, userId: string, email: string): Promise<void> {
-  await admin.firestore().collection('verificationTokens').doc(token).set({
-    userId,
-    email,
-    expiresAt: Date.now() + TOKEN_EXPIRY,
-    createdAt: Date.now(),
-  });
+  await admin
+    .firestore()
+    .collection('verificationTokens')
+    .doc(token)
+    .set({
+      userId,
+      email,
+      expiresAt: Date.now() + TOKEN_EXPIRY,
+      createdAt: Date.now(),
+    });
 }
 
 /**
  * Get verification token from Firestore
  */
-async function getVerificationToken(token: string): Promise<{ userId: string; email: string; expiresAt: number } | null> {
+async function getVerificationToken(
+  token: string
+): Promise<{ userId: string; email: string; expiresAt: number } | null> {
   const doc = await admin.firestore().collection('verificationTokens').doc(token).get();
   if (!doc.exists) {
     return null;
@@ -85,7 +91,11 @@ async function deleteVerificationToken(token: string): Promise<void> {
  * Check rate limit for security question verification
  * Returns { allowed: boolean, blockDurationMs?: number, message?: string }
  */
-function checkRateLimit(identifier: string): { allowed: boolean; blockDurationMs?: number; message?: string } {
+function checkRateLimit(identifier: string): {
+  allowed: boolean;
+  blockDurationMs?: number;
+  message?: string;
+} {
   const now = Date.now();
   const record = rateLimitStore.get(identifier);
 
@@ -241,7 +251,8 @@ export const sendNewOrderNotification = onDocumentCreated('orders/{orderId}', as
     }
 
     // Calculate total items
-    const totalItems = order.items?.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) || 0;
+    const totalItems =
+      order.items?.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) || 0;
 
     // Send notification
     await admin.messaging().send({
@@ -273,54 +284,57 @@ export const sendNewOrderNotification = onDocumentCreated('orders/{orderId}', as
 /**
  * Send notification to seller when buyer cancels order
  */
-export const sendOrderCancelledNotification = onDocumentUpdated('orders/{orderId}', async (event) => {
-  const before = event.data?.before.data();
-  const after = event.data?.after.data();
-  const orderId = event.params.orderId;
+export const sendOrderCancelledNotification = onDocumentUpdated(
+  'orders/{orderId}',
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    const orderId = event.params.orderId;
 
-  if (!before || !after) {
-    return null;
-  }
-
-  // Only send if order was cancelled by buyer
-  if (before.status === 'cancelled' || after.status !== 'cancelled') {
-    return null;
-  }
-
-  try {
-    // Get seller's FCM token
-    const sellerDoc = await admin.firestore().doc(`users/${after.sellerId}`).get();
-    const sellerData = sellerDoc.data();
-
-    if (!sellerData?.fcmToken) {
+    if (!before || !after) {
       return null;
     }
 
-    // Send notification
-    await admin.messaging().send({
-      token: sellerData.fcmToken,
-      notification: {
-        title: 'Order Cancelled',
-        body: `${after.buyerName} cancelled their order`,
-      },
-      data: {
-        orderId,
-        type: 'order_cancelled',
-        buyerId: after.buyerId,
-      },
-      webpush: {
-        fcmOptions: {
-          link: `${APP_URL}/seller/orders`,
-        },
-      },
-    });
+    // Only send if order was cancelled by buyer
+    if (before.status === 'cancelled' || after.status !== 'cancelled') {
+      return null;
+    }
 
-    return null;
-  } catch (error) {
-    logger.error('Error sending cancellation notification:', error);
-    return null;
+    try {
+      // Get seller's FCM token
+      const sellerDoc = await admin.firestore().doc(`users/${after.sellerId}`).get();
+      const sellerData = sellerDoc.data();
+
+      if (!sellerData?.fcmToken) {
+        return null;
+      }
+
+      // Send notification
+      await admin.messaging().send({
+        token: sellerData.fcmToken,
+        notification: {
+          title: 'Order Cancelled',
+          body: `${after.buyerName} cancelled their order`,
+        },
+        data: {
+          orderId,
+          type: 'order_cancelled',
+          buyerId: after.buyerId,
+        },
+        webpush: {
+          fcmOptions: {
+            link: `${APP_URL}/seller/orders`,
+          },
+        },
+      });
+
+      return null;
+    } catch (error) {
+      logger.error('Error sending cancellation notification:', error);
+      return null;
+    }
   }
-});
+);
 
 /**
  * Clean up expired FCM tokens
@@ -331,7 +345,8 @@ export const cleanupExpiredTokens = onSchedule('every 24 hours', async () => {
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
   try {
-    const usersSnapshot = await admin.firestore()
+    const usersSnapshot = await admin
+      .firestore()
       .collection('users')
       .where('fcmTokenUpdatedAt', '<', sixtyDaysAgo)
       .get();
@@ -359,7 +374,7 @@ export const cleanupExpiredTokens = onSchedule('every 24 hours', async () => {
  * Save security questions with server-side bcrypt hashing
  */
 export const saveSecurityQuestions = onCall(async (request) => {
-  const {userId, questions} = request.data;
+  const { userId, questions } = request.data;
 
   // Validate authentication
   if (!request.auth) {
@@ -422,235 +437,248 @@ export const saveSecurityQuestions = onCall(async (request) => {
  * Verify security question answers (server-side with rate limiting)
  * App Check disabled to allow password reset without authentication
  */
-export const verifySecurityAnswers = onCall({
-  consumeAppCheckToken: false,
-}, async (request) => {
-  const {email, answers} = request.data;
+export const verifySecurityAnswers = onCall(
+  {
+    consumeAppCheckToken: false,
+  },
+  async (request) => {
+    const { email, answers } = request.data;
 
-  // Validate input
-  if (!email || !answers || !Array.isArray(answers) || answers.length === 0) {
-    throw new Error('Invalid input: email and answers array required');
-  }
-
-  // Validate email domain
-  if (!email.endsWith('@hawk.illinoistech.edu')) {
-    throw new Error('Email must be a valid @hawk.illinoistech.edu address');
-  }
-
-  // Check rate limit
-  const rateLimit = checkRateLimit(email);
-  if (!rateLimit.allowed) {
-    throw new Error(rateLimit.message || 'Too many verification attempts. Please try again later.');
-  }
-
-  try {
-    // Get user by email
-    const usersSnapshot = await admin.firestore()
-      .collection('users')
-      .where('email', '==', email)
-      .limit(1)
-      .get();
-
-    if (usersSnapshot.empty) {
-      throw new Error('User not found');
+    // Validate input
+    if (!email || !answers || !Array.isArray(answers) || answers.length === 0) {
+      throw new Error('Invalid input: email and answers array required');
     }
 
-    const userDoc = usersSnapshot.docs[0];
-    const userData = userDoc.data();
-    const userId = userDoc.id;
-
-    if (!userData.securityQuestions || userData.securityQuestions.length === 0) {
-      throw new Error('No security questions set for this account');
+    // Validate email domain
+    if (!email.endsWith('@hawk.illinoistech.edu')) {
+      throw new Error('Email must be a valid @hawk.illinoistech.edu address');
     }
 
-    // Verify all answers using bcrypt.compare
-    const verificationResults = await Promise.all(
-      answers.map(async (providedAnswer: { question: string; answer: string }) => {
-        const storedQuestion = userData.securityQuestions.find(
-          (sq: { question: string; answer: string }) => sq.question === providedAnswer.question
-        );
+    // Check rate limit
+    const rateLimit = checkRateLimit(email);
+    if (!rateLimit.allowed) {
+      throw new Error(
+        rateLimit.message || 'Too many verification attempts. Please try again later.'
+      );
+    }
 
-        if (!storedQuestion) {
-          return false;
-        }
+    try {
+      // Get user by email
+      const usersSnapshot = await admin
+        .firestore()
+        .collection('users')
+        .where('email', '==', email)
+        .limit(1)
+        .get();
 
-        // Try multiple normalization strategies for flexibility
-        const strategies = [
-          providedAnswer.answer,
-          providedAnswer.answer.toLowerCase(),
-          providedAnswer.answer.trim(),
-          providedAnswer.answer.trim().toLowerCase(),
-        ];
+      if (usersSnapshot.empty) {
+        throw new Error('User not found');
+      }
 
-        for (const strategy of strategies) {
-          const match = await bcrypt.compare(strategy, storedQuestion.answer);
-          if (match) {
-            return true;
+      const userDoc = usersSnapshot.docs[0];
+      const userData = userDoc.data();
+      const userId = userDoc.id;
+
+      if (!userData.securityQuestions || userData.securityQuestions.length === 0) {
+        throw new Error('No security questions set for this account');
+      }
+
+      // Verify all answers using bcrypt.compare
+      const verificationResults = await Promise.all(
+        answers.map(async (providedAnswer: { question: string; answer: string }) => {
+          const storedQuestion = userData.securityQuestions.find(
+            (sq: { question: string; answer: string }) => sq.question === providedAnswer.question
+          );
+
+          if (!storedQuestion) {
+            return false;
           }
-        }
 
-        return false;
-      })
-    );
+          // Try multiple normalization strategies for flexibility
+          const strategies = [
+            providedAnswer.answer,
+            providedAnswer.answer.toLowerCase(),
+            providedAnswer.answer.trim(),
+            providedAnswer.answer.trim().toLowerCase(),
+          ];
 
-    const allCorrect = verificationResults.every((result) => result === true);
+          for (const strategy of strategies) {
+            const match = await bcrypt.compare(strategy, storedQuestion.answer);
+            if (match) {
+              return true;
+            }
+          }
 
-    if (!allCorrect) {
-      throw new Error('Security answers incorrect');
+          return false;
+        })
+      );
+
+      const allCorrect = verificationResults.every((result) => result === true);
+
+      if (!allCorrect) {
+        throw new Error('Security answers incorrect');
+      }
+
+      // Generate verification token
+      const token = generateToken();
+      await storeVerificationToken(token, userId, email);
+
+      return {
+        verified: true,
+        token,
+        userId,
+        message: 'Security answers verified successfully',
+      };
+    } catch (error) {
+      logger.error('Error in verifySecurityAnswers:', error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to verify security answers');
     }
-
-    // Generate verification token
-    const token = generateToken();
-    await storeVerificationToken(token, userId, email);
-
-    return {
-      verified: true,
-      token,
-      userId,
-      message: 'Security answers verified successfully',
-    };
-  } catch (error) {
-    logger.error('Error in verifySecurityAnswers:', error);
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-    throw new Error('Failed to verify security answers');
   }
-});
+);
 
 /**
  * Get user's security questions (without answers)
  * App Check disabled to allow password reset without authentication
  */
-export const getUserSecurityQuestions = onCall({
-  consumeAppCheckToken: false,
-}, async (request) => {
-  const {email} = request.data;
+export const getUserSecurityQuestions = onCall(
+  {
+    consumeAppCheckToken: false,
+  },
+  async (request) => {
+    const { email } = request.data;
 
-  // Validate input
-  if (!email) {
-    throw new Error('Email required');
-  }
-
-  // Validate email domain
-  if (!email.endsWith('@hawk.illinoistech.edu')) {
-    throw new Error('Email must be a valid @hawk.illinoistech.edu address');
-  }
-
-  try {
-    // Get user by email
-    const usersSnapshot = await admin.firestore()
-      .collection('users')
-      .where('email', '==', email)
-      .limit(1)
-      .get();
-
-    if (usersSnapshot.empty) {
-      throw new Error('User not found');
+    // Validate input
+    if (!email) {
+      throw new Error('Email required');
     }
 
-    const userData = usersSnapshot.docs[0].data();
+    // Validate email domain
+    if (!email.endsWith('@hawk.illinoistech.edu')) {
+      throw new Error('Email must be a valid @hawk.illinoistech.edu address');
+    }
 
-    if (!userData.securityQuestions || userData.securityQuestions.length === 0) {
+    try {
+      // Get user by email
+      const usersSnapshot = await admin
+        .firestore()
+        .collection('users')
+        .where('email', '==', email)
+        .limit(1)
+        .get();
+
+      if (usersSnapshot.empty) {
+        throw new Error('User not found');
+      }
+
+      const userData = usersSnapshot.docs[0].data();
+
+      if (!userData.securityQuestions || userData.securityQuestions.length === 0) {
+        return {
+          questions: [],
+        };
+      }
+
+      // Return only questions, not answers
+      const questions = userData.securityQuestions.map((sq: { question: string }) => sq.question);
+
       return {
-        questions: [],
+        questions,
       };
+    } catch (error) {
+      logger.error('Error in getUserSecurityQuestions:', error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Failed to get security questions');
     }
-
-    // Return only questions, not answers
-    const questions = userData.securityQuestions.map((sq: { question: string }) => sq.question);
-
-    return {
-      questions,
-    };
-  } catch (error) {
-    logger.error('Error in getUserSecurityQuestions:', error);
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-    throw new Error('Failed to get security questions');
   }
-});
+);
 
 /**
  * Reset user password after security questions are verified
  * Requires a valid verification token from verifySecurityAnswers
  * App Check disabled to allow password reset without authentication
  */
-export const resetPasswordWithVerification = onCall({
-  consumeAppCheckToken: false,
-}, async (request) => {
-  const {email, newPassword, token} = request.data;
+export const resetPasswordWithVerification = onCall(
+  {
+    consumeAppCheckToken: false,
+  },
+  async (request) => {
+    const { email, newPassword, token } = request.data;
 
-  // Validate input
-  if (!email || !newPassword || !token) {
-    throw new Error('Missing required fields: email, newPassword, and token');
-  }
-
-  // Validate email domain
-  if (!email.endsWith('@hawk.illinoistech.edu')) {
-    throw new Error('Email must be a valid @hawk.illinoistech.edu address');
-  }
-
-  // Validate password strength (updated to 12 characters minimum)
-  if (newPassword.length < 12) {
-    throw new Error('Password must be at least 12 characters long');
-  }
-
-  // Validate password contains required characters
-  const hasUpperCase = /[A-Z]/.test(newPassword);
-  const hasLowerCase = /[a-z]/.test(newPassword);
-  const hasNumber = /\d/.test(newPassword);
-  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
-
-  if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
-    throw new Error('Password must contain uppercase, lowercase, number, and special character');
-  }
-
-  // Verify token
-  const tokenData = await getVerificationToken(token);
-  if (!tokenData) {
-    throw new Error('Invalid or expired verification token');
-  }
-
-  if (tokenData.email !== email) {
-    throw new Error('Email does not match verification token');
-  }
-
-  if (Date.now() > tokenData.expiresAt) {
-    await deleteVerificationToken(token);
-    throw new Error('Verification token has expired. Please verify security questions again.');
-  }
-
-  try {
-    // Get user by email to verify it exists
-    const userRecord = await admin.auth().getUserByEmail(email);
-
-    // Verify the userId matches
-    if (userRecord.uid !== tokenData.userId) {
-      throw new Error('User ID mismatch');
+    // Validate input
+    if (!email || !newPassword || !token) {
+      throw new Error('Missing required fields: email, newPassword, and token');
     }
 
-    // Update the password using Firebase Admin SDK
-    await admin.auth().updateUser(tokenData.userId, {
-      password: newPassword,
-    });
-
-    // Delete the token after successful password reset
-    await deleteVerificationToken(token);
-
-    return {
-      success: true,
-      message: 'Password has been successfully reset',
-    };
-  } catch (error) {
-    logger.error('Error resetting password:', error);
-    if (error instanceof Error) {
-      throw new Error(`Failed to reset password: ${error.message}`);
+    // Validate email domain
+    if (!email.endsWith('@hawk.illinoistech.edu')) {
+      throw new Error('Email must be a valid @hawk.illinoistech.edu address');
     }
-    throw new Error('Failed to reset password');
+
+    // Validate password strength (updated to 12 characters minimum)
+    if (newPassword.length < 12) {
+      throw new Error('Password must be at least 12 characters long');
+    }
+
+    // Validate password contains required characters
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+      throw new Error('Password must contain uppercase, lowercase, number, and special character');
+    }
+
+    // Verify token
+    const tokenData = await getVerificationToken(token);
+    if (!tokenData) {
+      throw new Error('Invalid or expired verification token');
+    }
+
+    if (tokenData.email !== email) {
+      throw new Error('Email does not match verification token');
+    }
+
+    if (Date.now() > tokenData.expiresAt) {
+      await deleteVerificationToken(token);
+      throw new Error('Verification token has expired. Please verify security questions again.');
+    }
+
+    try {
+      // Get user by email to verify it exists
+      const userRecord = await admin.auth().getUserByEmail(email);
+
+      // Verify the userId matches
+      if (userRecord.uid !== tokenData.userId) {
+        throw new Error('User ID mismatch');
+      }
+
+      // Update the password using Firebase Admin SDK
+      await admin.auth().updateUser(tokenData.userId, {
+        password: newPassword,
+      });
+
+      // Delete the token after successful password reset
+      await deleteVerificationToken(token);
+
+      return {
+        success: true,
+        message: 'Password has been successfully reset',
+      };
+    } catch (error) {
+      logger.error('Error resetting password:', error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to reset password: ${error.message}`);
+      }
+      throw new Error('Failed to reset password');
+    }
   }
-});
+);
 
 /**
  * Validate uploaded images for security
@@ -763,12 +791,14 @@ async function logSecurityEvent(event: {
   timestamp: Date;
 }): Promise<void> {
   try {
-    await admin.firestore().collection('security_logs').add({
-      ...event,
-      timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    await admin
+      .firestore()
+      .collection('security_logs')
+      .add({
+        ...event,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
   } catch (error) {
     logger.error('Error logging security event:', error);
   }
 }
-

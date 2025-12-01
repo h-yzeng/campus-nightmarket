@@ -4,11 +4,13 @@
 
 describe('Password Validation', () => {
   const isValidPassword = (password: string): boolean => {
-    return password.length >= 12 &&
-           /[A-Z]/.test(password) &&
-           /[a-z]/.test(password) &&
-           /\d/.test(password) &&
-           /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return (
+      password.length >= 12 &&
+      /[A-Z]/.test(password) &&
+      /[a-z]/.test(password) &&
+      /\d/.test(password) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    );
   };
 
   describe('Minimum Length Requirements', () => {
@@ -55,14 +57,10 @@ describe('Password Validation', () => {
     it('should accept common weak passwords that meet length requirements', () => {
       // Note: Current implementation doesn't check against common passwords
       // This is a placeholder for future enhancement
-      const weakPasswords = [
-        'Password123!',
-        'Qwerty123456!',
-        'Admin1234567!',
-      ];
+      const weakPasswords = ['Password123!', 'Qwerty123456!', 'Admin1234567!'];
 
       // These currently pass validation but should ideally be rejected in a future enhancement
-      weakPasswords.forEach(pwd => {
+      weakPasswords.forEach((pwd) => {
         expect(isValidPassword(pwd)).toBe(true); // Current behavior
       });
     });

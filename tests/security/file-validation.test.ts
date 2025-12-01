@@ -33,20 +33,15 @@ describe('File Upload Security', () => {
 
   describe('Content Type Validation', () => {
     it('should allow valid image types', () => {
-      allowedTypes.forEach(type => {
+      allowedTypes.forEach((type) => {
         expect(allowedTypes).toContain(type);
       });
     });
 
     it('should reject non-image types', () => {
-      const invalidTypes = [
-        'application/pdf',
-        'text/plain',
-        'video/mp4',
-        'application/javascript',
-      ];
+      const invalidTypes = ['application/pdf', 'text/plain', 'video/mp4', 'application/javascript'];
 
-      invalidTypes.forEach(type => {
+      invalidTypes.forEach((type) => {
         expect(allowedTypes).not.toContain(type);
       });
     });
@@ -58,7 +53,7 @@ describe('File Upload Security', () => {
         'application/x-sh',
       ];
 
-      dangerousTypes.forEach(type => {
+      dangerousTypes.forEach((type) => {
         expect(allowedTypes).not.toContain(type);
       });
     });
@@ -101,26 +96,19 @@ describe('File Upload Security', () => {
     });
 
     it('should validate file paths', () => {
-      const validPaths = [
-        'profile-photos/user123.jpg',
-        'listing-images/item456.png',
-      ];
+      const validPaths = ['profile-photos/user123.jpg', 'listing-images/item456.png'];
 
-      validPaths.forEach(path => {
-        const isValid = allowedPaths.some(allowed => path.startsWith(allowed));
+      validPaths.forEach((path) => {
+        const isValid = allowedPaths.some((allowed) => path.startsWith(allowed));
         expect(isValid).toBe(true);
       });
     });
 
     it('should reject uploads to invalid paths', () => {
-      const invalidPaths = [
-        'documents/secret.pdf',
-        '../etc/passwd',
-        'config/firebase.json',
-      ];
+      const invalidPaths = ['documents/secret.pdf', '../etc/passwd', 'config/firebase.json'];
 
-      invalidPaths.forEach(path => {
-        const isValid = allowedPaths.some(allowed => path.startsWith(allowed));
+      invalidPaths.forEach((path) => {
+        const isValid = allowedPaths.some((allowed) => path.startsWith(allowed));
         expect(isValid).toBe(false);
       });
     });

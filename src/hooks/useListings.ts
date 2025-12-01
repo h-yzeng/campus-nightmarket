@@ -15,6 +15,11 @@ const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem =>
     location: listing.location,
     rating: 'N/A',
     description: listing.description,
+    category: listing.category,
+    isAvailable: listing.isAvailable,
+    datePosted: listing.createdAt
+      ? new Date(listing.createdAt.seconds * 1000).toISOString()
+      : undefined,
   };
 };
 

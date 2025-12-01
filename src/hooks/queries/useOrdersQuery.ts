@@ -57,7 +57,7 @@ const convertFirebaseOrderToApp = (firebaseOrder: FirebaseOrder): Order => {
   };
 };
 
-export const useBuyerOrdersQuery = (userId: string | undefined) => {
+export const useBuyerOrdersQuery = (userId: string | undefined, refetchInterval?: number) => {
   return useQuery({
     queryKey: ['orders', 'buyer', userId],
     queryFn: async () => {
@@ -66,10 +66,12 @@ export const useBuyerOrdersQuery = (userId: string | undefined) => {
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
+    refetchInterval: refetchInterval || 5000, // Auto-refetch every 10 seconds by default
+    refetchOnWindowFocus: true, // Refetch when user returns to the page
   });
 };
 
-export const useSellerOrdersQuery = (userId: string | undefined) => {
+export const useSellerOrdersQuery = (userId: string | undefined, refetchInterval?: number) => {
   return useQuery({
     queryKey: ['orders', 'seller', userId],
     queryFn: async () => {
@@ -78,5 +80,7 @@ export const useSellerOrdersQuery = (userId: string | undefined) => {
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
+    refetchInterval: refetchInterval || 5000, // Auto-refetch every 10 seconds by default
+    refetchOnWindowFocus: true, // Refetch when user returns to the page
   });
 };

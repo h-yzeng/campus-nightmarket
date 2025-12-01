@@ -1,4 +1,4 @@
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, X } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
@@ -112,9 +112,20 @@ const Checkout = ({
         <h1 className="mb-8 text-3xl font-bold text-white">Checkout</h1>
 
         {validationError && (
-          <div className="mb-6 flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4" role="alert">
+          <div
+            className="mb-6 flex items-start gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4"
+            role="alert"
+          >
             <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
-            <p className="text-sm text-[#FFB0B0]">{validationError}</p>
+            <p className="flex-1 text-sm text-[#FFB0B0]">{validationError}</p>
+            <button
+              type="button"
+              onClick={() => setValidationError('')}
+              className="shrink-0 rounded-lg p-1 transition-colors hover:bg-[#4A1A1A]"
+              aria-label="Dismiss error"
+            >
+              <X size={16} className="text-[#FFB0B0]" />
+            </button>
           </div>
         )}
 

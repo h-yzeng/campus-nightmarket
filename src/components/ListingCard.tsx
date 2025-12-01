@@ -40,9 +40,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           {item.isAvailable !== undefined && (
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold shadow-md ${
-                item.isAvailable
-                  ? 'bg-[#0A6A0A] text-[#88FF88]'
-                  : 'bg-[#6A0A0A] text-[#FF8888]'
+                item.isAvailable ? 'bg-[#0A6A0A] text-[#88FF88]' : 'bg-[#6A0A0A] text-[#FF8888]'
               }`}
             >
               {item.isAvailable ? '✓ AVAILABLE' : '✕ SOLD OUT'}

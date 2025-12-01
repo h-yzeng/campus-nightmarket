@@ -35,7 +35,7 @@ describe('Authentication Security', () => {
       const questions = [
         'What was the name of your first pet?',
         'What city were you born in?',
-        'What is your mother\'s maiden name?',
+        "What is your mother's maiden name?",
       ];
 
       expect(questions.length).toBeGreaterThanOrEqual(MIN_QUESTIONS);
@@ -63,7 +63,7 @@ describe('Authentication Security', () => {
 
       // Verify passwords are not stored
       const sensitiveKeys = ['password', 'token', 'secret'];
-      sensitiveKeys.forEach(key => {
+      sensitiveKeys.forEach((key) => {
         expect(mockLocalStorage.getItem(key)).toBeUndefined();
       });
     });
