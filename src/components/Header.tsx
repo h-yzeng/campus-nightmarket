@@ -233,7 +233,7 @@ const Header = ({
                       <Package size={18} />
                       <span>My Orders</span>
                       {userMode === 'seller' && pendingOrdersCount > 0 && (
-                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white animate-pulse">
+                        <span className="ml-auto flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white">
                           {pendingOrdersCount}
                         </span>
                       )}
