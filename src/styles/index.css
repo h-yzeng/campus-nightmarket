@@ -61,6 +61,11 @@
   * {
     border-color: hsl(var(--border));
   }
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));

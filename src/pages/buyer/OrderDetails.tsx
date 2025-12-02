@@ -289,7 +289,7 @@ const OrderDetails = ({
           {/* Sidebar */}
           <div className="space-y-6 lg:col-span-1">
             {/* Payment Information */}
-            <div className="sticky top-24 rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+            <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
               <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-white">
                 <Wallet size={20} />
                 Payment
@@ -405,18 +405,6 @@ const OrderDetails = ({
               </div>
             )}
 
-            {/* Leave Review */}
-            {canLeaveReview && (
-              <button
-                type="button"
-                onClick={() => setShowReviewModal(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#CC0000] py-3 font-bold text-white transition-all hover:bg-[#AA0000]"
-              >
-                <Star size={20} />
-                Leave a Review
-              </button>
-            )}
-
             {/* Already Reviewed */}
             {order.status === 'completed' && order.hasReview && review && (
               <div className="rounded-2xl border-2 border-[#1A4A1A] bg-neutral-800 p-6 shadow-md">
@@ -461,16 +449,33 @@ const OrderDetails = ({
               </div>
             )}
 
-            {/* Order Again */}
-            {order.status === 'completed' && onAddToCart && (
-              <button
-                type="button"
-                onClick={handleOrderAgain}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#CC0000] bg-neutral-800 py-3 font-bold text-[#CC0000] transition-all hover:bg-[#2A0A0A]"
-              >
-                <RefreshCw size={20} />
-                Order Again
-              </button>
+            {/* Sticky Action Buttons */}
+            {(canLeaveReview || (order.status === 'completed' && onAddToCart)) && (
+              <div className="sticky top-24 bottom-8 space-y-3">
+                {/* Leave Review */}
+                {canLeaveReview && (
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewModal(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#CC0000] py-3 font-bold text-white shadow-lg transition-all hover:bg-[#AA0000] hover:shadow-xl"
+                  >
+                    <Star size={20} />
+                    Leave a Review
+                  </button>
+                )}
+
+                {/* Order Again */}
+                {order.status === 'completed' && onAddToCart && (
+                  <button
+                    type="button"
+                    onClick={handleOrderAgain}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#CC0000] bg-neutral-800 py-3 font-bold text-[#CC0000] shadow-lg transition-all hover:bg-[#2A0A0A] hover:shadow-xl"
+                  >
+                    <RefreshCw size={20} />
+                    Order Again
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>

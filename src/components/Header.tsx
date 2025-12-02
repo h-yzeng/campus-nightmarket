@@ -1,7 +1,9 @@
 import { ShoppingCart, User, ChevronDown, LogOut, Package, Store, LayoutGrid } from 'lucide-react';
 import { useState, useRef, useEffect, memo } from 'react';
+import { useLocation } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
 import { useNotificationStore } from '../stores';
+import { getRouteConfig } from '../utils/routeConfig';
 import type { CartItem, ProfileData, UserMode } from '../types';
 
 interface HeaderProps {
@@ -34,7 +36,11 @@ const Header = ({
   pendingOrdersCount = 0,
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showModeConfirm, setShowModeConfirm] = useState(false);
+  const [pendingMode, setPendingMode] = useState<UserMode | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const confirmDialogRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
 
   // Get notifications from store
   const notifications = useNotificationStore((state) => state.notifications);
@@ -43,16 +49,57 @@ const Header = ({
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Get current route config
+  const routeConfig = getRouteConfig(location.pathname);
+  const isOnBuyerOnlyPage = routeConfig?.type === 'buyer-only';
+  const isOnSellerOnlyPage = routeConfig?.type === 'seller-only';
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
+      }
+      if (confirmDialogRef.current && !confirmDialogRef.current.contains(event.target as Node)) {
+        setShowModeConfirm(false);
+        setPendingMode(null);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleModeChangeClick = (mode: UserMode) => {
+    if (!onModeChange) return;
+
+    // If already in this mode, do nothing
+    if (mode === userMode) return;
+
+    // Check if we need confirmation
+    const needsConfirmation =
+      (mode === 'seller' && isOnBuyerOnlyPage) || (mode === 'buyer' && isOnSellerOnlyPage);
+
+    if (needsConfirmation) {
+      setPendingMode(mode);
+      setShowModeConfirm(true);
+    } else {
+      // No confirmation needed, switch directly
+      onModeChange(mode);
+    }
+  };
+
+  const handleConfirmModeChange = () => {
+    if (pendingMode && onModeChange) {
+      onModeChange(pendingMode);
+    }
+    setShowModeConfirm(false);
+    setPendingMode(null);
+  };
+
+  const handleCancelModeChange = () => {
+    setShowModeConfirm(false);
+    setPendingMode(null);
+  };
 
   const handleLogoClick = () => {
     if (onLogoClick) {
@@ -90,9 +137,12 @@ const Header = ({
                 />
 
                 <button
-                  onClick={() => onModeChange('buyer')}
+                  onClick={() => handleModeChangeClick('buyer')}
+                  disabled={userMode === 'buyer'}
                   className={`relative z-10 flex w-24 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
-                    userMode === 'buyer' ? 'text-[#CC0000]' : 'text-[#888888] hover:text-[#B0B0B0]'
+                    userMode === 'buyer'
+                      ? 'cursor-default text-[#CC0000]'
+                      : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
                   }`}
                   type="button"
                 >
@@ -103,9 +153,12 @@ const Header = ({
                   Buyer
                 </button>
                 <button
-                  onClick={() => onModeChange('seller')}
+                  onClick={() => handleModeChangeClick('seller')}
+                  disabled={userMode === 'seller'}
                   className={`relative z-10 flex w-24 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
-                    userMode === 'seller' ? 'text-[#CC0000]' : 'text-[#888888] hover:text-[#B0B0B0]'
+                    userMode === 'seller'
+                      ? 'cursor-default text-[#CC0000]'
+                      : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
                   }`}
                   type="button"
                 >
@@ -115,6 +168,41 @@ const Header = ({
                   />
                   Seller
                 </button>
+              </div>
+            )}
+
+            {/* Mode Switch Confirmation Dialog */}
+            {showModeConfirm && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div
+                  ref={confirmDialogRef}
+                  className="mx-4 w-full max-w-md rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-2xl"
+                >
+                  <h3 className="mb-3 text-xl font-bold text-[#E0E0E0]">
+                    Switch to {pendingMode === 'buyer' ? 'Buyer' : 'Seller'} Mode?
+                  </h3>
+                  <p className="mb-6 text-sm text-[#B0B0B0]">
+                    {pendingMode === 'buyer'
+                      ? "You'll be redirected to the Browse page to shop for food items."
+                      : "You'll be redirected to the Seller Dashboard to manage your listings."}
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleCancelModeChange}
+                      className="flex-1 rounded-xl border-2 border-[#3A3A3A] bg-[#252525] px-4 py-2.5 font-semibold text-[#E0E0E0] transition-colors hover:bg-[#2A2A2A]"
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmModeChange}
+                      className="flex-1 rounded-xl bg-[#CC0000] px-4 py-2.5 font-semibold text-white transition-colors hover:bg-[#B00000]"
+                      type="button"
+                    >
+                      Switch Mode
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -179,7 +267,7 @@ const Header = ({
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-65 overflow-hidden rounded-xl border-2 border-[#3A3A3A] bg-[#252525] shadow-xl">
+                <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border-2 border-[#3A3A3A] bg-[#252525] shadow-xl">
                   <div className="border-b border-[#3A3A3A] p-4">
                     <p className="font-semibold text-[#E0E0E0]">
                       {profileData.firstName} {profileData.lastName}

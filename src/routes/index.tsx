@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-do
 import { lazy, Suspense, type ReactElement } from 'react';
 import type { User } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
+import { useRouteProtection } from '../hooks/useRouteProtection';
 
 // Lazy load all page components for code splitting
 const Home = lazy(() => import('../pages/Home'));
@@ -149,6 +150,9 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
   const setSelectedLocation = useNavigationStore((state) => state.setSelectedLocation);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
+
   return (
     <Browse
       foodItems={foodItems}
@@ -222,6 +226,10 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   return (
     <ViewProfileWrapper
@@ -251,6 +259,9 @@ const CartWrapper = (
   const profileData = useAuthStore((state) => state.profileData);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   return (
     <Cart
@@ -286,6 +297,10 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
   const cart = useCartStore((state) => state.cart);
   const profileData = useAuthStore((state) => state.profileData);
   const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   return (
     <Checkout
@@ -302,6 +317,15 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
+      onModeChange={(mode) => {
+        setUserMode(mode);
+        if (mode === 'seller') {
+          setTimeout(() => navigate('/seller/dashboard'), 300);
+        } else {
+          setTimeout(() => navigate('/browse'), 300);
+        }
+      }}
+      onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
     />
   );
@@ -425,6 +449,9 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
+
   // Calculate pending orders count
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -472,6 +499,9 @@ const CreateListingWrapper = (
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   // Calculate pending orders count
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
@@ -522,6 +552,9 @@ const EditListingWrapper = (
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
+
   // Calculate pending orders count
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -571,6 +604,9 @@ const SellerListingsWrapper = (
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   // Calculate pending orders count
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
@@ -629,6 +665,9 @@ const SellerOrdersWrapper = (
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   // Calculate pending orders count
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
