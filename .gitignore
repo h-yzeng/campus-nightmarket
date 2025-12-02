@@ -54,3 +54,4 @@ functions/.runtimeconfig.json
 *.sw?
 .claude/
 *.json
+.vercel
