@@ -19,6 +19,9 @@ interface CheckoutProps {
   ) => Promise<void>;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onModeChange?: (mode: UserMode) => void;
+  onSellerDashboardClick?: () => void;
+  onOrdersClick?: () => void;
   onLogoClick?: () => void;
 }
 
@@ -32,6 +35,9 @@ const Checkout = ({
   onPlaceOrder,
   onSignOut,
   onProfileClick,
+  onModeChange,
+  onSellerDashboardClick,
+  onOrdersClick,
   onLogoClick,
 }: CheckoutProps) => {
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('Cash');
@@ -92,6 +98,9 @@ const Checkout = ({
         onCartClick={onBackToCart}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onModeChange={onModeChange}
+        onSellerDashboardClick={onSellerDashboardClick}
+        onOrdersClick={onOrdersClick}
         onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}
