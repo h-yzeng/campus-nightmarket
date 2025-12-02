@@ -53,3 +53,4 @@ functions/.runtimeconfig.json
 *.sln
 *.sw?
 .claude/
+*.json
