@@ -8,11 +8,13 @@ import {
   ArrowLeft,
   Loader2,
   AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { toast } from 'sonner';
 
 interface UserOrdersProps {
   orders: Order[];
@@ -28,7 +30,9 @@ interface UserOrdersProps {
   onSellerDashboardClick?: () => void;
   onModeChange?: (mode: UserMode) => void;
   onLogoClick?: () => void;
+  onAddToCart?: (item: CartItem) => void;
   loading?: boolean;
+  pendingOrdersCount?: number;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -47,7 +51,9 @@ const UserOrders = ({
   onSellerDashboardClick,
   onModeChange,
   onLogoClick,
+  onAddToCart,
   loading = false,
+  pendingOrdersCount = 0,
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
@@ -96,6 +102,24 @@ const UserOrders = ({
     }
   };
 
+  const handleOrderAgain = (event: React.MouseEvent, order: Order) => {
+    event.stopPropagation(); // Prevent navigation to order details
+
+    if (!onAddToCart) {
+      toast.error('Unable to add items to cart');
+      return;
+    }
+
+    // Add all items from the order to cart
+    let addedCount = 0;
+    order.items.forEach((item) => {
+      onAddToCart(item);
+      addedCount++;
+    });
+
+    toast.success(`Added ${addedCount} item${addedCount > 1 ? 's' : ''} to cart!`);
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <Header
@@ -110,6 +134,7 @@ const UserOrders = ({
         onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}
+        pendingOrdersCount={pendingOrdersCount}
       />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
@@ -281,6 +306,20 @@ const UserOrders = ({
                     </span>
                   </div>
                 </div>
+
+                {/* Order Again Button - Only show for completed orders */}
+                {order.status === 'completed' && onAddToCart && (
+                  <div className="mt-4 border-t-2 border-[#3A3A3A] pt-4">
+                    <button
+                      type="button"
+                      onClick={(e) => handleOrderAgain(e, order)}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#CC0000] py-3 font-bold text-white transition-all hover:bg-[#AA0000]"
+                    >
+                      <RefreshCw size={18} />
+                      Order Again
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

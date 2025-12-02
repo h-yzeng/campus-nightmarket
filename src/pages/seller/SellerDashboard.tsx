@@ -21,6 +21,7 @@ interface SellerDashboardProps {
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
   onLogoClick?: () => void;
+  pendingOrdersCount?: number;
 }
 
 const SellerDashboard = ({
@@ -39,6 +40,7 @@ const SellerDashboard = ({
   onOrdersClick,
   onSellerDashboardClick,
   onLogoClick,
+  pendingOrdersCount = 0,
 }: SellerDashboardProps) => {
   const recentOrders = incomingOrders.slice(0, 5);
 
@@ -62,6 +64,7 @@ const SellerDashboard = ({
         onSellerDashboardClick={onSellerDashboardClick}
         onLogoClick={onLogoClick}
         showCart={true}
+        pendingOrdersCount={pendingOrdersCount}
       />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">

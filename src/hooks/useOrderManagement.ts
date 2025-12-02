@@ -10,6 +10,7 @@ import type { PageType } from './useNavigation';
 import type { User } from 'firebase/auth';
 import { logger } from '../utils/logger';
 import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
+import { toast } from 'sonner';
 
 interface UseOrderManagementProps {
   user: User | null;
@@ -40,7 +41,7 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
       RATE_LIMITS.ORDER_CREATION
     );
     if (!rateLimit.allowed) {
-      alert(rateLimit.message || 'Too many orders. Please try again later.');
+      toast.error(rateLimit.message || 'Too many orders. Please try again later.');
       return;
     }
 
@@ -129,11 +130,11 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
         logger.general('[useOrderManagement] All orders created successfully');
         clearCart();
         setCurrentPage('userOrders');
-        alert('All orders placed successfully!');
+        toast.success('All orders placed successfully!');
       } else if (successfulOrders.length === 0) {
         // All orders failed
         logger.error('[useOrderManagement] All orders failed');
-        alert('Failed to place orders. Please try again.');
+        toast.error('Failed to place orders. Please try again.');
       } else {
         // Partial success
         logger.warn('[useOrderManagement] Some orders failed:', {
@@ -141,17 +142,16 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
           failed: failedOrders,
         });
 
-        alert(
-          `${successfulOrders.length} order(s) placed successfully!\n` +
-            `${failedOrders.length} order(s) failed for: ${failedOrders.join(', ')}\n\n` +
-            'Please review your cart and try again for failed orders.'
+        toast.warning(
+          `${successfulOrders.length} order(s) placed successfully! ${failedOrders.length} order(s) failed for: ${failedOrders.join(', ')}. Please review your cart and try again for failed orders.`,
+          { duration: 6000 }
         );
 
         setCurrentPage('userOrders');
       }
     } catch (err) {
       logger.error('[useOrderManagement] Unexpected error placing order:', err);
-      alert('An unexpected error occurred. Please check your orders and try again.');
+      toast.error('An unexpected error occurred. Please check your orders and try again.');
     }
   };
 
@@ -169,10 +169,11 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
       logger.general('[useOrderManagement] Cancelling order:', order.firebaseId);
       await cancelOrderMutation.mutateAsync(order.firebaseId);
       logger.general('[useOrderManagement] Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       setCurrentPage('userOrders');
     } catch (err) {
       logger.error('[useOrderManagement] Error cancelling order:', err);
-      alert('Failed to cancel order. Please try again.');
+      toast.error('Failed to cancel order. Please try again.');
     }
   };
 
@@ -190,9 +191,19 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
       logger.general('[useOrderManagement] Updating order status:', order.firebaseId, 'to', status);
       await updateOrderStatusMutation.mutateAsync({ orderId: order.firebaseId, status });
       logger.general('[useOrderManagement] Order status updated successfully');
+
+      // Show success toast with status-specific message
+      const statusMessages = {
+        confirmed: 'Order confirmed! Buyer will be notified.',
+        ready: 'Order marked as ready for pickup!',
+        completed: 'Order completed successfully!',
+        cancelled: 'Order has been cancelled.',
+        pending: 'Order status updated.',
+      };
+      toast.success(statusMessages[status] || 'Order status updated successfully');
     } catch (err) {
       logger.error('[useOrderManagement] Error updating order status:', err);
-      alert('Failed to update order status. Please try again.');
+      toast.error('Failed to update order status. Please try again.');
     }
   };
 

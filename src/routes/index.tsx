@@ -313,12 +313,17 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
   const { data: buyerOrders = [], isLoading: buyerOrdersLoading } = useBuyerOrdersQuery(user?.uid);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
+  const addToCart = useCartStore((state) => state.addToCart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Calculate pending orders count for seller mode
+  const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
   return (
     <UserOrders
@@ -344,6 +349,8 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
       }}
       onLogoClick={() => navigate('/browse')}
       loading={buyerOrdersLoading}
+      onAddToCart={addToCart}
+      pendingOrdersCount={pendingOrdersCount}
     />
   );
 };
@@ -361,6 +368,7 @@ const OrderDetailsWrapper = (
   // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
+  const addToCart = useCartStore((state) => state.addToCart);
   const userMode = useNavigationStore((state) => state.userMode);
 
   const order = buyerOrders.find((o) => o.id === parseInt(orderId || '0'));
@@ -398,6 +406,7 @@ const OrderDetailsWrapper = (
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
       onLogoClick={() => navigate('/browse')}
+      onAddToCart={addToCart}
     />
   );
 };
@@ -415,6 +424,9 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Calculate pending orders count
+  const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
   return (
     <SellerDashboard
@@ -441,6 +453,7 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
+      pendingOrdersCount={pendingOrdersCount}
     />
   );
 };
@@ -450,11 +463,18 @@ const CreateListingWrapper = (
 ) => {
   const navigate = useNavigate();
 
-  // Get data from stores
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Calculate pending orders count
+  const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
   return (
     <CreateListing
@@ -481,6 +501,7 @@ const CreateListingWrapper = (
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
+      pendingOrdersCount={pendingOrdersCount}
     />
   );
 };
@@ -491,11 +512,18 @@ const EditListingWrapper = (
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
 
-  // Get data from stores
+  // Get data from React Query
+  const user = useAuthStore((state) => state.user);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
+
+  // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Calculate pending orders count
+  const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
   return (
     <EditListing
@@ -523,6 +551,7 @@ const EditListingWrapper = (
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
+      pendingOrdersCount={pendingOrdersCount}
     />
   );
 };
@@ -535,12 +564,16 @@ const SellerListingsWrapper = (
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
   const { data: listings = [] } = useSellerListingsQuery(user?.uid);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Calculate pending orders count
+  const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
   return (
     <SellerListings
@@ -567,6 +600,7 @@ const SellerListingsWrapper = (
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
+      pendingOrdersCount={pendingOrdersCount}
     />
   );
 };
@@ -596,6 +630,9 @@ const SellerOrdersWrapper = (
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
+  // Calculate pending orders count
+  const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
+
   return (
     <SellerOrders
       profileData={profileData}
@@ -621,6 +658,7 @@ const SellerOrdersWrapper = (
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => navigate('/browse')}
       loading={sellerOrdersLoading}
+      pendingOrdersCount={pendingOrdersCount}
     />
   );
 };

@@ -66,8 +66,9 @@ export const useBuyerOrdersQuery = (userId: string | undefined, refetchInterval?
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
-    refetchInterval: refetchInterval || 5000, // Auto-refetch every 10 seconds by default
+    refetchInterval: refetchInterval !== undefined ? refetchInterval : 3000, // Auto-refetch every 3 seconds by default
     refetchOnWindowFocus: true, // Refetch when user returns to the page
+    refetchIntervalInBackground: false, // Don't refetch when tab is in background to save resources
   });
 };
 
@@ -80,7 +81,8 @@ export const useSellerOrdersQuery = (userId: string | undefined, refetchInterval
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
-    refetchInterval: refetchInterval || 5000, // Auto-refetch every 10 seconds by default
+    refetchInterval: refetchInterval !== undefined ? refetchInterval : 3000, // Auto-refetch every 3 seconds for sellers (more critical)
     refetchOnWindowFocus: true, // Refetch when user returns to the page
+    refetchIntervalInBackground: false, // Don't refetch when tab is in background
   });
 };

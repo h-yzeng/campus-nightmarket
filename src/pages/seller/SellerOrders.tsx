@@ -31,6 +31,7 @@ interface SellerOrdersProps {
   onSellerDashboardClick: () => void;
   onLogoClick?: () => void;
   loading?: boolean;
+  pendingOrdersCount?: number;
 }
 
 type OrderTab = 'active' | 'completed';
@@ -51,6 +52,7 @@ const SellerOrders = ({
   onSellerDashboardClick,
   onLogoClick,
   loading = false,
+  pendingOrdersCount = 0,
 }: SellerOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('active');
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
@@ -128,6 +130,7 @@ const SellerOrders = ({
         onSellerDashboardClick={onSellerDashboardClick}
         onLogoClick={onLogoClick}
         showCart={true}
+        pendingOrdersCount={pendingOrdersCount}
       />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">

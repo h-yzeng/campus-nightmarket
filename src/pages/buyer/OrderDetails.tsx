@@ -12,6 +12,7 @@ import {
   XCircle,
   AlertCircle,
   Star,
+  RefreshCw,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem, Review } from '../../types';
@@ -19,6 +20,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ReviewModal from '../../components/ReviewModal';
 import OrderTimeline from '../../components/orders/OrderTimeline';
+import { toast } from 'sonner';
 
 interface OrderDetailsProps {
   order: Order;
@@ -38,6 +40,7 @@ interface OrderDetailsProps {
   onSignOut: () => void;
   onProfileClick: () => void;
   onLogoClick?: () => void;
+  onAddToCart?: (item: CartItem) => void;
 }
 
 const OrderDetails = ({
@@ -58,6 +61,7 @@ const OrderDetails = ({
   onSignOut,
   onProfileClick,
   onLogoClick,
+  onAddToCart,
 }: OrderDetailsProps) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -105,6 +109,21 @@ const OrderDetails = ({
     if (onSubmitReview) {
       await onSubmitReview(order.id, rating, comment);
     }
+  };
+
+  const handleOrderAgain = () => {
+    if (!onAddToCart) {
+      toast.error('Unable to add items to cart');
+      return;
+    }
+
+    let addedCount = 0;
+    order.items.forEach((item) => {
+      onAddToCart(item);
+      addedCount++;
+    });
+
+    toast.success(`Added ${addedCount} item${addedCount > 1 ? 's' : ''} to cart!`);
   };
 
   const canLeaveReview = order.status === 'completed' && !order.hasReview && onSubmitReview;
@@ -440,6 +459,18 @@ const OrderDetails = ({
                   })}
                 </p>
               </div>
+            )}
+
+            {/* Order Again */}
+            {order.status === 'completed' && onAddToCart && (
+              <button
+                type="button"
+                onClick={handleOrderAgain}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-[#CC0000] bg-neutral-800 py-3 font-bold text-[#CC0000] transition-all hover:bg-[#2A0A0A]"
+              >
+                <RefreshCw size={20} />
+                Order Again
+              </button>
             )}
           </div>
         </div>

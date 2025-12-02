@@ -16,6 +16,7 @@ interface HeaderProps {
   onSellerDashboardClick?: () => void;
   onLogoClick?: () => void;
   showCart?: boolean;
+  pendingOrdersCount?: number;
 }
 
 const Header = ({
@@ -30,6 +31,7 @@ const Header = ({
   onSellerDashboardClick,
   onLogoClick,
   showCart = false,
+  pendingOrdersCount = 0,
 }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -211,6 +213,11 @@ const Header = ({
                     >
                       <LayoutGrid size={18} />
                       <span>Seller Dashboard</span>
+                      {userMode === 'seller' && pendingOrdersCount > 0 && (
+                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white">
+                          {pendingOrdersCount}
+                        </span>
+                      )}
                     </button>
                   )}
 
@@ -225,6 +232,11 @@ const Header = ({
                     >
                       <Package size={18} />
                       <span>My Orders</span>
+                      {userMode === 'seller' && pendingOrdersCount > 0 && (
+                        <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white animate-pulse">
+                          {pendingOrdersCount}
+                        </span>
+                      )}
                     </button>
                   )}
 

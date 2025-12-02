@@ -22,6 +22,7 @@ interface EditListingProps {
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
   onLogoClick?: () => void;
+  pendingOrdersCount?: number;
 }
 
 const EditListing = ({
@@ -38,6 +39,7 @@ const EditListing = ({
   onOrdersClick,
   onSellerDashboardClick,
   onLogoClick,
+  pendingOrdersCount = 0,
 }: EditListingProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -197,6 +199,7 @@ const EditListing = ({
           onSellerDashboardClick={onSellerDashboardClick}
           onLogoClick={onLogoClick}
           showCart={true}
+          pendingOrdersCount={pendingOrdersCount}
         />
         <main className="flex flex-1 items-center justify-center">
           <div className="text-center">
@@ -223,6 +226,7 @@ const EditListing = ({
         onSellerDashboardClick={onSellerDashboardClick}
         onLogoClick={onLogoClick}
         showCart={true}
+        pendingOrdersCount={pendingOrdersCount}
       />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">

@@ -22,6 +22,7 @@ interface CreateListingProps {
   onOrdersClick: () => void;
   onSellerDashboardClick: () => void;
   onLogoClick?: () => void;
+  pendingOrdersCount?: number;
 }
 
 const CreateListing = ({
@@ -37,6 +38,7 @@ const CreateListing = ({
   onOrdersClick,
   onSellerDashboardClick,
   onLogoClick,
+  pendingOrdersCount = 0,
 }: CreateListingProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -172,6 +174,7 @@ const CreateListing = ({
         onSellerDashboardClick={onSellerDashboardClick}
         onLogoClick={onLogoClick}
         showCart={true}
+        pendingOrdersCount={pendingOrdersCount}
       />
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-8">
