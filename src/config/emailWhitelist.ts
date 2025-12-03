@@ -5,7 +5,7 @@
 export const VERIFICATION_BYPASS_EMAILS: string[] = [
   // Add your email here for testing
   // Example: 'yourname@hawk.illinoistech.edu',
-  'jdoe@hawk.illinoistech.edu'
+  'jdoe@hawk.illinoistech.edu',
 ];
 
 /**
