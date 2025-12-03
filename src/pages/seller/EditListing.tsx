@@ -82,7 +82,7 @@ const EditListing = ({
     'The Quad',
   ];
 
-  const categories = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts', 'Drinks', 'Other'];
+  const categories = ['Snacks', 'Desserts', 'Drinks', 'Other'];
 
   useEffect(() => {
     const loadListing = async () => {

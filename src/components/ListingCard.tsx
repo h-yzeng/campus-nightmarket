@@ -10,11 +10,7 @@ interface ListingCardProps {
 }
 
 const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: ListingCardProps) => {
-  const isPopular =
-    item.name.toLowerCase().includes('ramen') ||
-    item.name.toLowerCase().includes('sushi') ||
-    item.name.toLowerCase().includes('pizza') ||
-    item.name.toLowerCase().includes('taco');
+  const isPopular = item.purchaseCount !== undefined && item.purchaseCount > 10;
 
   return (
     <div className="transform overflow-hidden rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] shadow-md transition-all hover:-translate-y-1 hover:shadow-xl">
@@ -34,7 +30,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
         <div className="absolute top-3 right-3 flex flex-col gap-2">
           {isPopular && (
             <span className="rounded-full bg-[#FF9900] px-3 py-1 text-xs font-bold text-white shadow-md">
-              POPULAR
+              🔥 POPULAR
             </span>
           )}
           {item.isAvailable !== undefined && (
@@ -72,7 +68,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <span className="text-3xl font-bold text-[#CC0000]">${item.price}</span>
+          <span className="text-3xl font-bold text-[#CC0000]">${item.price.toFixed(2)}</span>
           <button
             type="button"
             onClick={() => onAddToCart(item)}

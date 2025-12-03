@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth';
 import { useCart } from './hooks/useCart';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useNotifications } from './hooks/useNotifications';
+import { useInactivityTimeout } from './hooks/useInactivityTimeout';
 import {
   useDeleteListingMutation,
   useToggleListingAvailabilityMutation,
@@ -88,6 +89,12 @@ function App() {
     handleSignOut();
     clearCart();
   };
+
+  // Auto-logout after 10 minutes of inactivity
+  useInactivityTimeout({
+    onTimeout: wrappedHandleSignOut,
+    isAuthenticated: !!user,
+  });
 
   const wrappedHandleCreateListing = async () => {
     queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });

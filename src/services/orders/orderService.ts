@@ -9,6 +9,7 @@ import {
   where,
   orderBy,
   serverTimestamp,
+  increment,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import {
@@ -231,7 +232,24 @@ export const cancelOrder = async (orderId: string): Promise<void> => {
 
 export const completeOrder = async (orderId: string): Promise<void> => {
   try {
+    // Get the order to access its items
+    const order = await getOrder(orderId);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // Update order status to completed
     await updateOrderStatus(orderId, 'completed');
+
+    // Increment purchase count for each listing in the order
+    const updatePromises = order.items.map(async (item) => {
+      const listingRef = doc(db, COLLECTIONS.LISTINGS, item.listingId);
+      await updateDoc(listingRef, {
+        purchaseCount: increment(item.quantity),
+      });
+    });
+
+    await Promise.all(updatePromises);
   } catch (error) {
     logger.error('Error completing order:', error);
     throw new Error('Failed to complete order');

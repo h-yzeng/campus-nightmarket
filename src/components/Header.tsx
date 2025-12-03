@@ -121,7 +121,7 @@ const Header = ({
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC0000]">
               <span className="text-2xl">🌙</span>
             </div>
-            <div>
+            <div className="text-left">
               <h1 className="text-xl font-bold text-[#CC0000]">Night Market</h1>
               <p className="text-xs text-[#B0B0B0]">Campus Late-Night Food Exchange</p>
             </div>

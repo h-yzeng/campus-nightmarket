@@ -34,15 +34,7 @@ const FiltersPanel = ({
 }: FiltersPanelProps) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  const categories = [
-    'All Categories',
-    'Breakfast',
-    'Lunch',
-    'Dinner',
-    'Snacks',
-    'Drinks',
-    'Desserts',
-  ];
+  const categories = ['All Categories', 'Snacks', 'Drinks', 'Desserts'];
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
     { value: 'price-low', label: 'Price: Low to High' },

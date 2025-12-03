@@ -12,6 +12,7 @@ export interface FoodItem {
   isActive?: boolean; // Controls visibility in Browse.tsx (active = shows, inactive = hidden)
   isAvailable?: boolean; // Controls supply status (available = in stock, unavailable = sold out)
   datePosted?: string;
+  purchaseCount?: number; // Total number of purchases for this item
 }
 
 export interface CartItem extends FoodItem {
@@ -54,6 +55,7 @@ export interface Listing {
   isAvailable: boolean; // Controls supply status (available = in stock, unavailable = sold out)
   category: string;
   datePosted: string;
+  purchaseCount?: number; // Total number of purchases for this item
 }
 
 export type ListingWithFirebaseId = Listing & { firebaseId: string };

@@ -45,6 +45,7 @@ export interface FirebaseListing {
   isActive: boolean; // Controls visibility in Browse.tsx (active = shows, inactive = hidden)
   isAvailable: boolean; // Controls supply status (available = in stock, unavailable = sold out)
   category: string;
+  purchaseCount?: number; // Total number of purchases for this item
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

@@ -33,6 +33,7 @@ const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem =>
     category: listing.category,
     isActive: listing.isActive,
     isAvailable: listing.isAvailable,
+    purchaseCount: listing.purchaseCount,
     datePosted: listing.createdAt.toDate().toISOString(),
   };
 };
@@ -50,6 +51,7 @@ const convertFirebaseListingToListingWithId = (listing: FirebaseListing): Listin
     isActive: listing.isActive,
     isAvailable: listing.isAvailable,
     category: listing.category,
+    purchaseCount: listing.purchaseCount,
     datePosted: listing.createdAt.toDate().toISOString(),
     firebaseId: listing.id,
   };

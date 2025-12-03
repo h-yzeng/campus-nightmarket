@@ -17,6 +17,7 @@ const convertFirebaseListingToFoodItem = (listing: FirebaseListing): FoodItem =>
     description: listing.description,
     category: listing.category,
     isAvailable: listing.isAvailable,
+    purchaseCount: listing.purchaseCount,
     datePosted: listing.createdAt
       ? new Date(listing.createdAt.seconds * 1000).toISOString()
       : undefined,
