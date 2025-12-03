@@ -57,7 +57,7 @@ const EmailVerificationBanner = ({
     } catch (error) {
       setMessage({
         type: 'error',
-        text: 'Failed to refresh status',
+        text: error instanceof Error ? error.message : 'Failed to refresh status',
       });
     } finally {
       setReloading(false);
