@@ -66,7 +66,7 @@ const CreateListing = ({
     'The Quad',
   ];
 
-  const categories = ['Snacks', 'Desserts', 'Drinks', 'Other'];
+  const categories = ['Meals', 'Snacks', 'Desserts', 'Drinks', 'Other'];
 
   const isFormValid =
     name.trim() !== '' &&
