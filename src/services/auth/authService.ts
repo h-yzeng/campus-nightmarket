@@ -37,9 +37,15 @@ export const signUp = async (data: SignupData): Promise<User> => {
 
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Send email verification
+    // Send email verification with proper action code settings
     try {
-      await sendEmailVerification(userCredential.user);
+      const actionCodeSettings = {
+        // URL to redirect to after email verification
+        url: window.location.origin + '/browse',
+        handleCodeInApp: false, // Let Firebase handle verification on their servers
+      };
+
+      await sendEmailVerification(userCredential.user, actionCodeSettings);
       logger.info('Verification email sent to:', email);
     } catch (verificationError) {
       logger.error('Failed to send verification email:', verificationError);
@@ -66,7 +72,13 @@ export const resendVerificationEmail = async (): Promise<void> => {
       throw new Error('Email is already verified');
     }
 
-    await sendEmailVerification(user);
+    const actionCodeSettings = {
+      // URL to redirect to after email verification
+      url: window.location.origin + '/browse',
+      handleCodeInApp: false, // Let Firebase handle verification on their servers
+    };
+
+    await sendEmailVerification(user, actionCodeSettings);
     logger.info('Verification email resent to:', user.email);
   } catch (error) {
     throw handleAuthError(error as AuthError);

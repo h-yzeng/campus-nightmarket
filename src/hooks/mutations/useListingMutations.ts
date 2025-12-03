@@ -18,7 +18,10 @@ export const useCreateListingMutation = () => {
       // Invalidate and refetch all listings immediately
       queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
       // Invalidate seller's listings specifically
-      queryClient.invalidateQueries({ queryKey: ['listings', 'seller', variables.sellerId], refetchType: 'active' });
+      queryClient.invalidateQueries({
+        queryKey: ['listings', 'seller', variables.sellerId],
+        refetchType: 'active',
+      });
     },
   });
 };

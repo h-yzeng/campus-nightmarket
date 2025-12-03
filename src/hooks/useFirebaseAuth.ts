@@ -6,6 +6,8 @@ import {
   signIn,
   logOut,
   resetPassword,
+  resendVerificationEmail,
+  reloadUser,
   type SignupData,
   type LoginData,
 } from '../services/auth/authService';
@@ -29,6 +31,8 @@ export interface UseFirebaseAuthReturn {
   handleUpdateProfile: (updates: Partial<FirebaseUserProfile>) => Promise<void>;
   handleBecomeSeller: (sellerInfo: FirebaseUserProfile['sellerInfo']) => Promise<void>;
   handleResetPassword: (email: string) => Promise<void>;
+  handleResendVerification: () => Promise<void>;
+  handleReloadUser: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -191,6 +195,32 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     }
   };
 
+  const handleResendVerification = async (): Promise<void> => {
+    setError(null);
+
+    try {
+      await resendVerificationEmail();
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to resend verification email';
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
+  const handleReloadUser = async (): Promise<void> => {
+    try {
+      await reloadUser();
+      // Refresh the user object to get latest emailVerified status
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        setUser({ ...currentUser });
+      }
+    } catch (err) {
+      logger.error('Error reloading user:', err);
+    }
+  };
+
   const clearError = (): void => {
     setError(null);
   };
@@ -206,6 +236,8 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     handleUpdateProfile,
     handleBecomeSeller,
     handleResetPassword,
+    handleResendVerification,
+    handleReloadUser,
     clearError,
   };
 };

@@ -14,6 +14,8 @@ import { createReview } from './services/reviews/reviewService';
 import { updateOrder } from './services/orders/orderService';
 import { AppRoutes } from './routes';
 import ErrorBoundary from './components/ErrorBoundary';
+import EmailVerificationBanner from './components/common/EmailVerificationBanner';
+import { shouldBypassVerification } from './config/emailWhitelist';
 import type { Order, CartItem } from './types';
 import { useAuthStore, useNotificationStore } from './stores';
 import { logger } from './utils/logger';
@@ -38,6 +40,8 @@ function App() {
     handleLogin,
     handleSaveProfile,
     handleSignOut,
+    handleResendVerification,
+    handleReloadUser,
     user,
   } = useAuth();
 
@@ -158,6 +162,14 @@ function App() {
       <BrowserRouter>
         <Toaster position="top-right" theme="dark" richColors closeButton />
         <div className="app">
+          {/* Show email verification banner if user is logged in but email is not verified and not whitelisted */}
+          {user && !user.emailVerified && !shouldBypassVerification(user.email) && (
+            <EmailVerificationBanner
+              userEmail={user.email}
+              onResendEmail={handleResendVerification}
+              onReloadUser={handleReloadUser}
+            />
+          )}
           <AppRoutes
             setProfileData={setProfileData}
             handleCreateProfile={handleCreateProfile}

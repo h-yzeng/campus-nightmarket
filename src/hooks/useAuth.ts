@@ -42,6 +42,8 @@ export const useAuth = () => {
     handleUpdateProfile,
     handleBecomeSeller: firebaseBecomeSeller,
     handleResetPassword,
+    handleResendVerification,
+    handleReloadUser,
     clearError,
   } = useFirebaseAuth();
 
@@ -179,6 +181,8 @@ export const useAuth = () => {
     handleSignOut,
     handleBecomeSeller,
     handleResetPassword,
+    handleResendVerification,
+    handleReloadUser,
     user,
     loading,
     error,
