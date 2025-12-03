@@ -1,4 +1,4 @@
-import { Camera, AlertCircle, Mail, Lock, Shield } from 'lucide-react';
+import { Camera, AlertCircle, Mail, Lock, Shield, Eye, EyeOff, Check, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { ProfileData } from '../types';
 import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../services/auth/securityService';
@@ -21,6 +21,8 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
   // Password state managed locally (not in store)
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [securityQuestion1, setSecurityQuestion1] = useState('');
   const [securityAnswer1, setSecurityAnswer1] = useState('');
@@ -32,7 +34,55 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
   };
 
   const isValidStudentId = (id: string): boolean => {
-    return /^A\d*$/.test(id);
+    return /^A\d{0,8}$/.test(id);
+  };
+
+  const getPasswordRequirements = (pwd: string) => {
+    return {
+      length: pwd.length >= 12,
+      uppercase: /[A-Z]/.test(pwd),
+      lowercase: /[a-z]/.test(pwd),
+      number: /\d/.test(pwd),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    };
+  };
+
+  const getFormErrors = (): string[] => {
+    const errors: string[] = [];
+
+    if (!profileData.firstName) errors.push('First name is required');
+    else if (!isValidName(profileData.firstName))
+      errors.push('First name contains invalid characters');
+
+    if (!profileData.lastName) errors.push('Last name is required');
+    else if (!isValidName(profileData.lastName))
+      errors.push('Last name contains invalid characters');
+
+    if (!profileData.email) errors.push('Email is required');
+    else if (!isValidEmail(profileData.email)) errors.push('Must use @hawk.illinoistech.edu email');
+
+    if (!profileData.studentId) errors.push('Student ID is required');
+    else if (!isValidStudentId(profileData.studentId) || profileData.studentId.length <= 1) {
+      errors.push('Student ID must be A followed by up to 8 digits');
+    }
+
+    if (!password) errors.push('Password is required');
+    else if (!isValidPassword(password)) errors.push('Password does not meet requirements');
+
+    if (!confirmPassword) errors.push('Password confirmation is required');
+    else if (!passwordsMatch()) errors.push('Passwords do not match');
+
+    if (!securityQuestion1) errors.push('Security question 1 is required');
+    if (!securityAnswer1.trim()) errors.push('Security answer 1 is required');
+
+    if (!securityQuestion2) errors.push('Security question 2 is required');
+    if (!securityAnswer2.trim()) errors.push('Security answer 2 is required');
+
+    if (securityQuestion1 && securityQuestion2 && securityQuestion1 === securityQuestion2) {
+      errors.push('Security questions must be different');
+    }
+
+    return errors;
   };
 
   const isValidEmail = (email: string): boolean => {
@@ -157,7 +207,10 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
     setLoading(true);
 
     if (!isFormValid) {
-      setError('Please fill out all required fields correctly');
+      const formErrors = getFormErrors();
+      setError(
+        formErrors.length > 0 ? formErrors[0] : 'Please fill out all required fields correctly'
+      );
       setLoading(false);
       return;
     }
@@ -312,61 +365,113 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                 onChange={handleStudentIdChange}
                 className={`w-full rounded-xl border-2 bg-[#2A2A2A] px-4 py-3 font-mono text-base text-white transition-all focus:ring-2 focus:outline-none ${getStudentIdBorderColor(profileData.studentId)}`}
                 placeholder="A20123456"
+                maxLength={9}
               />
+              <p className="mt-1 text-xs text-gray-400">
+                Format: A followed by up to 8 digits (e.g., A20123456)
+              </p>
               {profileData.studentId &&
                 (!isValidStudentId(profileData.studentId) || profileData.studentId.length <= 1) && (
                   <p className="mt-1 text-xs text-[#CC0000]">
-                    Must start with 'A' followed by numbers
+                    Must start with 'A' followed by numbers (max 8 digits)
                   </p>
                 )}
             </div>
 
-            <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-white">
-                  Password <span className="text-[#CC0000]">*</span>
-                </label>
-                <div className="relative">
-                  <Lock
-                    size={20}
-                    className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
-                  />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`w-full rounded-xl border-2 bg-[#2A2A2A] py-3 pr-4 pl-12 text-base text-white transition-all focus:ring-2 focus:outline-none ${getPasswordBorderColor(password)}`}
-                    placeholder="••••••••"
-                  />
-                </div>
-                {password && !isValidPassword(password) && (
-                  <p className="mt-1 text-xs text-[#CC0000]">
-                    12+ chars, uppercase, lowercase, number, special character
-                  </p>
-                )}
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-semibold text-white">
+                Password <span className="text-[#CC0000]">*</span>
+              </label>
+              <div className="relative">
+                <Lock
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`w-full rounded-xl border-2 bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:ring-2 focus:outline-none ${getPasswordBorderColor(password)}`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-white">
-                  Confirm Password <span className="text-[#CC0000]">*</span>
-                </label>
-                <div className="relative">
-                  <Lock
-                    size={20}
-                    className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
-                  />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full rounded-xl border-2 bg-[#2A2A2A] py-3 pr-4 pl-12 text-base text-white transition-all focus:ring-2 focus:outline-none ${getConfirmPasswordBorderColor()}`}
-                    placeholder="••••••••"
-                  />
-                </div>
-                {confirmPassword && !passwordsMatch() && (
-                  <p className="mt-1 text-xs text-[#CC0000]">Passwords do not match</p>
-                )}
+              {/* Password Requirements */}
+              <div className="mt-3 space-y-1.5 rounded-lg bg-[#2A2A2A] p-3">
+                <p className="mb-2 text-xs font-semibold text-gray-300">Password must contain:</p>
+                {Object.entries({
+                  length: 'At least 12 characters',
+                  uppercase: 'One uppercase letter (A-Z)',
+                  lowercase: 'One lowercase letter (a-z)',
+                  number: 'One number (0-9)',
+                  special: 'One special character (!@#$%...)',
+                }).map(([key, label]) => {
+                  const requirements = getPasswordRequirements(password);
+                  const isMet = requirements[key as keyof typeof requirements];
+                  return (
+                    <div key={key} className="flex items-center gap-2">
+                      {isMet ? (
+                        <Check size={14} className="shrink-0 text-green-500" />
+                      ) : (
+                        <X size={14} className="shrink-0 text-gray-500" />
+                      )}
+                      <span className={`text-xs ${isMet ? 'text-green-400' : 'text-gray-400'}`}>
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-semibold text-white">
+                Confirm Password <span className="text-[#CC0000]">*</span>
+              </label>
+              <div className="relative">
+                <Lock
+                  size={20}
+                  className="absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
+                />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`w-full rounded-xl border-2 bg-[#2A2A2A] py-3 pr-12 pl-12 text-base text-white transition-all focus:ring-2 focus:outline-none ${getConfirmPasswordBorderColor()}`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute top-1/2 right-4 -translate-y-1/2 transform text-[#76777B] transition-colors hover:text-white"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {confirmPassword && !passwordsMatch() && (
+                <p className="mt-1 text-xs text-[#CC0000]">Passwords do not match</p>
+              )}
+            </div>
+
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-semibold text-white">
+                Tell us something about yourself
+              </label>
+              <textarea
+                value={profileData.bio}
+                onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                className="min-h-[120px] w-full resize-none rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+                placeholder="I like coding and games..."
+              />
             </div>
 
             <div className="mb-6 rounded-xl border-2 border-blue-800 bg-blue-950 p-6">
@@ -378,6 +483,14 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                 Choose 2 security questions to help recover your account if you forget your
                 password.
               </p>
+
+              <div className="mb-4 flex gap-2 rounded-lg border border-yellow-600 bg-yellow-900/30 p-3">
+                <AlertCircle size={16} className="mt-0.5 shrink-0 text-yellow-400" />
+                <p className="text-xs text-yellow-200">
+                  <strong>Important:</strong> Remember your answers! You'll need them to recover
+                  your account if you forget your password.
+                </p>
+              </div>
 
               <div className="space-y-4">
                 <div>
@@ -398,13 +511,18 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                     ))}
                   </select>
                   {securityQuestion1 && (
-                    <input
-                      type="text"
-                      value={securityAnswer1}
-                      onChange={(e) => setSecurityAnswer1(e.target.value)}
-                      className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
-                      placeholder="Your answer"
-                    />
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-white">
+                        Your Answer <span className="text-[#CC0000]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={securityAnswer1}
+                        onChange={(e) => setSecurityAnswer1(e.target.value)}
+                        className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+                        placeholder="Your answer"
+                      />
+                    </div>
                   )}
                 </div>
 
@@ -426,13 +544,18 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                     ))}
                   </select>
                   {securityQuestion2 && (
-                    <input
-                      type="text"
-                      value={securityAnswer2}
-                      onChange={(e) => setSecurityAnswer2(e.target.value)}
-                      className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
-                      placeholder="Your answer"
-                    />
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-white">
+                        Your Answer <span className="text-[#CC0000]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={securityAnswer2}
+                        onChange={(e) => setSecurityAnswer2(e.target.value)}
+                        className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+                        placeholder="Your answer"
+                      />
+                    </div>
                   )}
                 </div>
 
@@ -442,18 +565,6 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                     <p className="text-xs text-[#CC0000]">Please select two different questions</p>
                   )}
               </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="mb-2 block text-sm font-semibold text-white">
-                Tell us something about yourself
-              </label>
-              <textarea
-                value={profileData.bio}
-                onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                className="min-h-[120px] w-full resize-none rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-white transition-all focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
-                placeholder="I like coding and games..."
-              />
             </div>
 
             <div className="mb-6 flex gap-3 rounded-xl border-2 border-red-800 bg-red-950 p-4">
@@ -472,6 +583,7 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
             )}
 
             <button
+              type="button"
               onClick={handleSubmit}
               disabled={!isFormValid || loading}
               className={`w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 disabled:transform-none disabled:hover:shadow-lg ${
@@ -492,6 +604,7 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
                 <p className="text-sm text-gray-400">
                   Already have an account?{' '}
                   <button
+                    type="button"
                     onClick={onGoToLogin}
                     className="font-semibold text-[#CC0000] hover:underline"
                   >
