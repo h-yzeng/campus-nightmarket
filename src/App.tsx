@@ -18,7 +18,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import EmailVerificationBanner from './components/common/EmailVerificationBanner';
 import { shouldBypassVerification } from './config/emailWhitelist';
 import type { Order, CartItem } from './types';
-import { useAuthStore, useNotificationStore } from './stores';
+import { useAuthStore, useNotificationStore, useNavigationStore } from './stores';
 import { logger } from './utils/logger';
 import { rateLimiter } from './utils/rateLimiter';
 
@@ -64,6 +64,8 @@ function App() {
   // Sync only auth and notifications to stores (data now comes from React Query, cart uses Zustand directly)
   const setUser = useAuthStore((state) => state.setUser);
   const setStoreProfileData = useAuthStore((state) => state.setProfileData);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const resetNavigation = useNavigationStore((state) => state.resetNavigation);
   const setNotifications = useNotificationStore((state) => state.setNotifications);
   const setNotificationHandlers = useNotificationStore((state) => state.setHandlers);
 
@@ -88,6 +90,8 @@ function App() {
   const wrappedHandleSignOut = () => {
     handleSignOut();
     clearCart();
+    clearAuth();
+    resetNavigation();
   };
 
   // Auto-logout after 10 minutes of inactivity

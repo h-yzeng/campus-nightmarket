@@ -268,7 +268,7 @@ const Signup = ({
               <button
                 type="button"
                 onClick={onBrowseFood}
-                className="mt-4 text-sm font-semibold text-[#CC0000] underline transition-colors hover:text-white"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border-2 border-[#CC0000] bg-transparent px-6 py-2.5 text-sm font-bold text-[#CC0000] transition-all hover:bg-[#CC0000] hover:text-white"
               >
                 👀 Browse available food first
               </button>

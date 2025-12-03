@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
-import { lazy, Suspense, type ReactElement } from 'react';
+import { lazy, Suspense, useState, useEffect, type ReactElement } from 'react';
 import type { User } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
 import { useRouteProtection } from '../hooks/useRouteProtection';
@@ -112,7 +112,22 @@ const LoginWrapper = (props: Pick<AppRoutesProps, 'handleLogin'>) => {
 
 const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCreateProfile'>) => {
   const navigate = useNavigate();
-  const profileData = useAuthStore((state) => state.profileData);
+
+  // Use local state initialized with empty data for new signups
+  const [localProfileData, setLocalProfileData] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    studentId: '',
+    bio: '',
+    photo: null,
+    isSeller: false,
+  });
+
+  // Sync local changes to parent state for profile creation
+  useEffect(() => {
+    props.setProfileData(localProfileData);
+  }, [localProfileData, props]);
 
   const handleSignupWithNavigation = async (password: string) => {
     await props.handleCreateProfile(password);
@@ -122,8 +137,8 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCre
   return (
     <Suspense fallback={<PageLoadingFallback />}>
       <Signup
-        profileData={profileData}
-        setProfileData={props.setProfileData}
+        profileData={localProfileData}
+        setProfileData={setLocalProfileData}
         onCreateProfile={handleSignupWithNavigation}
         onGoToLogin={() => navigate('/login')}
         onBrowseFood={() => navigate('/preview')}
