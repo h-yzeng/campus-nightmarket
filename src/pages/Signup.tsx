@@ -182,25 +182,14 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
         await saveSecurityQuestions(user.uid, questions);
       }
 
-      // Clear all form values after successful signup
+      // Clear sensitive form values after successful signup
+      // Note: profileData is managed by parent and user will be redirected after signup
       setPassword('');
       setConfirmPassword('');
       setSecurityQuestion1('');
       setSecurityAnswer1('');
       setSecurityQuestion2('');
       setSecurityAnswer2('');
-      setProfileData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        studentId: '',
-        bio: '',
-        photo: '',
-      });
-      // Clear the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create account. Please try again.');
     } finally {
