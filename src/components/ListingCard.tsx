@@ -19,7 +19,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           <div className="flex h-40 w-full items-center justify-center">
             <img
               src={item.image}
-              alt={item.name}
+              alt={`${item.name} - ${item.description || 'Food listing'} by ${item.seller}`}
               loading="lazy"
               className="h-full w-full rounded-lg object-cover"
             />
@@ -52,6 +52,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           type="button"
           onClick={() => onViewProfile(item.sellerId)}
           className="mb-3 text-sm font-medium text-[#FF4444] transition-colors hover:text-[#CC0000] hover:underline"
+          aria-label={`View ${item.seller}'s profile`}
         >
           by {item.seller.split(' ')[0]}
         </button>
@@ -73,6 +74,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
             type="button"
             onClick={() => onAddToCart(item)}
             className="transform rounded-lg bg-[#CC0000] px-5 py-2.5 text-sm font-bold text-white transition-all hover:scale-105 hover:shadow-lg active:scale-95"
+            aria-label={`Add ${item.name} to cart - $${item.price.toFixed(2)}`}
           >
             Add +
           </button>

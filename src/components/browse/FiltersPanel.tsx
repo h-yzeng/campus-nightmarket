@@ -1,5 +1,11 @@
 import { Search, MapPin, Filter, DollarSign, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
+import {
+  LOCATIONS,
+  ALL_LOCATIONS_OPTION,
+  CATEGORIES,
+  ALL_CATEGORIES_OPTION,
+} from '../../constants';
 
 interface FiltersPanelProps {
   searchQuery: string;
@@ -34,7 +40,6 @@ const FiltersPanel = ({
 }: FiltersPanelProps) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  const categories = ['All Categories', 'Meals', 'Snacks', 'Drinks', 'Desserts'];
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
     { value: 'price-low', label: 'Price: Low to High' },
@@ -73,15 +78,10 @@ const FiltersPanel = ({
               className="flex-1 rounded-xl border-2 border-[#3A3A3A] bg-[#252525] px-4 py-3 text-base font-medium text-[#E0E0E0] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
               aria-label="Filter by location"
             >
-              <option>All Dorms</option>
-              <option>Cunningham Hall</option>
-              <option>Kacek Hall</option>
-              <option>Carmen Hall</option>
-              <option>MSV</option>
-              <option>Rowe North</option>
-              <option>Rowe Middle</option>
-              <option>Rowe South</option>
-              <option>The Quad</option>
+              <option>{ALL_LOCATIONS_OPTION}</option>
+              {LOCATIONS.map((loc) => (
+                <option key={loc}>{loc}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -125,7 +125,8 @@ const FiltersPanel = ({
                 onChange={(e) => onCategoryChange(e.target.value)}
                 className="w-full rounded-lg border-2 border-[#3A3A3A] bg-[#1E1E1E] px-3 py-2 text-sm text-[#E0E0E0] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
               >
-                {categories.map((cat) => (
+                <option value={ALL_CATEGORIES_OPTION}>{ALL_CATEGORIES_OPTION}</option>
+                {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
                   </option>

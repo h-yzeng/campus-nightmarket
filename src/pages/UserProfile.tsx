@@ -19,6 +19,7 @@ import type { UserMode } from '../types';
 import { uploadProfilePhoto } from '../services/storage/imageService';
 import { useAuth } from '../hooks/useAuth';
 import { logger } from '../utils/logger';
+import { LOCATIONS } from '../constants';
 
 interface UserProfileProps {
   profileData: ProfileData;
@@ -348,14 +349,11 @@ const UserProfile = ({
                     title="Select your current dorm"
                   >
                     <option value="">Select your dorm...</option>
-                    <option value="Cunningham Hall">Cunningham Hall</option>
-                    <option value="Kacek Hall">Kacek Hall</option>
-                    <option value="Carmen Hall">Carmen Hall</option>
-                    <option value="MSV">MSV</option>
-                    <option value="Rowe North">Rowe North</option>
-                    <option value="Rowe Middle">Rowe Middle</option>
-                    <option value="Rowe South">Rowe South</option>
-                    <option value="The Quad">The Quad</option>
+                    {LOCATIONS.map((loc) => (
+                      <option key={loc} value={loc}>
+                        {loc}
+                      </option>
+                    ))}
                   </select>
                   <p className="mt-1 text-xs text-[#90C090]">
                     This helps buyers know your general location

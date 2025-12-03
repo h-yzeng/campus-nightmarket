@@ -117,6 +117,7 @@ const Header = ({
             onClick={handleLogoClick}
             className="flex items-center gap-3 transition-opacity hover:opacity-80"
             type="button"
+            aria-label="Go to Night Market home page"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC0000]">
               <span className="text-2xl">🌙</span>
@@ -145,6 +146,7 @@ const Header = ({
                       : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
                   }`}
                   type="button"
+                  aria-label="Switch to buyer mode"
                 >
                   <ShoppingCart
                     size={16}
@@ -161,6 +163,7 @@ const Header = ({
                       : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
                   }`}
                   type="button"
+                  aria-label="Switch to seller mode"
                 >
                   <Store
                     size={16}

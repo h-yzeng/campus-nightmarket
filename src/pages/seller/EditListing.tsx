@@ -18,6 +18,7 @@ import { uploadListingImage } from '../../services/storage/imageService';
 import { getListing, updateListing } from '../../services/listings/listingService';
 import { useAuth } from '../../hooks/useAuth';
 import { logger } from '../../utils/logger';
+import { LOCATIONS, CATEGORIES } from '../../constants';
 
 interface EditListingProps {
   listingId: string;
@@ -70,19 +71,6 @@ const EditListing = ({
   const [uploading, setUploading] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
-
-  const locations = [
-    'Cunningham Hall',
-    'Kacek Hall',
-    'Carmen Hall',
-    'MSV',
-    'Rowe North',
-    'Rowe Middle',
-    'Rowe South',
-    'The Quad',
-  ];
-
-  const categories = ['Meals', 'Snacks', 'Desserts', 'Drinks', 'Other'];
 
   useEffect(() => {
     const loadListing = async () => {
@@ -394,7 +382,7 @@ const EditListing = ({
                   title="Select a location"
                 >
                   <option value="">Select a location</option>
-                  {locations.map((loc) => (
+                  {LOCATIONS.map((loc) => (
                     <option key={loc} value={loc}>
                       {loc}
                     </option>
@@ -419,7 +407,7 @@ const EditListing = ({
                   title="Select a category"
                 >
                   <option value="">Select a category</option>
-                  {categories.map((cat) => (
+                  {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
@@ -514,6 +502,7 @@ const EditListing = ({
             <button
               onClick={handleSubmit}
               disabled={!isFormValid || updating || uploading}
+              aria-busy={updating || uploading}
               className={`w-full transform rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98 disabled:transform-none disabled:hover:shadow-lg ${
                 isFormValid && !updating && !uploading
                   ? 'cursor-pointer bg-[#CC0000]'

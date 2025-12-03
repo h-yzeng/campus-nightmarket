@@ -8,6 +8,7 @@ import { createListing } from '../../services/listings/listingService';
 import { useAuth } from '../../hooks/useAuth';
 import { logger } from '../../utils/logger';
 import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
+import { LOCATIONS, CATEGORIES } from '../../constants';
 
 interface CreateListingProps {
   profileData: ProfileData;
@@ -54,19 +55,6 @@ const CreateListing = ({
   const [uploading, setUploading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
-
-  const locations = [
-    'Cunningham Hall',
-    'Kacek Hall',
-    'Carmen Hall',
-    'MSV',
-    'Rowe North',
-    'Rowe Middle',
-    'Rowe South',
-    'The Quad',
-  ];
-
-  const categories = ['Meals', 'Snacks', 'Desserts', 'Drinks', 'Other'];
 
   const isFormValid =
     name.trim() !== '' &&
@@ -324,7 +312,7 @@ const CreateListing = ({
                   title="Select a location"
                 >
                   <option value="">Select a location</option>
-                  {locations.map((loc) => (
+                  {LOCATIONS.map((loc) => (
                     <option key={loc} value={loc}>
                       {loc}
                     </option>
@@ -349,7 +337,7 @@ const CreateListing = ({
                   title="Select a category"
                 >
                   <option value="">Select a category</option>
-                  {categories.map((cat) => (
+                  {CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
+const DEBOUNCE_DELAY = 1000; // Debounce activity updates to reduce localStorage writes
 
 interface UseInactivityTimeoutProps {
   onTimeout: () => void;
@@ -10,25 +11,34 @@ interface UseInactivityTimeoutProps {
 
 export const useInactivityTimeout = ({ onTimeout, isAuthenticated }: UseInactivityTimeoutProps) => {
   const timeoutRef = useRef<number | null>(null);
+  const debounceRef = useRef<number | null>(null);
   const lastActivityRef = useRef<number>(0);
 
-  // Update last activity timestamp in localStorage and ref
+  // Update last activity timestamp in localStorage and ref (debounced)
   const updateActivity = useCallback(() => {
     const now = Date.now();
     lastActivityRef.current = now;
-    localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
+
+    // Debounce localStorage writes to reduce overhead
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = window.setTimeout(() => {
+      localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
+    }, DEBOUNCE_DELAY);
   }, []);
 
   // Reset the inactivity timer
   const resetTimer = useCallback(() => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+      window.clearTimeout(timeoutRef.current);
     }
 
     updateActivity();
 
     // Set a new timeout
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       onTimeout();
     }, INACTIVITY_TIMEOUT);
   }, [onTimeout, updateActivity]);
@@ -62,7 +72,11 @@ export const useInactivityTimeout = ({ onTimeout, isAuthenticated }: UseInactivi
     // Cleanup
     return () => {
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+        window.clearTimeout(timeoutRef.current);
+      }
+
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current);
       }
 
       activityEvents.forEach((event) => {
