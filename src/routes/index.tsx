@@ -59,7 +59,7 @@ interface AppRoutesProps {
 
   // Listing handlers
   handleCreateListing: () => Promise<void>;
-  handleToggleAvailability: (listingId: number) => void;
+  handleToggleAvailability: (listingId: number | string) => void;
   handleDeleteListing: (listingId: number | string) => void;
   handleUpdateListing: () => Promise<void>;
 }
@@ -345,6 +345,9 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const addToCart = useCartStore((state) => state.addToCart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Protect route and auto-switch mode
+  useRouteProtection(userMode, setUserMode);
 
   // Calculate pending orders count for seller mode
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;

@@ -15,10 +15,10 @@ export const useCreateListingMutation = () => {
       return await createListing(listingData);
     },
     onSuccess: (_data, variables) => {
-      // Invalidate all listings
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-      // Invalidate seller's listings
-      queryClient.invalidateQueries({ queryKey: ['listings', 'seller', variables.sellerId] });
+      // Invalidate and refetch all listings immediately
+      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+      // Invalidate seller's listings specifically
+      queryClient.invalidateQueries({ queryKey: ['listings', 'seller', variables.sellerId], refetchType: 'active' });
     },
   });
 };
@@ -31,8 +31,8 @@ export const useUpdateListingMutation = () => {
       return await updateListing(listingId, data);
     },
     onSuccess: () => {
-      // Invalidate all listings
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      // Invalidate and refetch all listings immediately
+      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
     },
   });
 };
@@ -45,8 +45,8 @@ export const useDeleteListingMutation = () => {
       return await deleteListing(listingId);
     },
     onSuccess: () => {
-      // Invalidate all listings
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      // Invalidate and refetch all listings immediately
+      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
     },
   });
 };
@@ -59,8 +59,8 @@ export const useToggleListingAvailabilityMutation = () => {
       return await toggleListingAvailability(listingId);
     },
     onSuccess: () => {
-      // Invalidate all listings
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      // Invalidate and refetch all listings immediately
+      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
     },
   });
 };

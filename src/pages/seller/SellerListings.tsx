@@ -21,7 +21,7 @@ interface SellerListingsProps {
   listings: ListingWithFirebaseId[];
   userMode: 'buyer' | 'seller';
   onBackToDashboard: () => void;
-  onToggleAvailability: (listingId: number) => void | Promise<void>;
+  onToggleAvailability: (listingId: number | string) => void | Promise<void>;
   onDeleteListing: (listingId: number | string) => void | Promise<void>;
   onEditListing: (listingId: number | string) => void;
   onModeChange: (mode: 'buyer' | 'seller') => void;
@@ -57,8 +57,8 @@ const SellerListings = ({
   const [activeTab, setActiveTab] = useState<ListingTab>('all');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  const activeListings = listings.filter((l) => l.isAvailable);
-  const inactiveListings = listings.filter((l) => !l.isAvailable);
+  const activeListings = listings.filter((l) => l.isActive);
+  const inactiveListings = listings.filter((l) => !l.isActive);
 
   const displayListings =
     activeTab === 'active'
@@ -226,13 +226,11 @@ const SellerListings = ({
               <div
                 key={listing.firebaseId || listing.id}
                 className={`overflow-hidden rounded-2xl border-2 bg-[#1E1E1E] shadow-md transition-all hover:shadow-lg ${
-                  listing.isAvailable ? 'border-[#3A3A3A]' : 'border-[#3A3A3A] opacity-75'
+                  listing.isActive ? 'border-[#3A3A3A]' : 'border-[#3A3A3A] opacity-75'
                 }`}
               >
                 {/* Listing Image */}
-                <div
-                  className={`relative ${listing.isAvailable ? 'bg-[#252525]' : 'bg-[#252525]'}`}
-                >
+                <div className={`relative ${listing.isActive ? 'bg-[#252525]' : 'bg-[#252525]'}`}>
                   <div className="aspect-square w-full overflow-hidden">
                     <img
                       src={listing.image}
@@ -244,8 +242,8 @@ const SellerListings = ({
 
                   {/* Status Badge */}
                   <div className="absolute top-3 right-3">
-                    {listing.isAvailable ? (
-                      <span className="flex items-center gap-1 rounded-full border-2 border-green-300 bg-green-100 px-3 py-1 text-xs font-bold text-green-800">
+                    {listing.isActive ? (
+                      <span className="flex items-center gap-1 rounded-full border-2 border-green-600 bg-[#0A2A0A] px-3 py-1 text-xs font-bold text-green-500">
                         <Eye size={12} />
                         Active
                       </span>
@@ -321,16 +319,16 @@ const SellerListings = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleAvailability(listing.id);
+                          onToggleAvailability(listing.firebaseId || listing.id);
                         }}
                         className={`rounded-lg py-2 text-sm font-semibold transition-all ${
-                          listing.isAvailable
+                          listing.isActive
                             ? 'bg-[#3A3A3A] text-gray-300 hover:bg-[#4A4A4A]'
                             : 'bg-[#0A2A0A] text-[#88FF88] hover:bg-[#1A3A1A]'
                         }`}
-                        title={listing.isAvailable ? 'Disable' : 'Enable'}
+                        title={listing.isActive ? 'Deactivate' : 'Activate'}
                       >
-                        {listing.isAvailable ? (
+                        {listing.isActive ? (
                           <EyeOff size={16} className="mx-auto" />
                         ) : (
                           <Eye size={16} className="mx-auto" />

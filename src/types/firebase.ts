@@ -42,7 +42,8 @@ export interface FirebaseListing {
   location: string;
   sellerId: string;
   sellerName: string;
-  isAvailable: boolean;
+  isActive: boolean; // Controls visibility in Browse.tsx (active = shows, inactive = hidden)
+  isAvailable: boolean; // Controls supply status (available = in stock, unavailable = sold out)
   category: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;

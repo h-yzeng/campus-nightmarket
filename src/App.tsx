@@ -86,14 +86,14 @@ function App() {
   };
 
   const wrappedHandleCreateListing = async () => {
-    queryClient.invalidateQueries({ queryKey: ['listings'] });
+    queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
   };
 
   const wrappedHandleUpdateListing = async () => {
-    queryClient.invalidateQueries({ queryKey: ['listings'] });
+    queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
   };
 
-  const wrappedHandleToggleAvailability = async (listingId: number) => {
+  const wrappedHandleToggleAvailability = async (listingId: number | string) => {
     // Mutations expect Firebase ID (string), convert number to string
     await toggleAvailabilityMutation.mutateAsync(String(listingId));
   };

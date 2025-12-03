@@ -138,6 +138,7 @@ const CreateListing = ({
         location: location,
         sellerId: user.uid,
         sellerName: `${profileData.firstName} ${profileData.lastName}`,
+        isActive: true,
         isAvailable: true,
         category: category,
       });

@@ -57,3 +57,4 @@ functions/.runtimeconfig.json
 .vercel
 public/*
 public
+.hintrc

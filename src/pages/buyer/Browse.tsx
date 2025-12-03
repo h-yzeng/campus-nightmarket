@@ -79,11 +79,19 @@ const Browse = ({
       // Price filter
       const matchesPrice = item.price >= priceRange[0] && item.price <= priceRange[1];
 
-      // Availability filter
+      // Active filter - only show active listings in Browse
+      const isActive = item.isActive !== false;
+
+      // Availability filter - optionally filter by supply status
       const matchesAvailability = !showAvailableOnly || item.isAvailable !== false;
 
       return (
-        matchesSearch && matchesLocation && matchesCategory && matchesPrice && matchesAvailability
+        matchesSearch &&
+        matchesLocation &&
+        matchesCategory &&
+        matchesPrice &&
+        isActive &&
+        matchesAvailability
       );
     });
 

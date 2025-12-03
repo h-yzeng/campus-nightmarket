@@ -1,4 +1,15 @@
-import { ArrowLeft, DollarSign, MapPin, Tag, AlertCircle, Upload } from 'lucide-react';
+import {
+  ArrowLeft,
+  DollarSign,
+  MapPin,
+  Tag,
+  AlertCircle,
+  Upload,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  XCircle,
+} from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { ProfileData, CartItem } from '../../types';
 import Header from '../../components/Header';
@@ -52,6 +63,8 @@ const EditListing = ({
   const [currentImageURL, setCurrentImageURL] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
+  const [isActive, setIsActive] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -90,6 +103,8 @@ const EditListing = ({
         setCategory(listing.category);
         setCurrentImageURL(listing.imageURL);
         setImagePreview(listing.imageURL);
+        setIsActive(listing.isActive);
+        setIsAvailable(listing.isAvailable);
       } catch (err) {
         logger.error('Error loading listing:', err);
         setError('Failed to load listing');
@@ -164,6 +179,8 @@ const EditListing = ({
         imageURL: imageURL,
         location: location,
         category: category,
+        isActive: isActive,
+        isAvailable: isAvailable,
       });
       logger.general('[EditListing] Listing updated successfully');
 
@@ -411,15 +428,85 @@ const EditListing = ({
               </div>
             </div>
 
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
+                Listing Visibility
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsActive(!isActive)}
+                className={`flex w-full items-center justify-between rounded-xl border-2 px-4 py-3 text-base font-semibold transition-all ${
+                  isActive
+                    ? 'border-blue-600 bg-[#0A1A2A] text-blue-400 hover:bg-[#1A2A3A]'
+                    : 'border-[#3A3A3A] bg-[#1E1E1E] text-[#A0A0A0] hover:border-[#4A4A4A]'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  {isActive ? (
+                    <>
+                      <Eye size={20} />
+                      Active - Shows in marketplace
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff size={20} />
+                      Inactive - Hidden from marketplace
+                    </>
+                  )}
+                </span>
+                <span className="text-sm">Click to toggle</span>
+              </button>
+              <p className="mt-1 text-xs text-[#888888]">
+                {isActive
+                  ? 'Listing appears in Browse page for buyers'
+                  : 'Listing is completely hidden from buyers'}
+              </p>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-[#E0E0E0]">
+                Supply Status
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsAvailable(!isAvailable)}
+                className={`flex w-full items-center justify-between rounded-xl border-2 px-4 py-3 text-base font-semibold transition-all ${
+                  isAvailable
+                    ? 'border-green-600 bg-[#0A2A0A] text-green-500 hover:bg-[#1A3A1A]'
+                    : 'border-red-600 bg-[#2A0A0A] text-red-400 hover:bg-[#3A1A1A]'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  {isAvailable ? (
+                    <>
+                      <CheckCircle size={20} />
+                      Available - In stock
+                    </>
+                  ) : (
+                    <>
+                      <XCircle size={20} />
+                      Unavailable - Sold out
+                    </>
+                  )}
+                </span>
+                <span className="text-sm">Click to toggle</span>
+              </button>
+              <p className="mt-1 text-xs text-[#888888]">
+                {isAvailable
+                  ? 'Shows "✓ AVAILABLE" badge on listing card'
+                  : 'Shows "✕ SOLD OUT" badge on listing card'}
+              </p>
+            </div>
+
             <div className="flex gap-3 rounded-xl border-2 border-[#1A3A4A] bg-[#0A1A2A] p-4">
               <AlertCircle size={20} className="mt-0.5 shrink-0 text-blue-400" />
               <div>
                 <p className="mb-1 text-sm font-semibold text-white">Update Tips</p>
                 <ul className="space-y-1 text-sm text-[#90A0C0]">
                   <li>• Update any field to make changes</li>
-                  <li>• Keep the current image or upload a new one</li>
-                  <li>• Price changes will be reflected immediately</li>
-                  <li>• All fields are required</li>
+                  <li>• Active listings appear in Browse, inactive are hidden</li>
+                  <li>• Available shows in-stock badge, unavailable shows sold out</li>
+                  <li>• You can have active listings that are unavailable (out of stock)</li>
                 </ul>
               </div>
             </div>

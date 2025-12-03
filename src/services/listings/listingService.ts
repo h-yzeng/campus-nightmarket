@@ -84,7 +84,7 @@ export const getAllListings = async (onlyAvailable = false): Promise<FirebaseLis
     let q;
 
     if (onlyAvailable) {
-      q = query(listingsRef, where('isAvailable', '==', true));
+      q = query(listingsRef, where('isActive', '==', true));
     } else {
       q = query(listingsRef);
     }
@@ -124,7 +124,7 @@ export const getPaginatedListings = async (
 
     let q = query(
       listingsRef,
-      ...(onlyAvailable ? [where('isAvailable', '==', true)] : []),
+      ...(onlyAvailable ? [where('isActive', '==', true)] : []),
       orderBy('createdAt', 'desc'),
       limit(pageSize + 1) // Fetch one extra to check if there are more
     );
@@ -192,11 +192,7 @@ export const getListingsBySeller = async (sellerId: string): Promise<FirebaseLis
 export const getListingsByLocation = async (location: string): Promise<FirebaseListing[]> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
-    const q = query(
-      listingsRef,
-      where('location', '==', location),
-      where('isAvailable', '==', true)
-    );
+    const q = query(listingsRef, where('location', '==', location), where('isActive', '==', true));
 
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
@@ -222,11 +218,7 @@ export const getListingsByLocation = async (location: string): Promise<FirebaseL
 export const getListingsByCategory = async (category: string): Promise<FirebaseListing[]> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
-    const q = query(
-      listingsRef,
-      where('category', '==', category),
-      where('isAvailable', '==', true)
-    );
+    const q = query(listingsRef, where('category', '==', category), where('isActive', '==', true));
 
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
@@ -271,11 +263,11 @@ export const toggleListingAvailability = async (listingId: string): Promise<void
     }
 
     await updateListing(listingId, {
-      isAvailable: !listing.isAvailable,
+      isActive: !listing.isActive,
     });
   } catch (error) {
-    logger.error('Error toggling listing availability:', error);
-    throw new Error('Failed to toggle listing availability');
+    logger.error('Error toggling listing active status:', error);
+    throw new Error('Failed to toggle listing active status');
   }
 };
 

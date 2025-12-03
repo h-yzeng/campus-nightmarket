@@ -4,5 +4,14 @@
   ],
   "hints": {
     "axe/aria": "off"
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11",
+    "not and_ff <= 143",
+    "not firefox <= 144",
+    "not opera <= 122",
+    "not ios_saf <= 26",
+    "not safari <= 26"
+  ]
 }
