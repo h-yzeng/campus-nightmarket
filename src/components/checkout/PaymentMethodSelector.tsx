@@ -34,7 +34,7 @@ const PaymentMethodSelector = ({
   };
 
   return (
-    <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+    <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-md">
       <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-[#E0E0E0]">
         <Wallet size={20} />
         Payment Method

@@ -35,12 +35,4 @@ export const OrderSkeleton = () => (
   </div>
 );
 
-export const OrderListSkeleton = ({ count = 5 }: { count?: number }) => (
-  <div className="space-y-4">
-    {Array.from({ length: count }).map((_, i) => (
-      <OrderSkeleton key={i} />
-    ))}
-  </div>
-);
-
 export default OrderSkeleton;

@@ -156,7 +156,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster position="top-right" theme="dark" richColors closeButton />
         <div className="app">
           <AppRoutes
             setProfileData={setProfileData}

@@ -57,7 +57,7 @@ const CheckoutForm = ({
         return (
           <div
             key={seller}
-            className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md"
+            className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-md"
           >
             <div className="mb-4 border-b-2 border-[#3A3A3A] pb-4">
               <div className="mb-2 flex items-center gap-2">
@@ -168,7 +168,7 @@ const CheckoutForm = ({
       <PaymentMethodSelector selectedPayment={selectedPayment} onPaymentChange={onPaymentChange} />
 
       {/* Special Instructions */}
-      <div className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+      <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-md">
         <h2 className="mb-4 text-xl font-bold text-[#E0E0E0]">Special Instructions (Optional)</h2>
 
         <textarea
