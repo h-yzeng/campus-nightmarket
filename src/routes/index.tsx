@@ -8,6 +8,7 @@ import { useRouteProtection } from '../hooks/useRouteProtection';
 const Home = lazy(() => import('../pages/Home'));
 const Signup = lazy(() => import('../pages/Signup'));
 const Login = lazy(() => import('../pages/Login'));
+const FoodPreview = lazy(() => import('../pages/FoodPreview'));
 const Browse = lazy(() => import('../pages/buyer/Browse'));
 const UserProfile = lazy(() => import('../pages/UserProfile'));
 const Cart = lazy(() => import('../pages/buyer/Cart'));
@@ -82,7 +83,11 @@ const HomeWrapper = () => {
   const navigate = useNavigate();
   return (
     <Suspense fallback={<PageLoadingFallback />}>
-      <Home onGetStarted={() => navigate('/signup')} onLogin={() => navigate('/login')} />
+      <Home
+        onGetStarted={() => navigate('/signup')}
+        onLogin={() => navigate('/login')}
+        onBrowseFood={() => navigate('/preview')}
+      />
     </Suspense>
   );
 };
@@ -121,6 +126,36 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCre
         setProfileData={props.setProfileData}
         onCreateProfile={handleSignupWithNavigation}
         onGoToLogin={() => navigate('/login')}
+        onBrowseFood={() => navigate('/preview')}
+      />
+    </Suspense>
+  );
+};
+
+const FoodPreviewWrapper = () => {
+  const navigate = useNavigate();
+
+  // Get data from React Query (no auth required)
+  const {
+    data: foodItems = [],
+    isLoading: listingsLoading,
+    error: listingsError,
+  } = useListingsQuery();
+
+  // Get unique seller IDs and fetch their ratings
+  const sellerIds = [...new Set(foodItems.map((item) => item.sellerId))];
+  const { data: sellerRatings = {} } = useSellerRatingsQuery(sellerIds);
+
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <FoodPreview
+        foodItems={foodItems}
+        sellerRatings={sellerRatings}
+        loading={listingsLoading}
+        error={listingsError?.message || null}
+        onSignUp={() => navigate('/signup')}
+        onLogin={() => navigate('/login')}
+        onBack={() => navigate('/')}
       />
     </Suspense>
   );
@@ -177,7 +212,10 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
         }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       loading={listingsLoading}
       error={listingsError?.message || null}
     />
@@ -213,7 +251,10 @@ const UserProfileWrapper = (
           setTimeout(() => navigate('/seller/dashboard'), 300);
         }
       }}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
     />
   );
 };
@@ -244,7 +285,10 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
       }}
       onCartClick={() => navigate('/cart')}
       onProfileClick={() => navigate('/profile')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
     />
   );
 };
@@ -285,7 +329,10 @@ const CartWrapper = (
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       userMode={userMode}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
     />
   );
 };
@@ -326,7 +373,10 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
         }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
     />
   );
 };
@@ -374,7 +424,10 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
           setTimeout(() => navigate('/seller/dashboard'), 300);
         }
       }}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       loading={buyerOrdersLoading}
       onAddToCart={addToCart}
       pendingOrdersCount={pendingOrdersCount}
@@ -432,7 +485,10 @@ const OrderDetailsWrapper = (
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       onAddToCart={addToCart}
     />
   );
@@ -482,7 +538,10 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -533,7 +592,10 @@ const CreateListingWrapper = (
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -586,7 +648,10 @@ const EditListingWrapper = (
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -638,7 +703,10 @@ const SellerListingsWrapper = (
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -698,7 +766,10 @@ const SellerOrdersWrapper = (
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => navigate('/browse')}
+      onLogoClick={() => {
+        navigate('/browse');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
       loading={sellerOrdersLoading}
       pendingOrdersCount={pendingOrdersCount}
     />
@@ -712,6 +783,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<HomeWrapper />} />
+      <Route path="/preview" element={<FoodPreviewWrapper />} />
       <Route path="/login" element={<LoginWrapper handleLogin={props.handleLogin} />} />
       <Route
         path="/signup"

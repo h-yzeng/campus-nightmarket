@@ -10,9 +10,16 @@ interface SignupProps {
   setProfileData: (data: ProfileData) => void;
   onCreateProfile: (password: string) => Promise<void>;
   onGoToLogin?: () => void;
+  onBrowseFood?: () => void;
 }
 
-const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: SignupProps) => {
+const Signup = ({
+  profileData,
+  setProfileData,
+  onCreateProfile,
+  onGoToLogin,
+  onBrowseFood,
+}: SignupProps) => {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
@@ -257,6 +264,15 @@ const Signup = ({ profileData, setProfileData, onCreateProfile, onGoToLogin }: S
           <div className="mb-10 text-center">
             <h2 className="mb-3 text-4xl font-bold text-[#CC0000]">Welcome to Night Market!</h2>
             <p className="text-lg text-gray-400">Create your verified student profile</p>
+            {onBrowseFood && (
+              <button
+                type="button"
+                onClick={onBrowseFood}
+                className="mt-4 text-sm font-semibold text-[#CC0000] underline transition-colors hover:text-white"
+              >
+                👀 Browse available food first
+              </button>
+            )}
           </div>
 
           <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-xl">

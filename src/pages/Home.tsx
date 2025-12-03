@@ -1,9 +1,10 @@
 interface HomeProps {
   onGetStarted: () => void;
   onLogin: () => void;
+  onBrowseFood?: () => void;
 }
 
-const Home = ({ onGetStarted, onLogin }: HomeProps) => {
+const Home = ({ onGetStarted, onLogin, onBrowseFood }: HomeProps) => {
   return (
     <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <main className="flex flex-1 items-center justify-center">
@@ -20,13 +21,28 @@ const Home = ({ onGetStarted, onLogin }: HomeProps) => {
             <button
               onClick={onGetStarted}
               className="hover:shadow-3xl transform rounded-2xl bg-[#CC0000] px-12 py-5 text-xl font-bold text-white shadow-2xl transition-all hover:scale-105 active:scale-95"
+              type="button"
             >
               Create Account →
             </button>
 
+            {onBrowseFood && (
+              <button
+                onClick={onBrowseFood}
+                className="transform rounded-2xl border-2 border-[#CC0000] px-12 py-5 text-xl font-bold text-[#CC0000] shadow-2xl transition-all hover:scale-105 hover:bg-[#CC0000] hover:text-white active:scale-95"
+                type="button"
+              >
+                Browse Available Food 🍕
+              </button>
+            )}
+
             <p className="text-base text-gray-400">
               Already have an account?{' '}
-              <button onClick={onLogin} className="font-bold text-[#CC0000] hover:underline">
+              <button
+                onClick={onLogin}
+                className="font-bold text-[#CC0000] hover:underline"
+                type="button"
+              >
                 Sign In
               </button>
             </p>

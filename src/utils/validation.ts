@@ -158,15 +158,7 @@ export function validateNotes(notes: string): string {
 }
 
 // Listing Category Validation
-export const VALID_CATEGORIES = [
-  'Breakfast',
-  'Lunch',
-  'Dinner',
-  'Snacks',
-  'Desserts',
-  'Drinks',
-  'Other',
-] as const;
+export const VALID_CATEGORIES = ['Meals', 'Snacks', 'Desserts', 'Drinks', 'Other'] as const;
 
 export type ListingCategory = (typeof VALID_CATEGORIES)[number];
 
