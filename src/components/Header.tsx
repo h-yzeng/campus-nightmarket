@@ -231,12 +231,15 @@ const Header = ({
               <button
                 onClick={onCartClick}
                 className="relative rounded-lg p-2 transition-colors hover:bg-[#252525]"
-                title="Shopping Cart"
+                aria-label={`Shopping cart with ${totalItems} item${totalItems !== 1 ? 's' : ''}`}
                 type="button"
               >
-                <ShoppingCart size={24} className="text-[#B0B0B0]" />
+                <ShoppingCart size={24} className="text-[#B0B0B0]" aria-hidden="true" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white">
+                  <span
+                    className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#CC0000] text-xs font-bold text-white"
+                    aria-hidden="true"
+                  >
                     {totalItems}
                   </span>
                 )}
@@ -248,6 +251,9 @@ const Header = ({
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="flex items-center gap-3 rounded-lg px-4 py-2 transition-colors hover:bg-[#252525]"
                 type="button"
+                aria-expanded={isDropdownOpen}
+                aria-haspopup="true"
+                aria-label="User menu"
               >
                 <div className="text-right">
                   <p className="text-sm font-semibold text-[#E0E0E0]">
@@ -276,7 +282,11 @@ const Header = ({
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border-2 border-[#3A3A3A] bg-[#252525] shadow-xl">
+                <div
+                  className="absolute right-0 mt-2 w-64 overflow-hidden rounded-xl border-2 border-[#3A3A3A] bg-[#252525] shadow-xl"
+                  role="menu"
+                  aria-label="User account menu"
+                >
                   <div className="border-b border-[#3A3A3A] p-4">
                     <p className="font-semibold text-[#E0E0E0]">
                       {profileData.firstName} {profileData.lastName}

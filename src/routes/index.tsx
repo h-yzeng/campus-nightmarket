@@ -134,11 +134,15 @@ const SignupWrapper = (props: Pick<AppRoutesProps, 'setProfileData' | 'handleCre
     navigate('/browse');
   };
 
+  const handleProfileDataChange = (data: ProfileData) => {
+    setLocalProfileData(data as typeof localProfileData);
+  };
+
   return (
     <Suspense fallback={<PageLoadingFallback />}>
       <Signup
-        profileData={localProfileData}
-        setProfileData={setLocalProfileData}
+        profileData={localProfileData as ProfileData}
+        setProfileData={handleProfileDataChange}
         onCreateProfile={handleSignupWithNavigation}
         onGoToLogin={() => navigate('/login')}
         onBrowseFood={() => navigate('/preview')}
@@ -223,7 +227,7 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'seller') {
-          setTimeout(() => navigate('/seller/dashboard'), 300);
+          navigate('/seller/dashboard');
         }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
@@ -263,7 +267,7 @@ const UserProfileWrapper = (
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'seller') {
-          setTimeout(() => navigate('/seller/dashboard'), 300);
+          navigate('/seller/dashboard');
         }
       }}
       onLogoClick={() => {
@@ -339,7 +343,7 @@ const CartWrapper = (
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'seller') {
-          setTimeout(() => navigate('/seller/dashboard'), 300);
+          navigate('/seller/dashboard');
         }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
@@ -382,9 +386,9 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'seller') {
-          setTimeout(() => navigate('/seller/dashboard'), 300);
+          navigate('/seller/dashboard');
         } else {
-          setTimeout(() => navigate('/browse'), 300);
+          navigate('/browse');
         }
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
@@ -436,7 +440,7 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'seller') {
-          setTimeout(() => navigate('/seller/dashboard'), 300);
+          navigate('/seller/dashboard');
         }
       }}
       onLogoClick={() => {
@@ -539,7 +543,7 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'buyer') {
-          setTimeout(() => navigate('/browse'), 300);
+          navigate('/browse');
         }
       }}
       onCreateListing={() => navigate('/seller/listings/create')}
@@ -596,7 +600,7 @@ const CreateListingWrapper = (
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'buyer') {
-          setTimeout(() => navigate('/browse'), 300);
+          navigate('/browse');
         }
       }}
       onCartClick={() => navigate('/cart')}
@@ -652,7 +656,7 @@ const EditListingWrapper = (
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'buyer') {
-          setTimeout(() => navigate('/browse'), 300);
+          navigate('/browse');
         }
       }}
       onCartClick={() => navigate('/cart')}
@@ -707,7 +711,7 @@ const SellerListingsWrapper = (
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'buyer') {
-          setTimeout(() => navigate('/browse'), 300);
+          navigate('/browse');
         }
       }}
       onCartClick={() => navigate('/cart')}
@@ -770,7 +774,7 @@ const SellerOrdersWrapper = (
       onModeChange={(mode) => {
         setUserMode(mode);
         if (mode === 'buyer') {
-          setTimeout(() => navigate('/browse'), 300);
+          navigate('/browse');
         }
       }}
       onCartClick={() => navigate('/cart')}

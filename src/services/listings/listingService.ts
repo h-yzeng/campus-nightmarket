@@ -12,7 +12,6 @@ import {
   orderBy,
   limit,
   startAfter,
-  type Timestamp,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -84,9 +83,11 @@ export const getAllListings = async (onlyAvailable = false): Promise<FirebaseLis
     let q;
 
     if (onlyAvailable) {
-      q = query(listingsRef, where('isActive', '==', true));
+      // Composite index required: (isActive, createdAt)
+      q = query(listingsRef, where('isActive', '==', true), orderBy('createdAt', 'desc'));
     } else {
-      q = query(listingsRef);
+      // Simple index on createdAt
+      q = query(listingsRef, orderBy('createdAt', 'desc'));
     }
 
     const querySnapshot = await getDocs(q);
@@ -99,11 +100,7 @@ export const getAllListings = async (onlyAvailable = false): Promise<FirebaseLis
       } as FirebaseListing);
     });
 
-    return listings.sort((a, b) => {
-      const aTime = (a.createdAt as Timestamp)?.seconds || 0;
-      const bTime = (b.createdAt as Timestamp)?.seconds || 0;
-      return bTime - aTime;
-    });
+    return listings;
   } catch (error) {
     logger.error('Error getting all listings:', error);
     throw new Error('Failed to get listings');
@@ -166,7 +163,8 @@ export const getPaginatedListings = async (
 export const getListingsBySeller = async (sellerId: string): Promise<FirebaseListing[]> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
-    const q = query(listingsRef, where('sellerId', '==', sellerId));
+    // Composite index required: (sellerId, createdAt)
+    const q = query(listingsRef, where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'));
 
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
@@ -178,11 +176,7 @@ export const getListingsBySeller = async (sellerId: string): Promise<FirebaseLis
       } as FirebaseListing);
     });
 
-    return listings.sort((a, b) => {
-      const aTime = (a.createdAt as Timestamp)?.seconds || 0;
-      const bTime = (b.createdAt as Timestamp)?.seconds || 0;
-      return bTime - aTime;
-    });
+    return listings;
   } catch (error) {
     logger.error('Error getting seller listings:', error);
     throw new Error('Failed to get seller listings');
@@ -192,7 +186,13 @@ export const getListingsBySeller = async (sellerId: string): Promise<FirebaseLis
 export const getListingsByLocation = async (location: string): Promise<FirebaseListing[]> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
-    const q = query(listingsRef, where('location', '==', location), where('isActive', '==', true));
+    // Composite index required: (location, isActive, createdAt)
+    const q = query(
+      listingsRef,
+      where('location', '==', location),
+      where('isActive', '==', true),
+      orderBy('createdAt', 'desc')
+    );
 
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
@@ -204,11 +204,7 @@ export const getListingsByLocation = async (location: string): Promise<FirebaseL
       } as FirebaseListing);
     });
 
-    return listings.sort((a, b) => {
-      const aTime = (a.createdAt as Timestamp)?.seconds || 0;
-      const bTime = (b.createdAt as Timestamp)?.seconds || 0;
-      return bTime - aTime;
-    });
+    return listings;
   } catch (error) {
     logger.error('Error getting listings by location:', error);
     throw new Error('Failed to get listings by location');
@@ -218,7 +214,13 @@ export const getListingsByLocation = async (location: string): Promise<FirebaseL
 export const getListingsByCategory = async (category: string): Promise<FirebaseListing[]> => {
   try {
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
-    const q = query(listingsRef, where('category', '==', category), where('isActive', '==', true));
+    // Composite index required: (category, isActive, createdAt)
+    const q = query(
+      listingsRef,
+      where('category', '==', category),
+      where('isActive', '==', true),
+      orderBy('createdAt', 'desc')
+    );
 
     const querySnapshot = await getDocs(q);
     const listings: FirebaseListing[] = [];
@@ -230,11 +232,7 @@ export const getListingsByCategory = async (category: string): Promise<FirebaseL
       } as FirebaseListing);
     });
 
-    return listings.sort((a, b) => {
-      const aTime = (a.createdAt as Timestamp)?.seconds || 0;
-      const bTime = (b.createdAt as Timestamp)?.seconds || 0;
-      return bTime - aTime;
-    });
+    return listings;
   } catch (error) {
     logger.error('Error getting listings by category:', error);
     throw new Error('Failed to get listings by category');

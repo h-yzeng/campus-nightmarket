@@ -27,6 +27,14 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Application-specific colors */
+    --app-red: 0 100% 40%;
+    --app-bg-darker: 0 0% 3.9%;
+    --app-bg-dark: 0 0% 10.2%;
+    --app-bg-panel: 0 0% 11.8%;
+    --app-text-muted: 0 0% 53.3%;
+    --app-border: 0 0% 20%;
   }
 
   .dark {
@@ -54,6 +62,14 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Application-specific colors for dark mode */
+    --app-red: 0 100% 40%;
+    --app-bg-darker: 0 0% 3.9%;
+    --app-bg-dark: 0 0% 10.2%;
+    --app-bg-panel: 0 0% 11.8%;
+    --app-text-muted: 0 0% 53.3%;
+    --app-border: 0 0% 20%;
   }
 }
 

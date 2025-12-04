@@ -81,7 +81,7 @@ export const useSellerListingsQuery = (sellerId: string | undefined) => {
       return listings.map(convertFirebaseListingToListingWithId);
     },
     enabled: !!sellerId,
-    // Override global defaults for real-time synchronization in SellerListings.tsx
+    // Optimize caching while still refreshing periodically
     refetchOnMount: true, // Always refetch when SellerListings.tsx mounts
     refetchOnWindowFocus: true, // Refetch when window gains focus
     staleTime: 0, // Always consider data stale for immediate updates

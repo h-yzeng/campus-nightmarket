@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Loader2, HelpCircle } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
@@ -7,6 +7,24 @@ import ListingCard from '../../components/ListingCard';
 import FiltersPanel from '../../components/browse/FiltersPanel';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import FirstTimeUserGuide from '../../components/onboarding/FirstTimeUserGuide';
+import { useFilteredListings } from '../../hooks/useFilteredListings';
+
+// Debounce hook for search optimization
+const useDebounce = <T,>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
 
 interface BrowseProps {
   foodItems: FoodItem[];
@@ -63,6 +81,9 @@ const Browse = ({
   // First-time user guide
   const [showGuide, setShowGuide] = useState(false);
 
+  // Debounce search query for better performance
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   useEffect(() => {
     // Check if user has seen the guide before
     // Use a delay to ensure the page is fully loaded
@@ -89,77 +110,17 @@ const Browse = ({
     setShowGuide(true);
   };
 
-  const filteredAndSortedItems = useMemo(() => {
-    // Filter items
-    const filtered = foodItems.filter((item) => {
-      // Search filter
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.seller.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      // Location filter
-      const matchesLocation =
-        selectedLocation === 'All Dorms' || item.location === selectedLocation;
-
-      // Category filter
-      const matchesCategory =
-        selectedCategory === 'All Categories' ||
-        (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase());
-
-      // Price filter
-      const matchesPrice = item.price >= priceRange[0] && item.price <= priceRange[1];
-
-      // Active filter - only show active listings in Browse
-      const isActive = item.isActive !== false;
-
-      // Availability filter - optionally filter by supply status
-      const matchesAvailability = !showAvailableOnly || item.isAvailable !== false;
-
-      return (
-        matchesSearch &&
-        matchesLocation &&
-        matchesCategory &&
-        matchesPrice &&
-        isActive &&
-        matchesAvailability
-      );
-    });
-
-    // Sort items
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'rating': {
-          const ratingA = parseFloat(sellerRatings[a.sellerId] || '0');
-          const ratingB = parseFloat(sellerRatings[b.sellerId] || '0');
-          return ratingB - ratingA;
-        }
-        case 'newest':
-        default: {
-          // Sort by datePosted if available, otherwise maintain order
-          if (a.datePosted && b.datePosted) {
-            return new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime();
-          }
-          return 0;
-        }
-      }
-    });
-
-    return sorted;
-  }, [
-    foodItems,
-    searchQuery,
+  // Use the extracted filtering hook with debounced search
+  const filteredAndSortedItems = useFilteredListings({
+    items: foodItems,
+    searchQuery: debouncedSearchQuery,
     selectedLocation,
     selectedCategory,
     priceRange,
     sortBy,
     showAvailableOnly,
     sellerRatings,
-  ]);
+  });
 
   // Memoize callbacks to prevent ListingCard re-renders
   const handleAddToCart = useCallback(
@@ -194,17 +155,6 @@ const Browse = ({
         onLogoClick={onLogoClick}
         showCart={true}
       />
-
-      {/* Help button to reopen guide */}
-      <button
-        onClick={handleShowGuide}
-        className="fixed right-6 bottom-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000]"
-        type="button"
-        title="Show help guide"
-        aria-label="Show help guide"
-      >
-        <span className="text-2xl">?</span>
-      </button>
 
       <main className="flex-1">
         {error && (
