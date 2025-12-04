@@ -61,7 +61,13 @@ function App() {
   // Notifications
   const notifications = useNotifications(user?.uid);
 
-  // Sync only auth and notifications to stores (data now comes from React Query, cart uses Zustand directly)
+  /**
+   * State Management Architecture:
+   * - Auth state (user, profile): Synced from Firebase to Zustand stores
+   * - Server data (listings, orders, reviews): Managed by React Query with caching
+   * - Cart: Managed by Zustand with localStorage persistence
+   * - Notifications: Custom hook that syncs to Zustand store
+   */
   const setUser = useAuthStore((state) => state.setUser);
   const setStoreProfileData = useAuthStore((state) => state.setProfileData);
   const clearAuth = useAuthStore((state) => state.clearAuth);
@@ -87,6 +93,13 @@ function App() {
     });
   }, [notifications, setNotifications, setNotificationHandlers]);
 
+  /**
+   * Enhanced sign out handler that cleans up all application state:
+   * 1. Signs out from Firebase Authentication
+   * 2. Clears shopping cart
+   * 3. Clears auth store (user, profile)
+   * 4. Resets navigation state (search queries, filters, etc.)
+   */
   const wrappedHandleSignOut = () => {
     handleSignOut();
     clearCart();
@@ -117,6 +130,11 @@ function App() {
     await deleteListingMutation.mutateAsync(String(listingId));
   };
 
+  /**
+   * Place order handler that groups cart items by seller
+   * Each seller gets a separate order document in Firestore
+   * Clears cart on successful order placement
+   */
   const wrappedHandlePlaceOrder = async (
     paymentMethod: string,
     pickupTimes: Record<string, string>,
@@ -129,6 +147,14 @@ function App() {
     await handleCancelOrder(orderId, () => {});
   };
 
+  /**
+   * Review submission handler
+   * Process:
+   * 1. Retrieves order from React Query cache
+   * 2. Creates review document in Firestore
+   * 3. Updates order to mark as reviewed (hasReview: true)
+   * 4. Invalidates related queries to refresh UI
+   */
   const wrappedHandleSubmitReview = async (orderId: number, rating: number, comment: string) => {
     if (!user || !profileData) {
       throw new Error('User not authenticated');

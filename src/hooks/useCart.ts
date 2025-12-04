@@ -1,6 +1,11 @@
 import { useCartStore } from '../stores/cartStore';
 import type { FoodItem } from '../types';
 
+/**
+ * Hook to manage shopping cart operations
+ * Provides a clean interface to the cart store for components
+ * Cart state is persisted to localStorage automatically via middleware
+ */
 export const useCart = () => {
   const cart = useCartStore((state) => state.cart);
   const addToCartStore = useCartStore((state) => state.addToCart);

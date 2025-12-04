@@ -1,6 +1,16 @@
 import { create } from 'zustand';
 import type { CartItem, FoodItem } from '../types';
 
+/**
+ * Cart Store - Manages shopping cart state using Zustand
+ *
+ * Features:
+ * - Add items to cart (increments quantity if item already exists)
+ * - Update item quantities (removes item if quantity <= 0)
+ * - Remove items from cart
+ * - Clear entire cart
+ * - Persist cart state to localStorage (configured in useCart hook)
+ */
 interface CartState {
   // State
   cart: CartItem[];

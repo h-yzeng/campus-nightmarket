@@ -1,3 +1,18 @@
+/**
+ * Core Type Definitions for Campus Night Market
+ *
+ * This file contains all the main TypeScript interfaces and types used throughout the application.
+ * Types are organized by domain: Items/Listings, Orders, Reviews, Users, and Navigation.
+ */
+
+// ============================================================================
+// ITEMS & LISTINGS
+// ============================================================================
+
+/**
+ * FoodItem - Represents a food listing in the marketplace
+ * Used for displaying items in Browse page and previews
+ */
 export interface FoodItem {
   id: number;
   name: string;
@@ -15,10 +30,21 @@ export interface FoodItem {
   purchaseCount?: number; // Total number of purchases for this item
 }
 
+/**
+ * CartItem - Extends FoodItem with quantity for shopping cart
+ */
 export interface CartItem extends FoodItem {
   quantity: number;
 }
 
+// ============================================================================
+// USER PROFILES
+// ============================================================================
+
+/**
+ * ProfileData - User profile information
+ * Contains both buyer and seller information
+ */
 export interface ProfileData {
   email: string;
   firstName: string;
@@ -30,6 +56,10 @@ export interface ProfileData {
   sellerInfo?: SellerInfo;
 }
 
+/**
+ * SellerInfo - Additional information for users who are sellers
+ * Only present when ProfileData.isSeller is true
+ */
 export interface SellerInfo {
   phone?: string;
   paymentMethods: {
@@ -38,10 +68,14 @@ export interface SellerInfo {
     zelle?: string;
   };
   preferredLocations: string[];
-  rating?: number;
-  reviewCount?: number;
+  rating?: number; // Calculated from reviews
+  reviewCount?: number; // Total number of reviews received
 }
 
+/**
+ * Listing - Alternative representation of a food item
+ * Used in seller-specific contexts (managing own listings)
+ */
 export interface Listing {
   id: number;
   name: string;
@@ -60,6 +94,14 @@ export interface Listing {
 
 export type ListingWithFirebaseId = Listing & { firebaseId: string };
 
+// ============================================================================
+// ORDERS & TRANSACTIONS
+// ============================================================================
+
+/**
+ * Transaction - Historical transaction record (deprecated, kept for backward compatibility)
+ * Consider using Order type instead for new features
+ */
 export interface Transaction {
   id: number;
   buyerName: string;
@@ -70,10 +112,23 @@ export interface Transaction {
   review?: string;
 }
 
+/**
+ * PaymentMethod - Supported payment methods for orders
+ */
 export type PaymentMethod = 'Cash' | 'CashApp' | 'Venmo' | 'Zelle';
 
+/**
+ * OrderStatus - Lifecycle states of an order
+ * Flow: pending → confirmed → ready → completed
+ * Can be cancelled at pending or confirmed stages
+ */
 export type OrderStatus = 'pending' | 'confirmed' | 'ready' | 'completed' | 'cancelled';
 
+/**
+ * Order - Complete order information
+ * Contains items, buyer/seller info, status, and payment details
+ * Orders are grouped by seller - one cart can create multiple orders
+ */
 export interface Order {
   id: number;
   firebaseId: string;
@@ -93,6 +148,14 @@ export interface Order {
   hasReview?: boolean;
 }
 
+// ============================================================================
+// REVIEWS
+// ============================================================================
+
+/**
+ * Review - Customer review for a completed order
+ * Reviews are associated with sellers and can reference multiple items
+ */
 export interface Review {
   id: string;
   orderId: string;
@@ -107,10 +170,25 @@ export interface Review {
   itemNames: string[];
 }
 
+// ============================================================================
+// NAVIGATION & UI STATE
+// ============================================================================
+
+/**
+ * UserMode - Current mode of the application
+ * Determines which UI and features are displayed
+ */
 export type UserMode = 'buyer' | 'seller';
 
+/**
+ * OrderType - Type of order being viewed/filtered
+ */
 export type OrderType = 'purchase' | 'pickup' | '';
 
+/**
+ * PageType - All possible pages/routes in the application
+ * Used for navigation and state management
+ */
 export type PageType =
   | 'home'
   | 'login'
