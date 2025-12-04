@@ -198,7 +198,7 @@ const Browse = ({
       {/* Help button to reopen guide */}
       <button
         onClick={handleShowGuide}
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000]"
+        className="fixed right-6 bottom-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000]"
         type="button"
         title="Show help guide"
         aria-label="Show help guide"
@@ -262,8 +262,8 @@ const Browse = ({
                   <h2 className="mb-2 text-2xl font-bold text-white">No items found</h2>
                   <p className="mb-6 text-[#A0A0A0]">
                     {foodItems.length === 0
-                      ? "No food items are currently available. Be the first to sell!"
-                      : "Try adjusting your search query or filters to find more listings"}
+                      ? 'No food items are currently available. Be the first to sell!'
+                      : 'Try adjusting your search query or filters to find more listings'}
                   </p>
                   <div className="mx-auto max-w-md space-y-4 text-left">
                     {foodItems.length > 0 ? (
@@ -305,7 +305,7 @@ const Browse = ({
       {/* Floating Help Button */}
       <button
         onClick={handleShowGuide}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl"
+        className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl"
         type="button"
         title="Show tutorial guide"
         aria-label="Open help guide"

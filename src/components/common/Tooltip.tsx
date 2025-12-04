@@ -1,4 +1,5 @@
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { HelpCircle } from 'lucide-react';
 
 interface TooltipProps {
@@ -10,6 +11,15 @@ interface TooltipProps {
 
 const Tooltip = ({ content, children, showIcon = true, position = 'top' }: TooltipProps) => {
   const [isVisible, setIsVisible] = useState(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setIsVisible(!isVisible);
+    } else if (e.key === 'Escape') {
+      setIsVisible(false);
+    }
+  };
 
   const positionClasses = {
     top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
@@ -34,15 +44,20 @@ const Tooltip = ({ content, children, showIcon = true, position = 'top' }: Toolt
         onMouseLeave={() => setIsVisible(false)}
         onFocus={() => setIsVisible(true)}
         onBlur={() => setIsVisible(false)}
+        onKeyDown={handleKeyDown}
         className="inline-flex cursor-help"
+        tabIndex={0}
+        role="button"
+        aria-label="Show help tooltip"
       >
         {children || (showIcon && <HelpCircle size={16} className="text-[#888888]" />)}
       </div>
 
       {isVisible && (
         <div
-          className={`absolute z-50 whitespace-nowrap rounded-lg bg-[#2A2A2A] px-3 py-2 text-sm text-white shadow-lg ${positionClasses[position]}`}
+          className={`absolute z-50 rounded-lg bg-[#2A2A2A] px-3 py-2 text-sm whitespace-nowrap text-white shadow-lg ${positionClasses[position]}`}
           role="tooltip"
+          aria-live="polite"
         >
           {content}
           <div

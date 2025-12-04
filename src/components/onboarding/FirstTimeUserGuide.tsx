@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ShoppingCart, Store, Package, User, Search } from 'lucide-react';
+import { X, ShoppingCart, Store, Package } from 'lucide-react';
 
 interface FirstTimeUserGuideProps {
   onClose: () => void;
@@ -34,7 +34,7 @@ const FirstTimeUserGuide = ({ onClose }: FirstTimeUserGuideProps) => {
       title: 'Switch Modes Anytime 🔄',
       description: 'Be a buyer and seller',
       content:
-        'Use the toggle in the header to switch between Buyer and Seller modes. You can shop for food when you\'re hungry and sell your homemade meals when you have time to cook!',
+        "Use the toggle in the header to switch between Buyer and Seller modes. You can shop for food when you're hungry and sell your homemade meals when you have time to cook!",
       icon: '🔄',
     },
     {
@@ -67,7 +67,7 @@ const FirstTimeUserGuide = ({ onClose }: FirstTimeUserGuideProps) => {
   const step = steps[currentStep];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="relative mx-4 w-full max-w-2xl rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-8 shadow-2xl">
         {/* Close button */}
         <button
@@ -102,9 +102,7 @@ const FirstTimeUserGuide = ({ onClose }: FirstTimeUserGuideProps) => {
               key={index}
               onClick={() => setCurrentStep(index)}
               className={`h-2 rounded-full transition-all ${
-                index === currentStep
-                  ? 'w-8 bg-[#CC0000]'
-                  : 'w-2 bg-[#3A3A3A] hover:bg-[#4A4A4A]'
+                index === currentStep ? 'w-8 bg-[#CC0000]' : 'w-2 bg-[#3A3A3A] hover:bg-[#4A4A4A]'
               }`}
               type="button"
               aria-label={`Go to step ${index + 1}`}
