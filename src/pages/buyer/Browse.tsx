@@ -1,11 +1,12 @@
-import { useMemo, useCallback, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
+import { Loader2, HelpCircle } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ListingCard from '../../components/ListingCard';
 import FiltersPanel from '../../components/browse/FiltersPanel';
 import ErrorAlert from '../../components/common/ErrorAlert';
+import FirstTimeUserGuide from '../../components/onboarding/FirstTimeUserGuide';
 
 interface BrowseProps {
   foodItems: FoodItem[];
@@ -28,6 +29,7 @@ interface BrowseProps {
   onLogoClick?: () => void;
   loading?: boolean;
   error?: string | null;
+  onShowGuide?: () => void;
 }
 
 const Browse = ({
@@ -57,6 +59,35 @@ const Browse = ({
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50]);
   const [sortBy, setSortBy] = useState('newest');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+
+  // First-time user guide
+  const [showGuide, setShowGuide] = useState(false);
+
+  useEffect(() => {
+    // Check if user has seen the guide before
+    // Use a delay to ensure the page is fully loaded
+    const timer = setTimeout(() => {
+      const hasSeenGuide = localStorage.getItem('hasSeenGuide');
+      console.log('Checking guide status:', hasSeenGuide); // Debug log
+      if (!hasSeenGuide || hasSeenGuide === 'false') {
+        console.log('Showing guide for first-time user'); // Debug log
+        setShowGuide(true);
+      }
+    }, 500); // Small delay to ensure page is ready
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleCloseGuide = () => {
+    console.log('Closing guide and marking as seen'); // Debug log
+    localStorage.setItem('hasSeenGuide', 'true');
+    setShowGuide(false);
+  };
+
+  // Manual trigger for testing or if user wants to see guide again
+  const handleShowGuide = () => {
+    setShowGuide(true);
+  };
 
   const filteredAndSortedItems = useMemo(() => {
     // Filter items
@@ -147,6 +178,9 @@ const Browse = ({
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
+      {/* First-time user guide */}
+      {showGuide && <FirstTimeUserGuide onClose={handleCloseGuide} />}
+
       <Header
         cartItems={cart}
         profileData={profileData}
@@ -160,6 +194,17 @@ const Browse = ({
         onLogoClick={onLogoClick}
         showCart={true}
       />
+
+      {/* Help button to reopen guide */}
+      <button
+        onClick={handleShowGuide}
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000]"
+        type="button"
+        title="Show help guide"
+        aria-label="Show help guide"
+      >
+        <span className="text-2xl">?</span>
+      </button>
 
       <main className="flex-1">
         {error && (
@@ -216,16 +261,37 @@ const Browse = ({
                   <div className="mb-4 text-7xl">🔍</div>
                   <h2 className="mb-2 text-2xl font-bold text-white">No items found</h2>
                   <p className="mb-6 text-[#A0A0A0]">
-                    Try adjusting your search query or filters to find more listings
+                    {foodItems.length === 0
+                      ? "No food items are currently available. Be the first to sell!"
+                      : "Try adjusting your search query or filters to find more listings"}
                   </p>
-                  <div className="mx-auto max-w-md space-y-2 text-left">
-                    <p className="text-sm text-[#B0B0B0]">💡 Tips:</p>
-                    <ul className="space-y-1 text-sm text-[#888888]">
-                      <li>• Try broader search terms</li>
-                      <li>• Check if "Available Only" filter is limiting results</li>
-                      <li>• Expand your location or price range</li>
-                      <li>• Browse all categories</li>
-                    </ul>
+                  <div className="mx-auto max-w-md space-y-4 text-left">
+                    {foodItems.length > 0 ? (
+                      <>
+                        <p className="text-sm text-[#B0B0B0]">💡 Tips:</p>
+                        <ul className="space-y-1 text-sm text-[#888888]">
+                          <li>• Try broader search terms</li>
+                          <li>• Check if "Available Only" filter is limiting results</li>
+                          <li>• Expand your location or price range</li>
+                          <li>• Browse all categories</li>
+                        </ul>
+                      </>
+                    ) : (
+                      <div className="text-center">
+                        <p className="mb-4 text-sm text-[#B0B0B0]">
+                          Want to sell your homemade food?
+                        </p>
+                        {onModeChange && (
+                          <button
+                            onClick={() => onModeChange('seller')}
+                            className="rounded-lg bg-[#CC0000] px-6 py-2.5 font-semibold text-white transition-colors hover:bg-[#B00000]"
+                            type="button"
+                          >
+                            Switch to Seller Mode
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -235,6 +301,17 @@ const Browse = ({
       </main>
 
       <Footer />
+
+      {/* Floating Help Button */}
+      <button
+        onClick={handleShowGuide}
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl"
+        type="button"
+        title="Show tutorial guide"
+        aria-label="Open help guide"
+      >
+        <HelpCircle size={24} />
+      </button>
     </div>
   );
 };

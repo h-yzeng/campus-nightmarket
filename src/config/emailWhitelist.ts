@@ -7,6 +7,7 @@ export const VERIFICATION_BYPASS_EMAILS: string[] = [
   // Example: 'yourname@hawk.illinoistech.edu',
   'jdoe@hawk.illinoistech.edu',
   'testuser@hawk.illinoistech.edu',
+  'hessad@hawk.illinoistech.edu',
 ];
 
 /**

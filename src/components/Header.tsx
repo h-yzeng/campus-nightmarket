@@ -2,6 +2,7 @@ import { ShoppingCart, User, ChevronDown, LogOut, Package, Store, LayoutGrid } f
 import { useState, useRef, useEffect, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
+import Tooltip from './common/Tooltip';
 import { useNotificationStore } from '../stores';
 import { getRouteConfig } from '../utils/routeConfig';
 import type { CartItem, ProfileData, UserMode } from '../types';
@@ -130,47 +131,52 @@ const Header = ({
 
           <div className="flex items-center gap-4">
             {onModeChange && (
-              <div className="relative flex items-center rounded-xl bg-[#252525] p-1">
-                <div
-                  className={`absolute top-1 bottom-1 left-1 w-24 rounded-lg bg-[#3A3A3A] shadow-md transition-transform duration-300 ease-out ${
-                    userMode === 'seller' ? 'translate-x-24' : 'translate-x-0'
-                  }`}
-                />
+              <div className="flex items-center gap-2">
+                <div className="relative flex items-center rounded-xl bg-[#252525] p-1">
+                  <div
+                    className={`absolute top-1 bottom-1 left-1 w-24 rounded-lg bg-[#3A3A3A] shadow-md transition-transform duration-300 ease-out ${
+                      userMode === 'seller' ? 'translate-x-24' : 'translate-x-0'
+                    }`}
+                  />
 
-                <button
-                  onClick={() => handleModeChangeClick('buyer')}
-                  disabled={userMode === 'buyer'}
-                  className={`relative z-10 flex w-24 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
-                    userMode === 'buyer'
-                      ? 'cursor-default text-[#CC0000]'
-                      : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
-                  }`}
-                  type="button"
-                  aria-label="Switch to buyer mode"
-                >
-                  <ShoppingCart
-                    size={16}
-                    className={`transition-all duration-300 ${userMode === 'buyer' ? 'scale-110' : ''}`}
-                  />
-                  Buyer
-                </button>
-                <button
-                  onClick={() => handleModeChangeClick('seller')}
-                  disabled={userMode === 'seller'}
-                  className={`relative z-10 flex w-24 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
-                    userMode === 'seller'
-                      ? 'cursor-default text-[#CC0000]'
-                      : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
-                  }`}
-                  type="button"
-                  aria-label="Switch to seller mode"
-                >
-                  <Store
-                    size={16}
-                    className={`transition-all duration-300 ${userMode === 'seller' ? 'scale-110' : ''}`}
-                  />
-                  Seller
-                </button>
+                  <button
+                    onClick={() => handleModeChangeClick('buyer')}
+                    disabled={userMode === 'buyer'}
+                    className={`relative z-10 flex w-24 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
+                      userMode === 'buyer'
+                        ? 'cursor-default text-[#CC0000]'
+                        : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
+                    }`}
+                    type="button"
+                    aria-label="Switch to buyer mode"
+                    title="Switch to Buyer mode to browse and order food"
+                  >
+                    <ShoppingCart
+                      size={16}
+                      className={`transition-all duration-300 ${userMode === 'buyer' ? 'scale-110' : ''}`}
+                    />
+                    Buyer
+                  </button>
+                  <button
+                    onClick={() => handleModeChangeClick('seller')}
+                    disabled={userMode === 'seller'}
+                    className={`relative z-10 flex w-24 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
+                      userMode === 'seller'
+                        ? 'cursor-default text-[#CC0000]'
+                        : 'cursor-pointer text-[#888888] hover:text-[#B0B0B0]'
+                    }`}
+                    type="button"
+                    aria-label="Switch to seller mode"
+                    title="Switch to Seller mode to create listings and manage orders"
+                  >
+                    <Store
+                      size={16}
+                      className={`transition-all duration-300 ${userMode === 'seller' ? 'scale-110' : ''}`}
+                    />
+                    Seller
+                  </button>
+                </div>
+                <Tooltip content="Toggle between buying food and selling food" position="bottom" />
               </div>
             )}
 
