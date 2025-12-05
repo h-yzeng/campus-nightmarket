@@ -114,7 +114,7 @@ const FoodPreview = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full rounded-lg border-2 border-[#3A3A3A] bg-[#2A2A2A] py-2.5 pr-4 pl-10 text-sm text-white transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
-                  placeholder="Search for food..."
+                  placeholder="Search for food or seller name..."
                 />
               </div>
 
