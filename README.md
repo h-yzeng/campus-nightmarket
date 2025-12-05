@@ -18,13 +18,13 @@ A modern web application for late-night food exchange on campus, built specifica
 - **Dashboard**: Overview of sales statistics and order status
 - **Listing Management**: Create, edit, and manage food listings
 - **Order Fulfillment**: Track and update order statuses
-- **Payment Options**: Support for Cash, CashApp, Venmo, and Zelle
+- **Payment Options**: Support Cash, CashApp, Venmo, and Zelle
 - **Profile Management**: Set preferred locations and payment methods
-- **Sales Analytics**: View purchase counts and ratings
+- **Sales Analytics**: View earnings, purchase counts and ratings
 
 ### Security & Authentication
 
-- **Student Verification**: Email verification required (@illinoistech.edu addresses)
+- **Student Verification**: Email verification required (must be @illinoistech.edu addresses)
 - **Secure Authentication**: Firebase Authentication with rate limiting
 - **Auto-logout**: 10-minute inactivity timeout
 - **Error Tracking**: Integrated Sentry for production monitoring
@@ -370,7 +370,7 @@ Images are uploaded to Firebase Storage with the following flow:
 ### Email verification not working
 
 - Check Firebase Console > Authentication > Settings > Email verification template
-- Ensure the action URL is set correctly
+- Ensure the action URL is correct
 - Check spam folder
 
 ### Images not uploading
