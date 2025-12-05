@@ -1,6 +1,6 @@
 # Campus Night Market
 
-A modern web application for campus late-night food exchange, built specifically for IIT students. Buy, sell, and trade food with verified students - never go hungry during those late-night study sessions again.
+A modern web application for late-night food exchange on campus, built specifically for IIT students. Buy, sell, and trade food with verified students - never go hungry during those late-night study sessions again.
 
 ## Features
 
@@ -15,7 +15,7 @@ A modern web application for campus late-night food exchange, built specifically
 
 ### For Sellers
 
-- **Dashboard**: Overview of sales statistics and pending orders
+- **Dashboard**: Overview of sales statistics and order status
 - **Listing Management**: Create, edit, and manage food listings
 - **Order Fulfillment**: Track and update order statuses
 - **Payment Options**: Support for Cash, CashApp, Venmo, and Zelle
