@@ -91,9 +91,10 @@ export const uploadProfilePhoto = async (userId: string, file: File): Promise<st
   try {
     const compressedImage = await compressImage(file, 800, 800);
 
-    const randomSuffix = typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2);
+    const randomSuffix =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2);
     const fileName = `${Date.now()}-${randomSuffix}.jpg`;
     const storageRef = ref(storage, `${STORAGE_PATHS.PROFILE_PHOTOS}/${userId}/${fileName}`);
 
@@ -116,9 +117,10 @@ export const uploadListingImage = async (userId: string, file: File): Promise<st
   try {
     const compressedImage = await compressImage(file, 1200, 1200);
 
-    const randomSuffix = typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : Math.random().toString(36).slice(2);
+    const randomSuffix =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2);
     const fileName = `${Date.now()}-${randomSuffix}.jpg`;
     const storageRef = ref(storage, `${STORAGE_PATHS.LISTING_IMAGES}/${userId}/${fileName}`);
 
