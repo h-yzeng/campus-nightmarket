@@ -9,6 +9,11 @@ import { storage } from '../../config/firebase';
 import { STORAGE_PATHS } from '../../types/firebase';
 import { logger } from '../../utils/logger';
 
+const IMAGE_VALIDATION = {
+  maxSizeBytes: 5 * 1024 * 1024,
+  allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+};
+
 const compressImage = async (file: File, maxWidth = 1200, maxHeight = 1200): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -67,14 +72,15 @@ const compressImage = async (file: File, maxWidth = 1200, maxHeight = 1200): Pro
 };
 
 const validateImage = (file: File): void => {
-  const maxSize = 5 * 1024 * 1024;
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (file.size === 0) {
+    throw new Error('File is empty');
+  }
 
-  if (!allowedTypes.includes(file.type)) {
+  if (!IMAGE_VALIDATION.allowedTypes.includes(file.type)) {
     throw new Error('Invalid file type');
   }
 
-  if (file.size > maxSize) {
+  if (file.size > IMAGE_VALIDATION.maxSizeBytes) {
     throw new Error('File too large');
   }
 };
@@ -85,7 +91,10 @@ export const uploadProfilePhoto = async (userId: string, file: File): Promise<st
   try {
     const compressedImage = await compressImage(file, 800, 800);
 
-    const fileName = `${Date.now()}.jpg`;
+    const randomSuffix = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
+    const fileName = `${Date.now()}-${randomSuffix}.jpg`;
     const storageRef = ref(storage, `${STORAGE_PATHS.PROFILE_PHOTOS}/${userId}/${fileName}`);
 
     const snapshot: UploadResult = await uploadBytes(storageRef, compressedImage);
@@ -95,7 +104,9 @@ export const uploadProfilePhoto = async (userId: string, file: File): Promise<st
     return downloadURL;
   } catch (error) {
     logger.error('Error uploading profile photo:', error);
-    throw new Error('Failed to upload profile photo');
+    const wrapped = new Error('Failed to upload profile photo');
+    (wrapped as { cause?: unknown }).cause = error;
+    throw wrapped;
   }
 };
 
@@ -105,7 +116,10 @@ export const uploadListingImage = async (userId: string, file: File): Promise<st
   try {
     const compressedImage = await compressImage(file, 1200, 1200);
 
-    const fileName = `${Date.now()}.jpg`;
+    const randomSuffix = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2);
+    const fileName = `${Date.now()}-${randomSuffix}.jpg`;
     const storageRef = ref(storage, `${STORAGE_PATHS.LISTING_IMAGES}/${userId}/${fileName}`);
 
     const snapshot: UploadResult = await uploadBytes(storageRef, compressedImage);
@@ -115,7 +129,9 @@ export const uploadListingImage = async (userId: string, file: File): Promise<st
     return downloadURL;
   } catch (error) {
     logger.error('Error uploading listing image:', error);
-    throw new Error('Failed to upload listing image');
+    const wrapped = new Error('Failed to upload listing image');
+    (wrapped as { cause?: unknown }).cause = error;
+    throw wrapped;
   }
 };
 

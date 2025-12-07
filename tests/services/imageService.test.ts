@@ -55,9 +55,6 @@ class MockImage {
   }
 }
 
-global.FileReader = MockFileReader as unknown as typeof FileReader;
-global.Image = MockImage as unknown as typeof Image;
-
 // Type for global object in Jest environment
 declare const global: typeof globalThis & {
   HTMLCanvasElement: {
@@ -72,7 +69,19 @@ describe('Image Service', () => {
   const mockUserId = 'user-123';
   const mockDownloadURL = 'https://firebase.storage.com/images/test.jpg';
   const realCreateElement = document.createElement.bind(document);
+  const realFileReader = global.FileReader;
+  const realImage = global.Image;
   let createElementSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    global.FileReader = MockFileReader as unknown as typeof FileReader;
+    global.Image = MockImage as unknown as typeof Image;
+  });
+
+  afterAll(() => {
+    global.FileReader = realFileReader;
+    global.Image = realImage;
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -228,7 +237,7 @@ describe('Image Service', () => {
       // Check that ref was called with correct path structure
       expect(ref).toHaveBeenCalled();
       const refCall = (ref as jest.Mock).mock.calls[0];
-      expect(refCall[1]).toMatch(/^profiles\/user-123\/\d+\.jpg$/);
+      expect(refCall[1]).toMatch(/^profiles\/user-123\/\d+(?:-[\w-]+)?\.jpg$/);
     });
 
     it('should compress profile photos to max 800x800', async () => {
@@ -317,7 +326,7 @@ describe('Image Service', () => {
       // Check that ref was called with correct path structure
       expect(ref).toHaveBeenCalled();
       const refCall = (ref as jest.Mock).mock.calls[0];
-      expect(refCall[1]).toMatch(/^listings\/user-123\/\d+\.jpg$/);
+      expect(refCall[1]).toMatch(/^listings\/user-123\/\d+(?:-[\w-]+)?\.jpg$/);
     });
 
     it('should compress listing images to max 1200x1200', async () => {
