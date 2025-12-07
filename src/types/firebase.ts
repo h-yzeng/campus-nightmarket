@@ -111,6 +111,6 @@ export const COLLECTIONS = {
 } as const;
 
 export const STORAGE_PATHS = {
-  PROFILE_PHOTOS: 'profile-photos',
-  LISTING_IMAGES: 'listing-images',
+  PROFILE_PHOTOS: 'profiles',
+  LISTING_IMAGES: 'listings',
 } as const;

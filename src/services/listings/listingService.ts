@@ -265,6 +265,9 @@ export const toggleListingAvailability = async (listingId: string): Promise<void
     });
   } catch (error) {
     logger.error('Error toggling listing active status:', error);
+    if (error instanceof Error) {
+      throw error; // Re-throw with original message
+    }
     throw new Error('Failed to toggle listing active status');
   }
 };

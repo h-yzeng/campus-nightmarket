@@ -71,21 +71,22 @@ const validateImage = (file: File): void => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   if (!allowedTypes.includes(file.type)) {
-    throw new Error('Invalid file type. Please upload a JPG, PNG, or WebP image.');
+    throw new Error('Invalid file type');
   }
 
   if (file.size > maxSize) {
-    throw new Error('File too large. Maximum size is 5MB.');
+    throw new Error('File too large');
   }
 };
 
 export const uploadProfilePhoto = async (userId: string, file: File): Promise<string> => {
+  validateImage(file);
+
   try {
-    validateImage(file);
     const compressedImage = await compressImage(file, 800, 800);
 
-    const fileName = `${userId}_${Date.now()}.jpg`;
-    const storageRef = ref(storage, `${STORAGE_PATHS.PROFILE_PHOTOS}/${fileName}`);
+    const fileName = `${Date.now()}.jpg`;
+    const storageRef = ref(storage, `${STORAGE_PATHS.PROFILE_PHOTOS}/${userId}/${fileName}`);
 
     const snapshot: UploadResult = await uploadBytes(storageRef, compressedImage);
 
@@ -99,13 +100,13 @@ export const uploadProfilePhoto = async (userId: string, file: File): Promise<st
 };
 
 export const uploadListingImage = async (userId: string, file: File): Promise<string> => {
-  try {
-    validateImage(file);
+  validateImage(file);
 
+  try {
     const compressedImage = await compressImage(file, 1200, 1200);
 
-    const fileName = `${userId}_${Date.now()}.jpg`;
-    const storageRef = ref(storage, `${STORAGE_PATHS.LISTING_IMAGES}/${fileName}`);
+    const fileName = `${Date.now()}.jpg`;
+    const storageRef = ref(storage, `${STORAGE_PATHS.LISTING_IMAGES}/${userId}/${fileName}`);
 
     const snapshot: UploadResult = await uploadBytes(storageRef, compressedImage);
 

@@ -252,6 +252,9 @@ export const completeOrder = async (orderId: string): Promise<void> => {
     await Promise.all(updatePromises);
   } catch (error) {
     logger.error('Error completing order:', error);
+    if (error instanceof Error) {
+      throw error; // Re-throw with original message
+    }
     throw new Error('Failed to complete order');
   }
 };

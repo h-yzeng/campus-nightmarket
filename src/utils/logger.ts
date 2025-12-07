@@ -6,7 +6,26 @@
 
 import * as Sentry from '@sentry/react';
 
-const isDevelopment = import.meta.env.DEV;
+// Safely detect development environment (handles Jest/test environment)
+interface GlobalWithProcess {
+  process?: {
+    env?: {
+      NODE_ENV?: string;
+    };
+  };
+}
+
+let isDevelopment = false;
+try {
+  if (typeof import.meta !== 'undefined') {
+    isDevelopment = import.meta.env?.DEV || false;
+  } else if (typeof (globalThis as GlobalWithProcess).process !== 'undefined') {
+    const env = (globalThis as GlobalWithProcess).process?.env?.NODE_ENV;
+    isDevelopment = env === 'development' || env === 'test';
+  }
+} catch {
+  isDevelopment = false;
+}
 
 type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
 

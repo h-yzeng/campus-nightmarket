@@ -20,6 +20,8 @@ export default {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^@/utils/logger$': '<rootDir>/tests/__mocks__/logger.ts',
+    '^.*\\/utils\\/logger$': '<rootDir>/tests/__mocks__/logger.ts',
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { validatePasswordStrength } from '../../utils/passwordStrength';
 
 // Email validation (IIT-specific)
 const iitEmailSchema = z
@@ -7,14 +8,19 @@ const iitEmailSchema = z
   .email('Invalid email format')
   .regex(/^[^\s@]+@hawk\.illinoistech\.edu$/, 'Must be a valid IIT email (@hawk.illinoistech.edu)');
 
-// Password validation (12 chars minimum, special characters required)
+// Password validation with comprehensive strength checking
 const passwordSchema = z
   .string()
   .min(12, 'Password must be at least 12 characters')
-  .regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-    'Password must contain uppercase, lowercase, number, and special character'
-  );
+  .superRefine((password, ctx) => {
+    const result = validatePasswordStrength(password);
+    if (!result.isValid) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: result.errors[0] || 'Password does not meet security requirements',
+      });
+    }
+  });
 
 // Name validation
 const nameSchema = z
@@ -73,6 +79,16 @@ export const signupSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
+  })
+  .superRefine((data, ctx) => {
+    const result = validatePasswordStrength(data.password, data.email);
+    if (!result.isValid) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['password'],
+        message: result.errors[0] || 'Password does not meet security requirements',
+      });
+    }
   })
   .refine(
     (data) => {
