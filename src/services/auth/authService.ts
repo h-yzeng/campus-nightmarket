@@ -46,13 +46,14 @@ const buildVerificationActionCodeSettings = () => {
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
 
   // In local dev, always prefer the running dev server origin; otherwise use configured/authorized domain
+  const prodFallback = 'https://campus-nightmarket.vercel.app';
   const baseUrl = isLocal
     ? origin
-    : configured || (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : origin);
+    : configured || (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : prodFallback);
 
   return {
-    // Let Firebase host the verification page, then return to a safe landing in our app
-    url: `${baseUrl.replace(/\/$/, '')}/browse`,
+    // Let Firebase host the verification page, then return to our app landing page
+    url: `${baseUrl.replace(/\/$/, '')}/`,
     handleCodeInApp: false,
   } as const;
 };

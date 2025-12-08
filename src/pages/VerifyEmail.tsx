@@ -81,9 +81,9 @@ const VerifyEmail = () => {
   if (status === 'success') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B] p-6">
-        <div className="w-full max-w-md rounded-xl bg-white/95 p-8 shadow-xl">
-          <h1 className="text-xl font-semibold text-gray-900">Email verified</h1>
-          <p className="mt-3 text-sm text-gray-700">Redirecting you now...</p>
+        <div className="w-full max-w-md rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
+          <h1 className="text-xl font-semibold text-white">Email verified</h1>
+          <p className="mt-3 text-sm text-gray-300">Redirecting you now...</p>
         </div>
       </div>
     );
@@ -92,12 +92,12 @@ const VerifyEmail = () => {
   // Error state
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B] p-6">
-      <div className="w-full max-w-md space-y-4 rounded-xl bg-white/95 p-8 shadow-xl">
-        <h1 className="text-xl font-semibold text-gray-900">Try verifying again</h1>
+      <div className="w-full max-w-md space-y-4 rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
+        <h1 className="text-xl font-semibold text-white">Try verifying again</h1>
         <ErrorAlert message={error} />
         <button
           type="button"
-          className="w-full rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
+          className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
           onClick={() => navigate('/browse')}
         >
           Go back to browse

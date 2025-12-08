@@ -46,12 +46,12 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B] px-4 py-10">
-      <div className="w-full max-w-xl space-y-5 rounded-2xl bg-white/95 p-8 shadow-2xl">
+      <div className="w-full max-w-xl space-y-5 rounded-2xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
         <div className="flex items-start gap-3">
-          <ShieldAlert className="mt-1 text-amber-600" size={24} />
+          <ShieldAlert className="mt-1 text-amber-400" size={24} />
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">Email verification required</h1>
-            <p className="mt-2 text-sm text-gray-700">
+            <h1 className="text-xl font-semibold text-white">Email verification required</h1>
+            <p className="mt-2 text-sm text-gray-300">
               Please verify your email{user?.email ? ` (${user.email})` : ''} to access the app.
               Open the verification email we sent, or resend a new one below.
             </p>
@@ -62,8 +62,8 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
           <div
             className={`rounded-lg border px-3 py-2 text-sm ${
               message.type === 'success'
-                ? 'border-green-600 bg-[#0A2A0A] text-green-500'
-                : 'border-red-600 bg-[#2A0A0A] text-red-400'
+                ? 'border-green-500/60 bg-[#0B1F14] text-green-400'
+                : 'border-red-500/60 bg-[#1F0B0B] text-red-300'
             }`}
           >
             {message.text}
@@ -75,7 +75,7 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
             type="button"
             onClick={handleResend}
             disabled={resending}
-            className="flex items-center gap-2 rounded-lg border-2 border-amber-600 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+            className="flex items-center gap-2 rounded-lg border-2 border-amber-500 bg-[#2A1B00] px-4 py-2 text-sm font-semibold text-amber-100 transition hover:border-amber-400 hover:bg-[#352300] disabled:opacity-60"
           >
             <Mail size={16} />
             {resending ? 'Sending…' : 'Resend verification email'}
@@ -85,7 +85,7 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
             type="button"
             onClick={handleReload}
             disabled={reloading}
-            className="flex items-center gap-2 rounded-lg border-2 border-gray-800 bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-60"
+            className="flex items-center gap-2 rounded-lg border-2 border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
           >
             <RefreshCw size={16} className={reloading ? 'animate-spin' : ''} />
             {reloading ? 'Checking…' : 'I verified my email'}
@@ -94,15 +94,15 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
           <button
             type="button"
             onClick={() => navigate('/login')}
-            className="rounded-lg border-2 border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+            className="rounded-lg border-2 border-white/10 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-white/20 hover:bg-white/5"
           >
             Back to login
           </button>
         </div>
 
-        <p className="text-xs text-gray-500">
-          If you just clicked the link, wait a moment and press “I verified my email” to refresh
-          your status.
+        <p className="text-xs text-gray-400">
+          If you just clicked the link, wait a moment and press “I verified my email” to refresh your
+          status.
         </p>
       </div>
     </div>
