@@ -11,8 +11,10 @@ import {
   type User,
   type AuthError,
 } from 'firebase/auth';
-import { auth } from '../../config/firebase';
+import { getFirebaseAuth, auth as legacyAuth } from '../../config/firebase';
 import { logger } from '../../utils/logger';
+
+const resolveAuth = () => (typeof getFirebaseAuth === 'function' ? getFirebaseAuth() : legacyAuth);
 
 export interface SignupData {
   email: string;
@@ -56,6 +58,7 @@ const buildVerificationActionCodeSettings = () => {
 
 export const signUp = async (data: SignupData): Promise<User> => {
   try {
+    const auth = resolveAuth();
     const { email, password } = data;
 
     if (!email.endsWith('@hawk.illinoistech.edu')) {
@@ -84,6 +87,7 @@ export const signUp = async (data: SignupData): Promise<User> => {
  */
 export const resendVerificationEmail = async (): Promise<void> => {
   try {
+    const auth = resolveAuth();
     const user = auth.currentUser;
     if (!user) {
       throw new Error('No user is currently signed in');
@@ -110,6 +114,7 @@ export const resendVerificationEmail = async (): Promise<void> => {
  * Check if current user's email is verified
  */
 export const isEmailVerified = (): boolean => {
+  const auth = resolveAuth();
   const user = auth.currentUser;
   return user?.emailVerified ?? false;
 };
@@ -119,6 +124,7 @@ export const isEmailVerified = (): boolean => {
  */
 export const reloadUser = async (): Promise<void> => {
   try {
+    const auth = resolveAuth();
     const user = auth.currentUser;
     if (!user) {
       throw new Error('No user is currently signed in');
@@ -132,6 +138,7 @@ export const reloadUser = async (): Promise<void> => {
 
 export const signIn = async (data: LoginData): Promise<User> => {
   try {
+    const auth = resolveAuth();
     const { email, password } = data;
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
@@ -142,6 +149,7 @@ export const signIn = async (data: LoginData): Promise<User> => {
 
 export const logOut = async (): Promise<void> => {
   try {
+    const auth = resolveAuth();
     await signOut(auth);
   } catch (error) {
     throw handleAuthError(error as AuthError);
@@ -150,6 +158,7 @@ export const logOut = async (): Promise<void> => {
 
 export const resetPassword = async (email: string): Promise<void> => {
   try {
+    const auth = resolveAuth();
     await sendPasswordResetEmail(auth, email);
   } catch (error) {
     throw handleAuthError(error as AuthError);
@@ -161,6 +170,7 @@ export const changePassword = async (
   newPassword: string
 ): Promise<void> => {
   try {
+    const auth = resolveAuth();
     const user = auth.currentUser;
     if (!user || !user.email) {
       throw new Error('No user is currently signed in');
@@ -177,6 +187,7 @@ export const changePassword = async (
 
 export const changeEmail = async (newEmail: string): Promise<void> => {
   try {
+    const auth = resolveAuth();
     const user = auth.currentUser;
     if (!user) {
       throw new Error('No user is currently signed in');
@@ -188,6 +199,7 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
 };
 
 export const getCurrentUser = (): User | null => {
+  const auth = resolveAuth();
   return auth.currentUser;
 };
 

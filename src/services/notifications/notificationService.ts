@@ -1,7 +1,7 @@
 import type { Messaging } from 'firebase/messaging';
 import { deleteField, doc, updateDoc } from 'firebase/firestore';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
-import { app, db } from '../../config/firebase';
+import { getFirebaseApp, getFirestoreDb } from '../../config/firebase';
 import { logger } from '../../utils/logger';
 
 let messaging: Messaging | null = null;
@@ -20,6 +20,7 @@ export const initializeMessaging = async (): Promise<Messaging | null> => {
   // Start initialization
   messagingPromise = (async () => {
     try {
+      const app = getFirebaseApp();
       // Dynamically import Firebase Messaging only when needed
       messaging = getMessaging(app);
       logger.info('Firebase Messaging initialized');
@@ -102,6 +103,7 @@ export const onForegroundMessage = (callback: (payload: unknown) => void) => {
 // Save FCM token to user's Firestore document
 export const saveFCMToken = async (userId: string, token: string): Promise<void> => {
   try {
+    const db = getFirestoreDb();
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       fcmToken: token,
@@ -118,6 +120,7 @@ export const saveFCMToken = async (userId: string, token: string): Promise<void>
 // Remove FCM token from user's document (on sign out)
 export const removeFCMToken = async (userId: string): Promise<void> => {
   try {
+    const db = getFirestoreDb();
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       fcmToken: deleteField(),

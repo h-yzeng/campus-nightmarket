@@ -14,7 +14,7 @@ import {
   startAfter,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { getFirestoreDb, db as legacyDb } from '../../config/firebase';
 import {
   type FirebaseListing,
   type CreateListing,
@@ -26,8 +26,11 @@ import { validatePrice, validateCategory, sanitizeString } from '../../utils/val
 import { toAppError } from '../../utils/firebaseErrorMapper';
 import { ErrorCategory, ErrorCode } from '../../utils/errorMessages';
 
+const resolveDb = () => (typeof getFirestoreDb === 'function' ? getFirestoreDb() : legacyDb);
+
 export const createListing = async (listingData: CreateListing): Promise<string> => {
   try {
+    const db = resolveDb();
     // Validate input data
     validatePrice(listingData.price);
     validateCategory(listingData.category);
@@ -62,6 +65,7 @@ export const createListing = async (listingData: CreateListing): Promise<string>
 
 export const getListing = async (listingId: string): Promise<FirebaseListing | null> => {
   try {
+    const db = resolveDb();
     const listingRef = doc(db, COLLECTIONS.LISTINGS, listingId);
     const listingSnap = await getDoc(listingRef);
 
@@ -86,6 +90,7 @@ export const getListing = async (listingId: string): Promise<FirebaseListing | n
 
 export const getAllListings = async (onlyAvailable = false): Promise<FirebaseListing[]> => {
   try {
+    const db = resolveDb();
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
     let q;
 
@@ -129,6 +134,7 @@ export const getPaginatedListings = async (
   hasMore: boolean;
 }> => {
   try {
+    const db = resolveDb();
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
 
     let q = query(
@@ -179,6 +185,7 @@ export const getPaginatedListings = async (
 
 export const getListingsBySeller = async (sellerId: string): Promise<FirebaseListing[]> => {
   try {
+    const db = resolveDb();
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
     // Composite index required: (sellerId, createdAt)
     const q = query(listingsRef, where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'));
@@ -207,6 +214,7 @@ export const getListingsBySeller = async (sellerId: string): Promise<FirebaseLis
 
 export const getListingsByLocation = async (location: string): Promise<FirebaseListing[]> => {
   try {
+    const db = resolveDb();
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
     // Composite index required: (location, isActive, createdAt)
     const q = query(
@@ -240,6 +248,7 @@ export const getListingsByLocation = async (location: string): Promise<FirebaseL
 
 export const getListingsByCategory = async (category: string): Promise<FirebaseListing[]> => {
   try {
+    const db = resolveDb();
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
     // Composite index required: (category, isActive, createdAt)
     const q = query(
@@ -273,6 +282,7 @@ export const getListingsByCategory = async (category: string): Promise<FirebaseL
 
 export const getTopListingByPurchaseCount = async (): Promise<FirebaseListing | null> => {
   try {
+    const db = resolveDb();
     const listingsRef = collection(db, COLLECTIONS.LISTINGS);
     const q = query(
       listingsRef,
@@ -310,6 +320,7 @@ export const getTopListingByPurchaseCount = async (): Promise<FirebaseListing | 
 
 export const updateListing = async (listingId: string, updates: UpdateListing): Promise<void> => {
   try {
+    const db = resolveDb();
     const listingRef = doc(db, COLLECTIONS.LISTINGS, listingId);
 
     await updateDoc(listingRef, {
@@ -353,6 +364,7 @@ export const toggleListingAvailability = async (listingId: string): Promise<void
 
 export const deleteListing = async (listingId: string): Promise<void> => {
   try {
+    const db = resolveDb();
     const listingRef = doc(db, COLLECTIONS.LISTINGS, listingId);
     await deleteDoc(listingRef);
   } catch (error) {

@@ -1,8 +1,6 @@
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '../../config/firebase';
+import { getFirebaseApp } from '../../config/firebase';
 import { logger } from '../../utils/logger';
-
-const functions = getFunctions(app);
 
 export const SECURITY_QUESTIONS = [
   'What was the name of your first pet?',
@@ -17,6 +15,8 @@ export const SECURITY_QUESTIONS = [
   'What is your favorite movie?',
 ];
 
+const getFunctionsClient = () => getFunctions(getFirebaseApp());
+
 /**
  * Save security questions (hashing happens server-side with bcrypt)
  */
@@ -25,7 +25,7 @@ export const saveSecurityQuestions = async (
   questions: Array<{ question: string; answer: string }>
 ): Promise<void> => {
   try {
-    const saveQuestions = httpsCallable(functions, 'saveSecurityQuestions');
+    const saveQuestions = httpsCallable(getFunctionsClient(), 'saveSecurityQuestions');
 
     const result = await saveQuestions({
       userId,
@@ -62,7 +62,7 @@ export const verifySecurityAnswers = async (
   answers: Array<{ question: string; answer: string }>
 ): Promise<{ verified: boolean; userId?: string; token?: string }> => {
   try {
-    const verifyAnswers = httpsCallable(functions, 'verifySecurityAnswers');
+    const verifyAnswers = httpsCallable(getFunctionsClient(), 'verifySecurityAnswers');
 
     const result = await verifyAnswers({
       email,
@@ -106,7 +106,7 @@ export const verifySecurityAnswers = async (
  */
 export const getUserSecurityQuestions = async (email: string): Promise<string[]> => {
   try {
-    const getQuestions = httpsCallable(functions, 'getUserSecurityQuestions');
+    const getQuestions = httpsCallable(getFunctionsClient(), 'getUserSecurityQuestions');
 
     const result = await getQuestions({
       email,

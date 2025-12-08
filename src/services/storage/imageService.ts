@@ -5,9 +5,12 @@ import {
   deleteObject,
   type UploadResult,
 } from 'firebase/storage';
-import { storage } from '../../config/firebase';
+import { getFirebaseStorage, storage as legacyStorage } from '../../config/firebase';
 import { STORAGE_PATHS } from '../../types/firebase';
 import { logger } from '../../utils/logger';
+
+const resolveStorage = () =>
+  typeof getFirebaseStorage === 'function' ? getFirebaseStorage() : legacyStorage;
 
 const IMAGE_VALIDATION = {
   maxSizeBytes: 5 * 1024 * 1024,
@@ -90,6 +93,7 @@ export const uploadProfilePhoto = async (userId: string, file: File): Promise<st
 
   try {
     const compressedImage = await compressImage(file, 800, 800);
+    const storage = resolveStorage();
 
     const randomSuffix =
       typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -116,6 +120,7 @@ export const uploadListingImage = async (userId: string, file: File): Promise<st
 
   try {
     const compressedImage = await compressImage(file, 1200, 1200);
+    const storage = resolveStorage();
 
     const randomSuffix =
       typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -139,6 +144,7 @@ export const uploadListingImage = async (userId: string, file: File): Promise<st
 
 export const deleteImage = async (imageURL: string): Promise<void> => {
   try {
+    const storage = resolveStorage();
     const imageRef = ref(storage, imageURL);
     await deleteObject(imageRef);
   } catch (error) {

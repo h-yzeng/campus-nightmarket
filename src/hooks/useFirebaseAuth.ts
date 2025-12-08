@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import * as Sentry from '@sentry/react';
-import { auth } from '../config/firebase';
+import { getFirebaseAuth } from '../config/firebase';
 import {
   signUp,
   signIn,
@@ -42,6 +42,7 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
   const [profile, setProfile] = useState<FirebaseUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const auth = useMemo(() => getFirebaseAuth(), []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {

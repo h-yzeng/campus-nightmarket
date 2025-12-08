@@ -1,8 +1,6 @@
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '../../config/firebase';
+import { getFirebaseApp } from '../../config/firebase';
 import { logger } from '../../utils/logger';
-
-const functions = getFunctions(app);
 
 /**
  * Reset password with verification token
@@ -14,6 +12,7 @@ export const resetPasswordWithVerification = async (
   token: string
 ): Promise<void> => {
   try {
+    const functions = getFunctions(getFirebaseApp());
     const resetPassword = httpsCallable(functions, 'resetPasswordWithVerification');
 
     const result = await resetPassword({

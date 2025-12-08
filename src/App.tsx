@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
@@ -14,7 +14,6 @@ import {
 import { createReview } from './services/reviews/reviewService';
 import { updateOrder } from './services/orders/orderService';
 import { AppRoutes } from './routes';
-import ErrorBoundary from './components/ErrorBoundary';
 import EmailVerificationBanner from './components/common/EmailVerificationBanner';
 import { shouldBypassVerification } from './config/emailWhitelist';
 import type { Order, CartItem } from './types';
@@ -60,7 +59,18 @@ function App() {
   });
 
   // Notifications
-  const notifications = useNotifications(user?.uid);
+  const {
+    notifications,
+    unreadCount,
+    permissionState,
+    isRequestingPermission,
+    requestPermission,
+    refreshNotifications,
+    markAsRead,
+    markAllAsRead,
+    clearNotification,
+    clearAll,
+  } = useNotifications(user?.uid);
 
   /**
    * State Management Architecture:
@@ -87,23 +97,25 @@ function App() {
   }, [profileData, setStoreProfileData]);
 
   useEffect(() => {
-    setNotifications(notifications.notifications, notifications.unreadCount);
-    setNotificationHandlers({
-      markAsRead: notifications.markAsRead,
-      markAllAsRead: notifications.markAllAsRead,
-      clearNotification: notifications.clearNotification,
-      clearAll: notifications.clearAll,
-    });
-    setPermissionState(notifications.permissionState);
+    setNotifications(notifications, unreadCount);
+  }, [notifications, unreadCount, setNotifications]);
+
+  useEffect(() => {
+    setNotificationHandlers({ markAsRead, markAllAsRead, clearNotification, clearAll });
+  }, [clearAll, clearNotification, markAllAsRead, markAsRead, setNotificationHandlers]);
+
+  useEffect(() => {
+    setPermissionState(permissionState);
     setPermissionControls({
-      isRequestingPermission: notifications.isRequestingPermission,
-      requestPermission: notifications.requestPermission,
-      refreshNotifications: notifications.refreshNotifications,
+      isRequestingPermission,
+      requestPermission,
+      refreshNotifications,
     });
   }, [
-    notifications,
-    setNotifications,
-    setNotificationHandlers,
+    isRequestingPermission,
+    permissionState,
+    refreshNotifications,
+    requestPermission,
     setPermissionControls,
     setPermissionState,
   ]);
@@ -115,13 +127,13 @@ function App() {
    * 3. Clears auth store (user, profile)
    * 4. Resets navigation state (search queries, filters, etc.)
    */
-  const wrappedHandleSignOut = async () => {
+  const wrappedHandleSignOut = useCallback(async () => {
     await handleSignOut();
     queryClient.clear();
     clearCart();
     clearAuth();
     resetNavigation();
-  };
+  }, [clearAuth, clearCart, handleSignOut, queryClient, resetNavigation]);
 
   // Auto-logout after 10 minutes of inactivity
   useInactivityTimeout({
@@ -131,39 +143,46 @@ function App() {
     isAuthenticated: !!user,
   });
 
-  const wrappedHandleCreateListing = async () => {
-    queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
-  };
+  const wrappedHandleCreateListing = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+  }, [queryClient]);
 
-  const wrappedHandleUpdateListing = async () => {
-    queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
-  };
+  const wrappedHandleUpdateListing = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+  }, [queryClient]);
 
-  const wrappedHandleToggleAvailability = async (listingId: number | string) => {
-    // Mutations expect Firebase ID (string), convert number to string
-    await toggleAvailabilityMutation.mutateAsync(String(listingId));
-  };
+  const wrappedHandleToggleAvailability = useCallback(
+    async (listingId: number | string) => {
+      await toggleAvailabilityMutation.mutateAsync(String(listingId));
+    },
+    [toggleAvailabilityMutation]
+  );
 
-  const wrappedHandleDeleteListing = async (listingId: number | string) => {
-    await deleteListingMutation.mutateAsync(String(listingId));
-  };
+  const wrappedHandleDeleteListing = useCallback(
+    async (listingId: number | string) => {
+      await deleteListingMutation.mutateAsync(String(listingId));
+    },
+    [deleteListingMutation]
+  );
 
   /**
    * Place order handler that groups cart items by seller
    * Each seller gets a separate order document in Firestore
    * Clears cart on successful order placement
    */
-  const wrappedHandlePlaceOrder = async (
-    paymentMethod: string,
-    pickupTimes: Record<string, string>,
-    notes?: string
-  ) => {
-    await handlePlaceOrder(cart, paymentMethod, pickupTimes, clearCart, notes);
-  };
+  const wrappedHandlePlaceOrder = useCallback(
+    async (paymentMethod: string, pickupTimes: Record<string, string>, notes?: string) => {
+      await handlePlaceOrder(cart, paymentMethod, pickupTimes, clearCart, notes);
+    },
+    [cart, clearCart, handlePlaceOrder]
+  );
 
-  const wrappedHandleCancelOrder = async (orderId: number) => {
-    await handleCancelOrder(orderId);
-  };
+  const wrappedHandleCancelOrder = useCallback(
+    async (orderId: number) => {
+      await handleCancelOrder(orderId);
+    },
+    [handleCancelOrder]
+  );
 
   /**
    * Review submission handler
@@ -173,82 +192,79 @@ function App() {
    * 3. Updates order to mark as reviewed (hasReview: true)
    * 4. Invalidates related queries to refresh UI
    */
-  const wrappedHandleSubmitReview = async (orderId: number, rating: number, comment: string) => {
-    if (!user || !profileData) {
-      throw new Error('User not authenticated');
-    }
-
-    try {
-      // Get the order from React Query cache
-      const ordersData = queryClient.getQueryData<Order[]>(['orders', 'buyer', user.uid]);
-      const order = ordersData?.find((o) => o.id === orderId);
-
-      if (!order) {
-        throw new Error('Order not found');
+  const wrappedHandleSubmitReview = useCallback(
+    async (orderId: number, rating: number, comment: string) => {
+      if (!user || !profileData) {
+        throw new Error('User not authenticated');
       }
 
-      // Create the review
-      await createReview({
-        orderId: order.firebaseId,
-        buyerId: user.uid,
-        buyerName: `${profileData.firstName} ${profileData.lastName}`,
-        sellerId: order.sellerId,
-        sellerName: order.sellerName,
-        rating,
-        comment: comment || undefined,
-        itemNames: order.items.map((item: CartItem) => item.name),
-        listingIds: order.items.map((item: CartItem) => String(item.id)),
-      });
+      try {
+        const ordersData = queryClient.getQueryData<Order[]>(['orders', 'buyer', user.uid]);
+        const order = ordersData?.find((o) => o.id === orderId);
 
-      // Mark the order as reviewed
-      await updateOrder(order.firebaseId, { hasReview: true });
+        if (!order) {
+          throw new Error('Order not found');
+        }
 
-      // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ['orders', 'buyer', user.uid] });
-      queryClient.invalidateQueries({ queryKey: ['reviews', 'seller', order.sellerId] });
-    } catch (error) {
-      logger.error('Error submitting review:', error);
-      throw error;
-    }
-  };
+        await createReview({
+          orderId: order.firebaseId,
+          buyerId: user.uid,
+          buyerName: `${profileData.firstName} ${profileData.lastName}`,
+          sellerId: order.sellerId,
+          sellerName: order.sellerName,
+          rating,
+          comment: comment || undefined,
+          itemNames: order.items.map((item: CartItem) => item.name),
+          listingIds: order.items.map((item: CartItem) => String(item.id)),
+        });
+
+        await updateOrder(order.firebaseId, { hasReview: true });
+
+        queryClient.invalidateQueries({ queryKey: ['orders', 'buyer', user.uid] });
+        queryClient.invalidateQueries({ queryKey: ['reviews', 'seller', order.sellerId] });
+      } catch (error) {
+        logger.error('Error submitting review:', error);
+        throw error;
+      }
+    },
+    [profileData, queryClient, user]
+  );
 
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <Toaster position="top-right" theme="dark" richColors closeButton />
-        <div className="app">
-          {/* Show email verification banner if user is logged in but email is not verified and not whitelisted */}
-          {user && !user.emailVerified && !shouldBypassVerification(user.email) && (
-            <EmailVerificationBanner
-              userEmail={user.email}
-              onResendEmail={handleResendVerification}
-              onReloadUser={handleReloadUser}
-            />
-          )}
-          <AppRoutes
-            setProfileData={setProfileData}
-            handleCreateProfile={handleCreateProfile}
-            handleLogin={handleLogin}
-            handleSaveProfile={handleSaveProfile}
-            handleSignOut={wrappedHandleSignOut}
-            handlePlaceOrder={wrappedHandlePlaceOrder}
-            handleCancelOrder={wrappedHandleCancelOrder}
-            handleCreateListing={wrappedHandleCreateListing}
-            handleToggleAvailability={wrappedHandleToggleAvailability}
-            handleDeleteListing={wrappedHandleDeleteListing}
-            handleUpdateListing={wrappedHandleUpdateListing}
-            handleUpdateOrderStatus={handleUpdateOrderStatus}
-            handleSubmitReview={wrappedHandleSubmitReview}
-            addToCart={addToCart}
-            updateCartQuantity={updateCartQuantity}
-            removeFromCart={removeFromCart}
-            handleResendVerification={handleResendVerification}
-            handleReloadUser={handleReloadUser}
-            authLoading={loading}
+    <BrowserRouter>
+      <Toaster position="top-right" theme="dark" richColors closeButton />
+      <div className="app">
+        {/* Show email verification banner if user is logged in but email is not verified and not whitelisted */}
+        {user && !user.emailVerified && !shouldBypassVerification(user.email) && (
+          <EmailVerificationBanner
+            userEmail={user.email}
+            onResendEmail={handleResendVerification}
+            onReloadUser={handleReloadUser}
           />
-        </div>
-      </BrowserRouter>
-    </ErrorBoundary>
+        )}
+        <AppRoutes
+          setProfileData={setProfileData}
+          handleCreateProfile={handleCreateProfile}
+          handleLogin={handleLogin}
+          handleSaveProfile={handleSaveProfile}
+          handleSignOut={wrappedHandleSignOut}
+          handlePlaceOrder={wrappedHandlePlaceOrder}
+          handleCancelOrder={wrappedHandleCancelOrder}
+          handleCreateListing={wrappedHandleCreateListing}
+          handleToggleAvailability={wrappedHandleToggleAvailability}
+          handleDeleteListing={wrappedHandleDeleteListing}
+          handleUpdateListing={wrappedHandleUpdateListing}
+          handleUpdateOrderStatus={handleUpdateOrderStatus}
+          handleSubmitReview={wrappedHandleSubmitReview}
+          addToCart={addToCart}
+          updateCartQuantity={updateCartQuantity}
+          removeFromCart={removeFromCart}
+          handleResendVerification={handleResendVerification}
+          handleReloadUser={handleReloadUser}
+          authLoading={loading}
+        />
+      </div>
+    </BrowserRouter>
   );
 }
 

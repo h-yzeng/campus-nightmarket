@@ -9,14 +9,17 @@ import {
   serverTimestamp,
   getDoc,
 } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { getFirestoreDb, db as legacyDb } from '../../config/firebase';
 import { type FirebaseReview, type CreateReview, COLLECTIONS } from '../../types/firebase';
 import { logger } from '../../utils/logger';
 import { toAppError } from '../../utils/firebaseErrorMapper';
 import { ErrorCategory, ErrorCode } from '../../utils/errorMessages';
 
+const resolveDb = () => (typeof getFirestoreDb === 'function' ? getFirestoreDb() : legacyDb);
+
 export const createReview = async (reviewData: CreateReview): Promise<string> => {
   try {
+    const db = resolveDb();
     const reviewsRef = collection(db, COLLECTIONS.REVIEWS);
 
     const review = {
@@ -39,6 +42,7 @@ export const createReview = async (reviewData: CreateReview): Promise<string> =>
 
 export const getReview = async (reviewId: string): Promise<FirebaseReview | null> => {
   try {
+    const db = resolveDb();
     const reviewRef = doc(db, COLLECTIONS.REVIEWS, reviewId);
     const reviewSnap = await getDoc(reviewRef);
 
@@ -63,6 +67,7 @@ export const getReview = async (reviewId: string): Promise<FirebaseReview | null
 
 export const getSellerReviews = async (sellerId: string): Promise<FirebaseReview[]> => {
   try {
+    const db = resolveDb();
     const reviewsRef = collection(db, COLLECTIONS.REVIEWS);
     const q = query(reviewsRef, where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'));
 
@@ -90,6 +95,7 @@ export const getSellerReviews = async (sellerId: string): Promise<FirebaseReview
 
 export const getBuyerReviews = async (buyerId: string): Promise<FirebaseReview[]> => {
   try {
+    const db = resolveDb();
     const reviewsRef = collection(db, COLLECTIONS.REVIEWS);
     const q = query(reviewsRef, where('buyerId', '==', buyerId), orderBy('createdAt', 'desc'));
 
@@ -117,6 +123,7 @@ export const getBuyerReviews = async (buyerId: string): Promise<FirebaseReview[]
 
 export const getOrderReview = async (orderId: string): Promise<FirebaseReview | null> => {
   try {
+    const db = resolveDb();
     const reviewsRef = collection(db, COLLECTIONS.REVIEWS);
     const q = query(reviewsRef, where('orderId', '==', orderId));
 

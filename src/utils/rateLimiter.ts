@@ -20,11 +20,29 @@ interface RateLimitEntry {
 }
 
 const STORAGE_KEY = 'rate_limit_data';
+const memoryStorage: Record<string, string> = {};
+
+const getStorage = () => {
+  if (typeof localStorage === 'undefined') {
+    return {
+      getItem: (key: string) => memoryStorage[key] ?? null,
+      setItem: (key: string, value: string) => {
+        memoryStorage[key] = value;
+      },
+      removeItem: (key: string) => {
+        delete memoryStorage[key];
+      },
+    } as const;
+  }
+
+  return localStorage;
+};
 
 class RateLimiter {
   private getData(): Record<string, RateLimitEntry> {
+    const storage = getStorage();
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const data = storage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : {};
     } catch (error) {
       logger.error('Error reading rate limit data:', error);
@@ -33,8 +51,9 @@ class RateLimiter {
   }
 
   private setData(data: Record<string, RateLimitEntry>): void {
+    const storage = getStorage();
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      storage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
       logger.error('Error saving rate limit data:', error);
     }
@@ -123,7 +142,13 @@ class RateLimiter {
    * Clear all rate limit data
    */
   clearAll(): void {
-    localStorage.removeItem(STORAGE_KEY);
+    const storage = getStorage();
+
+    try {
+      storage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      logger.error('Error clearing rate limit data:', error);
+    }
   }
 }
 

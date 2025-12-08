@@ -10,7 +10,7 @@ import {
   where,
   getDocs,
 } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { getFirestoreDb, db as legacyDb } from '../../config/firebase';
 import {
   type FirebaseUserProfile,
   type CreateUserProfile,
@@ -19,11 +19,14 @@ import {
 } from '../../types/firebase';
 import { logger } from '../../utils/logger';
 
+const resolveDb = () => (typeof getFirestoreDb === 'function' ? getFirestoreDb() : legacyDb);
+
 export const createUserProfile = async (
   uid: string,
   profileData: CreateUserProfile
 ): Promise<void> => {
   try {
+    const db = resolveDb();
     const userRef = doc(db, COLLECTIONS.USERS, uid);
 
     const profile: Omit<FirebaseUserProfile, 'createdAt' | 'updatedAt'> & {
@@ -45,6 +48,7 @@ export const createUserProfile = async (
 
 export const getUserProfile = async (uid: string): Promise<FirebaseUserProfile | null> => {
   try {
+    const db = resolveDb();
     const userRef = doc(db, COLLECTIONS.USERS, uid);
     const userSnap: DocumentSnapshot = await getDoc(userRef);
 
@@ -61,6 +65,7 @@ export const getUserProfile = async (uid: string): Promise<FirebaseUserProfile |
 
 export const updateUserProfile = async (uid: string, updates: UpdateUserProfile): Promise<void> => {
   try {
+    const db = resolveDb();
     const userRef = doc(db, COLLECTIONS.USERS, uid);
 
     await updateDoc(userRef, {
@@ -101,6 +106,7 @@ export const becomeSeller = async (
 
 export const userExists = async (uid: string): Promise<boolean> => {
   try {
+    const db = resolveDb();
     const userRef = doc(db, COLLECTIONS.USERS, uid);
     const userSnap = await getDoc(userRef);
     return userSnap.exists();
@@ -112,6 +118,7 @@ export const userExists = async (uid: string): Promise<boolean> => {
 
 export const getUserByEmail = async (email: string): Promise<FirebaseUserProfile | null> => {
   try {
+    const db = resolveDb();
     const usersRef = collection(db, COLLECTIONS.USERS);
     const q = query(usersRef, where('email', '==', email));
     const querySnapshot = await getDocs(q);

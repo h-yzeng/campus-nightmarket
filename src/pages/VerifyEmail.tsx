@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { applyActionCode, checkActionCode } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
 import ErrorAlert from '../components/common/ErrorAlert';
-import { auth } from '../config/firebase';
+import { getFirebaseAuth } from '../config/firebase';
 import { logger } from '../utils/logger';
 
 const SUCCESS_REDIRECT_DELAY_MS = 1500;
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
+  const auth = useMemo(() => getFirebaseAuth(), []);
   const [params] = useSearchParams();
   const oobCode = useMemo(() => params.get('oobCode') || '', [params]);
   const continueUrl = useMemo(() => params.get('continueUrl') || '', [params]);

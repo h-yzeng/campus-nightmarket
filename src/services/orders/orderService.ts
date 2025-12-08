@@ -11,7 +11,7 @@ import {
   serverTimestamp,
   increment,
 } from 'firebase/firestore';
-import { db } from '../../config/firebase';
+import { getFirestoreDb, db as legacyDb } from '../../config/firebase';
 import {
   type FirebaseOrder,
   type CreateOrder,
@@ -30,8 +30,11 @@ import {
 import { toAppError } from '../../utils/firebaseErrorMapper';
 import { ErrorCategory, ErrorCode } from '../../utils/errorMessages';
 
+const resolveDb = () => (typeof getFirestoreDb === 'function' ? getFirestoreDb() : legacyDb);
+
 export const createOrder = async (orderData: CreateOrder): Promise<string> => {
   try {
+    const db = resolveDb();
     // Validate input data
     validatePaymentMethod(orderData.paymentMethod);
     validatePrice(orderData.total);
@@ -78,6 +81,7 @@ export const createOrder = async (orderData: CreateOrder): Promise<string> => {
 
 export const getOrder = async (orderId: string): Promise<FirebaseOrder | null> => {
   try {
+    const db = resolveDb();
     const orderRef = doc(db, COLLECTIONS.ORDERS, orderId);
     const orderSnap = await getDoc(orderRef);
 
@@ -97,6 +101,7 @@ export const getOrder = async (orderId: string): Promise<FirebaseOrder | null> =
 
 export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> => {
   try {
+    const db = resolveDb();
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
     const q = query(ordersRef, where('buyerId', '==', buyerId), orderBy('createdAt', 'desc'));
 
@@ -124,6 +129,7 @@ export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> 
 
 export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]> => {
   try {
+    const db = resolveDb();
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
     const q = query(ordersRef, where('sellerId', '==', sellerId), orderBy('createdAt', 'desc'));
 
@@ -155,6 +161,7 @@ export const getBuyerOrdersByStatus = async (
   status: OrderStatus
 ): Promise<FirebaseOrder[]> => {
   try {
+    const db = resolveDb();
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
     const q = query(
       ordersRef,
@@ -190,6 +197,7 @@ export const getSellerOrdersByStatus = async (
   status: OrderStatus
 ): Promise<FirebaseOrder[]> => {
   try {
+    const db = resolveDb();
     const ordersRef = collection(db, COLLECTIONS.ORDERS);
     const q = query(
       ordersRef,
@@ -222,6 +230,7 @@ export const getSellerOrdersByStatus = async (
 
 export const updateOrder = async (orderId: string, updates: UpdateOrder): Promise<void> => {
   try {
+    const db = resolveDb();
     const orderRef = doc(db, COLLECTIONS.ORDERS, orderId);
 
     await updateDoc(orderRef, {
@@ -269,6 +278,7 @@ export const cancelOrder = async (orderId: string): Promise<void> => {
 
 export const completeOrder = async (orderId: string): Promise<void> => {
   try {
+    const db = resolveDb();
     // Get the order to access its items
     const order = await getOrder(orderId);
     if (!order) {

@@ -4,6 +4,35 @@ const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
 const DEBOUNCE_DELAY = 1000; // Debounce activity updates to reduce localStorage writes
 
+const canUseLocalStorage = typeof localStorage !== 'undefined';
+
+const safeSetItem = (key: string, value: string) => {
+  if (!canUseLocalStorage) return;
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Swallow storage failures to avoid breaking logout flow
+  }
+};
+
+const safeGetItem = (key: string) => {
+  if (!canUseLocalStorage) return null;
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeRemoveItem = (key: string) => {
+  if (!canUseLocalStorage) return;
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore cleanup failures
+  }
+};
+
 interface UseInactivityTimeoutProps {
   onTimeout: () => void;
   isAuthenticated: boolean;
@@ -25,7 +54,7 @@ export const useInactivityTimeout = ({ onTimeout, isAuthenticated }: UseInactivi
     }
 
     debounceRef.current = window.setTimeout(() => {
-      localStorage.setItem(LAST_ACTIVITY_KEY, now.toString());
+      safeSetItem(LAST_ACTIVITY_KEY, now.toString());
     }, DEBOUNCE_DELAY);
   }, []);
 
@@ -47,7 +76,7 @@ export const useInactivityTimeout = ({ onTimeout, isAuthenticated }: UseInactivi
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
+    const lastActivity = safeGetItem(LAST_ACTIVITY_KEY);
 
     if (lastActivity) {
       const timeSinceLastActivity = Date.now() - parseInt(lastActivity, 10);
@@ -88,7 +117,7 @@ export const useInactivityTimeout = ({ onTimeout, isAuthenticated }: UseInactivi
   // Clear activity data on sign out
   useEffect(() => {
     if (!isAuthenticated) {
-      localStorage.removeItem(LAST_ACTIVITY_KEY);
+      safeRemoveItem(LAST_ACTIVITY_KEY);
     }
   }, [isAuthenticated]);
 };

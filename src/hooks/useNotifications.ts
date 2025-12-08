@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   requestNotificationPermission,
   onForegroundMessage,
@@ -27,6 +27,8 @@ interface FCMPayload {
 
 export const useNotifications = (userId: string | undefined) => {
   const queryClient = useQueryClient();
+  const isMountedRef = useRef(true);
+  const permissionRequestRef = useRef<Promise<void> | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasPermission, setHasPermission] = useState(false);
   const [permissionState, setPermissionState] = useState<NotificationPermission | 'unsupported'>(
@@ -34,35 +36,56 @@ export const useNotifications = (userId: string | undefined) => {
   );
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
-  const requestPermission = async () => {
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const requestPermission = useCallback(async (): Promise<void> => {
     if (!userId || typeof Notification === 'undefined') return;
+    if (permissionRequestRef.current) return permissionRequestRef.current;
+
     setIsRequestingPermission(true);
 
-    try {
-      const token = await requestNotificationPermission();
-      setPermissionState(Notification.permission);
+    const permissionPromise = (async () => {
+      try {
+        const token = await requestNotificationPermission();
 
-      if (token) {
-        setHasPermission(true);
-        await saveFCMToken(userId, token);
-      } else {
-        setHasPermission(false);
+        if (!isMountedRef.current) return;
+
+        setPermissionState(Notification.permission);
+
+        if (token) {
+          setHasPermission(true);
+          await saveFCMToken(userId, token);
+        } else {
+          setHasPermission(false);
+        }
+      } catch (err) {
+        if (isMountedRef.current) {
+          logger.error('Notification permission request failed', err);
+          setHasPermission(false);
+        }
+      } finally {
+        if (isMountedRef.current) {
+          setIsRequestingPermission(false);
+        }
+        permissionRequestRef.current = null;
       }
-    } catch (err) {
-      logger.error('Notification permission request failed', err);
-      setHasPermission(false);
-    } finally {
-      setIsRequestingPermission(false);
-    }
-  };
+    })();
+
+    permissionRequestRef.current = permissionPromise;
+    return permissionPromise;
+  }, [userId]);
 
   // Request permission and save token when already granted
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) return undefined;
     if (typeof Notification === 'undefined') {
       setPermissionState('unsupported');
       setHasPermission(false);
-      return;
+      return undefined;
     }
 
     setPermissionState(Notification.permission);
@@ -73,34 +96,26 @@ export const useNotifications = (userId: string | undefined) => {
         return;
       }
 
-      const token = await requestNotificationPermission();
-      if (token) {
-        setHasPermission(true);
-        await saveFCMToken(userId, token);
-      }
+      await requestPermission();
     };
 
     void syncGrantedPermission();
 
     // Clean up on unmount or user change
     return () => {
-      if (userId) {
-        removeFCMToken(userId).catch((err) => logger.error(err));
-      }
+      removeFCMToken(userId).catch((err) => logger.error(err));
     };
-  }, [userId]);
+  }, [requestPermission, userId]);
 
   // Listen for foreground messages
   useEffect(() => {
-    if (!hasPermission) return;
+    if (!hasPermission) return undefined;
 
     const unsubscribe = onForegroundMessage((payload) => {
       logger.general('Received foreground notification:', payload);
 
-      // Cast payload to FCMPayload type
       const fcmPayload = payload as FCMPayload;
 
-      // Add notification to list
       const newNotification: Notification = {
         id: Date.now().toString(),
         title: fcmPayload.notification?.title || 'Notification',
@@ -110,9 +125,10 @@ export const useNotifications = (userId: string | undefined) => {
         read: false,
       };
 
-      setNotifications((prev) => [newNotification, ...prev]);
+      if (isMountedRef.current) {
+        setNotifications((prev) => [newNotification, ...prev]);
+      }
 
-      // Show browser notification
       if (Notification.permission === 'granted') {
         new Notification(newNotification.title, {
           body: newNotification.body,
@@ -121,7 +137,6 @@ export const useNotifications = (userId: string | undefined) => {
         });
       }
 
-      // Invalidate relevant queries based on notification type
       if (fcmPayload.data?.type === 'order_update' || fcmPayload.data?.type === 'new_order') {
         queryClient.invalidateQueries({ queryKey: ['orders'] });
       }
@@ -130,29 +145,34 @@ export const useNotifications = (userId: string | undefined) => {
     return unsubscribe;
   }, [hasPermission, queryClient]);
 
-  const markAsRead = (notificationId: string) => {
+  const markAsRead = useCallback((notificationId: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
     );
-  };
+  }, []);
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
+  }, []);
 
-  const clearNotification = (notificationId: string) => {
+  const clearNotification = useCallback((notificationId: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-  };
+  }, []);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const refreshNotifications = async () => {
+  const refreshNotifications = useCallback(async () => {
     await requestPermission();
-  };
+  }, [requestPermission]);
+
+  const handlers = useMemo(
+    () => ({ markAsRead, markAllAsRead, clearNotification, clearAll, refreshNotifications }),
+    [markAsRead, markAllAsRead, clearNotification, clearAll, refreshNotifications]
+  );
 
   return {
     notifications,
@@ -161,10 +181,6 @@ export const useNotifications = (userId: string | undefined) => {
     permissionState,
     isRequestingPermission,
     requestPermission,
-    refreshNotifications,
-    markAsRead,
-    markAllAsRead,
-    clearNotification,
-    clearAll,
+    ...handlers,
   };
 };
