@@ -255,6 +255,17 @@ export const getTopListingByPurchaseCount = async (): Promise<FirebaseListing | 
     const docSnap = snapshot.docs[0];
     return { id: docSnap.id, ...docSnap.data() } as FirebaseListing;
   } catch (error) {
+    // Gracefully handle missing composite index in dev/preview
+    if (error instanceof Error && 'code' in (error as { code?: string })) {
+      const code = (error as { code?: string }).code;
+      if (code === 'failed-precondition') {
+        logger.warn(
+          'Missing Firestore index for top listing by purchaseCount. Create a composite index on (isActive == true, purchaseCount desc, createdAt desc).'
+        );
+        return null;
+      }
+    }
+
     logger.error('Error getting top listing by purchase count:', error);
     return null;
   }
