@@ -101,8 +101,8 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
         </div>
 
         <p className="text-xs text-gray-400">
-          If you just clicked the link, wait a moment and press “I verified my email” to refresh your
-          status.
+          If you just clicked the link, wait a moment and press “I verified my email” to refresh
+          your status.
         </p>
       </div>
     </div>

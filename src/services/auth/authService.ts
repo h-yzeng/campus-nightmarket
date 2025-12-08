@@ -49,7 +49,8 @@ const buildVerificationActionCodeSettings = () => {
   const prodFallback = 'https://campus-nightmarket.vercel.app';
   const baseUrl = isLocal
     ? origin
-    : configured || (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : prodFallback);
+    : configured ||
+      (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : prodFallback);
 
   return {
     // Let Firebase host the verification page, then return to our app landing page
