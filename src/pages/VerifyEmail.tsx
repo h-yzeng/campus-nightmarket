@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { applyActionCode } from 'firebase/auth';
+import { applyActionCode, checkActionCode } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
 import ErrorAlert from '../components/common/ErrorAlert';
 import { auth } from '../config/firebase';
@@ -33,6 +33,10 @@ const VerifyEmail = () => {
       }
 
       try {
+        // Pre-flight check to see what Firebase thinks about this code
+        const info = await checkActionCode(auth, oobCode);
+        logger.info('Verification code info', info);
+
         await applyActionCode(auth, oobCode);
         setStatus('success');
 
@@ -47,6 +51,17 @@ const VerifyEmail = () => {
         const code = (err as { code?: string })?.code;
         if (code) {
           setErrorCode(code);
+        }
+
+        // If the action code is already used but the user is now verified, treat as success
+        try {
+          await auth.currentUser?.reload();
+          if (auth.currentUser?.emailVerified) {
+            setStatus('success');
+            return;
+          }
+        } catch (reloadErr) {
+          logger.warn('Could not reload user after verification failure', reloadErr);
         }
 
         if (code === 'auth/expired-action-code') {
