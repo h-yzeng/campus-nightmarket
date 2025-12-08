@@ -72,7 +72,7 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   const handleSignUp = async (data: SignupData): Promise<void> => {
     setError(null);

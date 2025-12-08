@@ -151,7 +151,7 @@ const VerifyEmail = () => {
         window.clearTimeout(timeout);
       }
     };
-  }, [continueUrl, navigate, oobCode, redirectTarget, status]);
+  }, [auth, continueUrl, navigate, oobCode, redirectTarget, status]);
 
   if (status === 'verifying') {
     return (

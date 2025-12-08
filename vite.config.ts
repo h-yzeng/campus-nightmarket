@@ -60,7 +60,7 @@ export default defineConfig({
           if (!id.includes('node_modules')) return undefined;
 
           // React core
-          if (/node_modules[\/](react|react-dom)[\/]/.test(id)) return 'vendor-react';
+          if (/node_modules[/](react|react-dom)[/]/.test(id)) return 'vendor-react';
 
           // Routing & data
           if (id.includes('node_modules/react-router-dom')) return 'vendor-router';
@@ -68,16 +68,16 @@ export default defineConfig({
           if (id.includes('@tanstack/react-query')) return 'vendor-query';
 
           // Forms/validation
-          if (/node_modules[\/](react-hook-form|@hookform\/resolvers|zod)[\/]/.test(id)) {
+          if (/node_modules[/](react-hook-form|@hookform\/resolvers|zod)[/]/.test(id)) {
             return 'vendor-forms';
           }
 
           // UI helpers
-          if (/node_modules[\/](lucide-react|zustand|sonner)[\/]/.test(id)) return 'vendor-ui';
+          if (/node_modules[/](lucide-react|zustand|sonner)[/]/.test(id)) return 'vendor-ui';
 
           // Firebase split: messaging separate from core
           if (id.includes('firebase/messaging')) return 'vendor-firebase-messaging';
-          if (/node_modules[\/]firebase[\/]/.test(id)) return 'vendor-firebase-core';
+          if (/node_modules[/]firebase[/]/.test(id)) return 'vendor-firebase-core';
 
           // Sentry
           if (id.includes('@sentry')) return 'vendor-sentry';
