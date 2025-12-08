@@ -46,7 +46,7 @@ interface AppRoutesProps {
   handleCreateProfile: (password: string) => Promise<void>;
   handleLogin: (email: string, password: string) => Promise<boolean>;
   handleSaveProfile: () => Promise<void>;
-  handleSignOut: () => void;
+  handleSignOut: () => Promise<void>;
 
   // Order handlers
   handlePlaceOrder: (
@@ -63,6 +63,9 @@ interface AppRoutesProps {
   handleToggleAvailability: (listingId: number | string) => void;
   handleDeleteListing: (listingId: number | string) => void;
   handleUpdateListing: () => Promise<void>;
+
+  // Auth loading state to prevent premature redirects
+  authLoading: boolean;
 }
 
 // Loading fallback component for lazy loaded routes
@@ -72,10 +75,23 @@ const PageLoadingFallback = () => (
   </div>
 );
 
-const RequireAuth = ({ children, user }: { children: ReactElement; user: User | null }) => {
+const RequireAuth = ({
+  children,
+  user,
+  loading,
+}: {
+  children: ReactElement;
+  user: User | null;
+  loading: boolean;
+}) => {
+  if (loading) {
+    return <PageLoadingFallback />;
+  }
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
   return <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>;
 };
 
@@ -180,7 +196,7 @@ const FoodPreviewWrapper = () => {
   );
 };
 
-const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
+const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'>) => {
   const navigate = useNavigate();
 
   // Get data from React Query
@@ -220,7 +236,12 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart'>) => {
       profileData={profileData}
       userMode={userMode}
       onCartClick={() => navigate('/cart')}
-      onSignOut={() => navigate('/')}
+      onSignOut={() => {
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
+      }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
@@ -257,8 +278,10 @@ const UserProfileWrapper = (
       setProfileData={props.setProfileData}
       onSaveProfile={props.handleSaveProfile}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onBack={() => navigate('/browse')}
       userMode={userMode}
@@ -299,8 +322,10 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
       userMode={userMode}
       onBack={() => navigate('/browse')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onCartClick={() => navigate('/cart')}
       onProfileClick={() => navigate('/profile')}
@@ -335,8 +360,10 @@ const CartWrapper = (
       onCheckout={() => navigate('/checkout')}
       onContinueShopping={() => navigate('/browse')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -378,8 +405,10 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
         navigate('/orders');
       }}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
@@ -431,8 +460,10 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
       onBackToBrowse={() => navigate('/browse')}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -499,8 +530,10 @@ const OrderDetailsWrapper = (
       onSubmitReview={props.handleSubmitReview}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
@@ -551,8 +584,10 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       onViewOrders={() => navigate('/seller/orders')}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -605,8 +640,10 @@ const CreateListingWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -661,8 +698,10 @@ const EditListingWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -716,8 +755,10 @@ const SellerListingsWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -779,8 +820,10 @@ const SellerOrdersWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        props.handleSignOut();
-        navigate('/');
+        void (async () => {
+          await props.handleSignOut();
+          navigate('/');
+        })();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -818,15 +861,15 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/browse"
         element={
-          <RequireAuth user={user}>
-            <BrowseWrapper addToCart={props.addToCart} />
+          <RequireAuth user={user} loading={props.authLoading}>
+            <BrowseWrapper addToCart={props.addToCart} handleSignOut={props.handleSignOut} />
           </RequireAuth>
         }
       />
       <Route
         path="/profile"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <UserProfileWrapper
               setProfileData={props.setProfileData}
               handleSaveProfile={props.handleSaveProfile}
@@ -838,7 +881,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/seller/:sellerId"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <ViewSellerProfileWrapper handleSignOut={props.handleSignOut} />
           </RequireAuth>
         }
@@ -846,7 +889,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/cart"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <CartWrapper
               updateCartQuantity={props.updateCartQuantity}
               removeFromCart={props.removeFromCart}
@@ -858,7 +901,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/checkout"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <CheckoutWrapper
               handlePlaceOrder={props.handlePlaceOrder}
               handleSignOut={props.handleSignOut}
@@ -869,7 +912,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/orders"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <UserOrdersWrapper handleSignOut={props.handleSignOut} />
           </RequireAuth>
         }
@@ -877,7 +920,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/orders/:orderId"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <OrderDetailsWrapper
               handleSignOut={props.handleSignOut}
               handleCancelOrder={props.handleCancelOrder}
@@ -891,7 +934,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/seller/dashboard"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <SellerDashboardWrapper handleSignOut={props.handleSignOut} />
           </RequireAuth>
         }
@@ -899,7 +942,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/seller/listings/create"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <CreateListingWrapper
               handleSignOut={props.handleSignOut}
               handleCreateListing={props.handleCreateListing}
@@ -910,7 +953,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/seller/listings/:listingId/edit"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <EditListingWrapper
               handleSignOut={props.handleSignOut}
               handleUpdateListing={props.handleUpdateListing}
@@ -921,7 +964,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/seller/listings"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <SellerListingsWrapper
               handleSignOut={props.handleSignOut}
               handleToggleAvailability={props.handleToggleAvailability}
@@ -933,7 +976,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
       <Route
         path="/seller/orders"
         element={
-          <RequireAuth user={user}>
+          <RequireAuth user={user} loading={props.authLoading}>
             <SellerOrdersWrapper
               handleSignOut={props.handleSignOut}
               handleUpdateOrderStatus={props.handleUpdateOrderStatus}

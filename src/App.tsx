@@ -44,6 +44,7 @@ function App() {
     handleResendVerification,
     handleReloadUser,
     user,
+    loading,
   } = useAuth();
 
   const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
@@ -100,8 +101,9 @@ function App() {
    * 3. Clears auth store (user, profile)
    * 4. Resets navigation state (search queries, filters, etc.)
    */
-  const wrappedHandleSignOut = () => {
-    handleSignOut();
+  const wrappedHandleSignOut = async () => {
+    await handleSignOut();
+    queryClient.clear();
     clearCart();
     clearAuth();
     resetNavigation();
@@ -109,7 +111,9 @@ function App() {
 
   // Auto-logout after 10 minutes of inactivity
   useInactivityTimeout({
-    onTimeout: wrappedHandleSignOut,
+    onTimeout: () => {
+      void wrappedHandleSignOut();
+    },
     isAuthenticated: !!user,
   });
 
@@ -224,6 +228,7 @@ function App() {
             addToCart={addToCart}
             updateCartQuantity={updateCartQuantity}
             removeFromCart={removeFromCart}
+            authLoading={loading}
           />
         </div>
       </BrowserRouter>

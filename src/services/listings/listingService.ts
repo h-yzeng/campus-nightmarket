@@ -239,6 +239,27 @@ export const getListingsByCategory = async (category: string): Promise<FirebaseL
   }
 };
 
+export const getTopListingByPurchaseCount = async (): Promise<FirebaseListing | null> => {
+  try {
+    const listingsRef = collection(db, COLLECTIONS.LISTINGS);
+    const q = query(
+      listingsRef,
+      where('isActive', '==', true),
+      orderBy('purchaseCount', 'desc'),
+      limit(1)
+    );
+
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+
+    const docSnap = snapshot.docs[0];
+    return { id: docSnap.id, ...docSnap.data() } as FirebaseListing;
+  } catch (error) {
+    logger.error('Error getting top listing by purchase count:', error);
+    return null;
+  }
+};
+
 export const updateListing = async (listingId: string, updates: UpdateListing): Promise<void> => {
   try {
     const listingRef = doc(db, COLLECTIONS.LISTINGS, listingId);
