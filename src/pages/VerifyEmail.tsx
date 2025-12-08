@@ -20,6 +20,7 @@ const VerifyEmail = () => {
   const [error, setError] = useState(
     oobCode ? '' : 'Verification link is missing a code. Please request a new verification email.'
   );
+  const [errorCode, setErrorCode] = useState('');
 
   useEffect(() => {
     let timeout: number | undefined;
@@ -44,6 +45,9 @@ const VerifyEmail = () => {
       } catch (err) {
         logger.error('Email verification failed', err);
         const code = (err as { code?: string })?.code;
+        if (code) {
+          setErrorCode(code);
+        }
 
         if (code === 'auth/expired-action-code') {
           setError('This verification link has expired. Please resend a new verification email.');
@@ -95,6 +99,7 @@ const VerifyEmail = () => {
       <div className="w-full max-w-md space-y-4 rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
         <h1 className="text-xl font-semibold text-white">Try verifying again</h1>
         <ErrorAlert message={error} />
+        {errorCode ? <p className="text-xs text-gray-400">Debug code: {errorCode}</p> : null}
         <button
           type="button"
           className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
