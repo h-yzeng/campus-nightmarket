@@ -48,7 +48,10 @@ const PROGRESSIVE_BLOCKING = {
 };
 
 // Login/signup server-side rate limiting (lightweight, per-identifier in-memory)
-const loginRateLimitStore = new Map<string, { attempts: number; blockedUntil?: number; windowReset: number }>();
+const loginRateLimitStore = new Map<
+  string,
+  { attempts: number; blockedUntil?: number; windowReset: number }
+>();
 const LOGIN_RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_BLOCK_MS = 15 * 60 * 1000; // 15 minutes

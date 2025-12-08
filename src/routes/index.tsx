@@ -556,10 +556,9 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
   const { data: listings = [], isLoading: listingsLoading } = useSellerListingsQuery(user?.uid);
-  const {
-    data: sellerOrders = [],
-    isLoading: sellerOrdersLoading,
-  } = useSellerOrdersQuery(user?.uid);
+  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(
+    user?.uid
+  );
 
   // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
