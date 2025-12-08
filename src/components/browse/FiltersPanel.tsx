@@ -55,7 +55,7 @@ const FiltersPanel = ({
     <div className="border-b-2 border-[#2A2A2A] bg-[#1A1A1B] shadow-sm">
       <div className="mx-auto max-w-7xl space-y-4 px-6 py-6">
         {/* Primary Filters: search + location in one row */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           {/* Search */}
           <div className="relative min-w-[220px] flex-1">
             <Search
@@ -74,7 +74,7 @@ const FiltersPanel = ({
           </div>
 
           {/* Location */}
-          <div className="flex flex-1 items-center gap-3 md:max-w-sm">
+          <div className="flex min-w-[200px] flex-1 items-center gap-3 sm:max-w-sm">
             <MapPin size={20} className="shrink-0 text-[#CC0000]" aria-hidden="true" />
             <select
               value={selectedLocation}
@@ -91,7 +91,7 @@ const FiltersPanel = ({
         </div>
 
         {/* Advanced Filters Toggle + actions */}
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
@@ -103,7 +103,7 @@ const FiltersPanel = ({
             {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
           </button>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <p className="text-sm font-medium text-[#B0B0B0]">
               {resultCount} item{resultCount !== 1 ? 's' : ''} available
             </p>
@@ -112,7 +112,7 @@ const FiltersPanel = ({
                 type="button"
                 onClick={onRefresh}
                 disabled={isRefreshing}
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-[#2F2F2F] bg-[#1A1A1B] px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#CC0000] hover:bg-[#1f1f1f] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-[#2F2F2F] bg-[#1A1A1B] px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#CC0000] hover:bg-[#1f1f1f] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 aria-label={isRefreshing ? 'Refreshing listings' : 'Refresh listings'}
               >
                 {isRefreshing ? (

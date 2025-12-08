@@ -1,4 +1,7 @@
 import type { Messaging } from 'firebase/messaging';
+import { deleteField, doc, updateDoc } from 'firebase/firestore';
+import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import { app, db } from '../../config/firebase';
 import { logger } from '../../utils/logger';
 
 let messaging: Messaging | null = null;
@@ -18,9 +21,6 @@ export const initializeMessaging = async (): Promise<Messaging | null> => {
   messagingPromise = (async () => {
     try {
       // Dynamically import Firebase Messaging only when needed
-      const { getMessaging } = await import('firebase/messaging');
-      const { app } = await import('../../config/firebase');
-
       messaging = getMessaging(app);
       logger.info('Firebase Messaging initialized');
       return messaging;
@@ -58,8 +58,6 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
       return null;
     }
 
-    // Dynamically import getToken
-    const { getToken } = await import('firebase/messaging');
     const token = await getToken(messaging, {
       vapidKey,
     });
@@ -84,8 +82,6 @@ export const onForegroundMessage = (callback: (payload: unknown) => void) => {
         return;
       }
 
-      // Dynamically import onMessage
-      const { onMessage } = await import('firebase/messaging');
       unsubscribe = onMessage(messaging, (payload) => {
         logger.debug('Foreground message received:', payload);
         callback(payload);
@@ -106,9 +102,6 @@ export const onForegroundMessage = (callback: (payload: unknown) => void) => {
 // Save FCM token to user's Firestore document
 export const saveFCMToken = async (userId: string, token: string): Promise<void> => {
   try {
-    const { doc, updateDoc } = await import('firebase/firestore');
-    const { db } = await import('../../config/firebase');
-
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       fcmToken: token,
@@ -125,9 +118,6 @@ export const saveFCMToken = async (userId: string, token: string): Promise<void>
 // Remove FCM token from user's document (on sign out)
 export const removeFCMToken = async (userId: string): Promise<void> => {
   try {
-    const { doc, updateDoc, deleteField } = await import('firebase/firestore');
-    const { db } = await import('../../config/firebase');
-
     const userRef = doc(db, 'users', userId);
     await updateDoc(userRef, {
       fcmToken: deleteField(),

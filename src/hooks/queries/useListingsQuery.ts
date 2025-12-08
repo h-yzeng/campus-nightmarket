@@ -1,6 +1,10 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
-import { getAllListings, getPaginatedListings } from '../../services/listings/listingService';
+import {
+  getAllListings,
+  getListingsBySeller,
+  getPaginatedListings,
+} from '../../services/listings/listingService';
 import type { FirebaseListing } from '../../types/firebase';
 import type { FoodItem, ListingWithFirebaseId } from '../../types';
 
@@ -78,7 +82,6 @@ export const useSellerListingsQuery = (sellerId: string | undefined) => {
     queryKey: ['listings', 'seller', sellerId],
     queryFn: async () => {
       if (!sellerId) return [];
-      const { getListingsBySeller } = await import('../../services/listings/listingService');
       const listings = await getListingsBySeller(sellerId);
       return listings.map(convertFirebaseListingToListingWithId);
     },
