@@ -12,7 +12,16 @@ const VerifyEmail = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const oobCode = useMemo(() => params.get('oobCode') || '', [params]);
-  const continueUrl = useMemo(() => params.get('continueUrl') || '/browse', [params]);
+  const continueUrl = useMemo(() => params.get('continueUrl') || '', [params]);
+
+  const sanitizeRedirect = (url: string): string => {
+    if (!url) return '/browse';
+    // If the continueUrl loops back to verify-email, drop to browse to avoid error loop
+    if (url.includes('/verify-email')) return '/browse';
+    return url;
+  };
+
+  const redirectTarget = useMemo(() => sanitizeRedirect(continueUrl), [continueUrl]);
 
   const [status, setStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>(
     oobCode ? 'verifying' : 'error'
@@ -27,8 +36,20 @@ const VerifyEmail = () => {
 
     const verify = async () => {
       if (!oobCode) {
-        setError('Verification link is missing a code. Please request a new verification email.');
-        setStatus('error');
+        // If no code but user is already verified, treat as success and redirect
+        if (auth.currentUser?.emailVerified) {
+          setStatus('success');
+          timeout = window.setTimeout(() => {
+            if (/^https?:\/\//i.test(redirectTarget)) {
+              window.location.replace(redirectTarget);
+            } else {
+              navigate(redirectTarget, { replace: true });
+            }
+          }, SUCCESS_REDIRECT_DELAY_MS);
+        } else {
+          setError('Verification link is missing a code. Please request a new verification email.');
+          setStatus('error');
+        }
         return;
       }
 
@@ -44,11 +65,11 @@ const VerifyEmail = () => {
         await auth.currentUser?.reload();
 
         timeout = window.setTimeout(() => {
-          // If the continueUrl is absolute, use a full redirect; otherwise use client navigation
-          if (/^https?:\/\//i.test(continueUrl)) {
-            window.location.replace(continueUrl);
+          // If the target is absolute, use a full redirect; otherwise use client navigation
+          if (/^https?:\/\//i.test(redirectTarget)) {
+            window.location.replace(redirectTarget);
           } else {
-            navigate(continueUrl || '/browse', { replace: true });
+            navigate(redirectTarget || '/browse', { replace: true });
           }
         }, SUCCESS_REDIRECT_DELAY_MS);
       } catch (err) {
@@ -63,6 +84,13 @@ const VerifyEmail = () => {
           await auth.currentUser?.reload();
           if (auth.currentUser?.emailVerified) {
             setStatus('success');
+            timeout = window.setTimeout(() => {
+              if (/^https?:\/\//i.test(redirectTarget)) {
+                window.location.replace(redirectTarget);
+              } else {
+                navigate(redirectTarget || '/browse', { replace: true });
+              }
+            }, SUCCESS_REDIRECT_DELAY_MS);
             return;
           }
         } catch (reloadErr) {
@@ -92,7 +120,7 @@ const VerifyEmail = () => {
         window.clearTimeout(timeout);
       }
     };
-  }, [continueUrl, navigate, oobCode, status]);
+  }, [continueUrl, navigate, oobCode, redirectTarget, status]);
 
   if (status === 'verifying') {
     return (
