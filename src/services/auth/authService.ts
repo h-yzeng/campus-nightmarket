@@ -38,24 +38,19 @@ const getEnvVar = (key: 'VITE_VERIFICATION_REDIRECT_URL' | 'VITE_FIREBASE_AUTH_D
 };
 
 const buildVerificationActionCodeSettings = () => {
-  // Prefer an explicitly configured redirect to avoid invalid/expired links when developing locally
+  // Prefer an explicitly configured redirect; in dev stick to the local origin
   const configured = getEnvVar('VITE_VERIFICATION_REDIRECT_URL');
-  const authDomain = getEnvVar('VITE_FIREBASE_AUTH_DOMAIN');
   const origin =
     typeof window !== 'undefined' && window.location ? window.location.origin : 'http://localhost';
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
 
-  // In local dev, always prefer the running dev server origin; otherwise use configured/authorized domain
   const prodFallback = 'https://campus-nightmarket.vercel.app';
-  const baseUrl = isLocal
-    ? origin
-    : configured ||
-      (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : prodFallback);
+  const baseUrl = isLocal ? origin : configured || prodFallback;
 
   return {
-    // Let Firebase host the verification page, then return to our app landing page
-    url: `${baseUrl.replace(/\/$/, '')}/`,
-    handleCodeInApp: false,
+    // Drive users directly into our app's verify page (styled, handles codes) on the chosen domain
+    url: `${baseUrl.replace(/\/$/, '')}/verify-email`,
+    handleCodeInApp: true,
   } as const;
 };
 
