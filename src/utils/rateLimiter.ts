@@ -147,9 +147,9 @@ export const RATE_LIMITS = {
     blockDurationMs: 15 * 60 * 1000, // Block for 15 minutes
   },
   SIGNUP: {
-    maxAttempts: 3,
-    windowMs: 60 * 60 * 1000, // 1 hour
-    blockDurationMs: 60 * 60 * 1000, // Block for 1 hour
+    maxAttempts: 10,
+    windowMs: 30 * 60 * 1000, // 30 minutes
+    blockDurationMs: 30 * 60 * 1000, // Block for 30 minutes
   },
   /**
    * LOGIN_FAILED rate limiting configuration
