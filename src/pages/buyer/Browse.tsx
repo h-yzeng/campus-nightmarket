@@ -226,39 +226,6 @@ const Browse = ({
       />
 
       <main className="flex-1 pb-24 md:pb-0">
-        {onRefresh && (
-          <div
-            className="sticky top-0 z-30 flex items-center justify-center bg-[#0A0A0B]/80 px-6 pt-2 backdrop-blur"
-            aria-live="polite"
-          >
-            <div
-              className={`flex w-full max-w-7xl items-center justify-between rounded-xl border border-[#2A2A2A] px-3 py-2 text-xs text-[#B0B0B0] transition-all ${
-                pullDistance > 0 ? 'shadow-[0_10px_30px_rgba(0,0,0,0.35)]' : ''
-              }`}
-            >
-              <span>
-                {refreshing
-                  ? 'Refreshing listings...'
-                  : pullDistance >= PULL_THRESHOLD
-                    ? 'Release to refresh'
-                    : 'Pull down or tap refresh for latest listings'}
-              </span>
-              <button
-                type="button"
-                onClick={() => void triggerRefresh()}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-3 py-1 font-semibold text-white transition-colors hover:bg-[#171717] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#CC0000]"
-                disabled={refreshing}
-              >
-                {refreshing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                Refresh
-              </button>
-            </div>
-          </div>
-        )}
         {error && (
           <div className="mx-auto max-w-7xl px-6 py-4">
             <ErrorAlert
@@ -284,6 +251,8 @@ const Browse = ({
           showAvailableOnly={showAvailableOnly}
           onAvailableOnlyChange={setShowAvailableOnly}
           resultCount={filteredAndSortedItems.length}
+          onRefresh={onRefresh ? () => void triggerRefresh() : undefined}
+          isRefreshing={refreshing}
         />
 
         <div className="mx-auto max-w-7xl px-6 py-8">

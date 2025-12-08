@@ -29,21 +29,58 @@ export const useNotifications = (userId: string | undefined) => {
   const queryClient = useQueryClient();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [hasPermission, setHasPermission] = useState(false);
+  const [permissionState, setPermissionState] = useState<NotificationPermission | 'unsupported'>(
+    typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
+  );
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
-  // Request permission and save token
+  const requestPermission = async () => {
+    if (!userId || typeof Notification === 'undefined') return;
+    setIsRequestingPermission(true);
+
+    try {
+      const token = await requestNotificationPermission();
+      setPermissionState(Notification.permission);
+
+      if (token) {
+        setHasPermission(true);
+        await saveFCMToken(userId, token);
+      } else {
+        setHasPermission(false);
+      }
+    } catch (err) {
+      logger.error('Notification permission request failed', err);
+      setHasPermission(false);
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
+
+  // Request permission and save token when already granted
   useEffect(() => {
     if (!userId) return;
+    if (typeof Notification === 'undefined') {
+      setPermissionState('unsupported');
+      setHasPermission(false);
+      return;
+    }
 
-    const setupNotifications = async () => {
+    setPermissionState(Notification.permission);
+
+    const syncGrantedPermission = async () => {
+      if (Notification.permission !== 'granted') {
+        setHasPermission(false);
+        return;
+      }
+
       const token = await requestNotificationPermission();
-
       if (token) {
         setHasPermission(true);
         await saveFCMToken(userId, token);
       }
     };
 
-    setupNotifications();
+    void syncGrantedPermission();
 
     // Clean up on unmount or user change
     return () => {
@@ -113,10 +150,18 @@ export const useNotifications = (userId: string | undefined) => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  const refreshNotifications = async () => {
+    await requestPermission();
+  };
+
   return {
     notifications,
     unreadCount,
     hasPermission,
+    permissionState,
+    isRequestingPermission,
+    requestPermission,
+    refreshNotifications,
     markAsRead,
     markAllAsRead,
     clearNotification,

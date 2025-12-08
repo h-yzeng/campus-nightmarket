@@ -236,9 +236,12 @@ const SellerOrdersWrapper = (
   const logoToBrowse = makeLogoToBrowse(navigate);
 
   const user = useAuthStore((state) => state.user);
-  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(
-    user?.uid
-  );
+  const {
+    data: sellerOrders = [],
+    isLoading: sellerOrdersLoading,
+    refetch: refetchSellerOrders,
+    isFetching: isFetchingSellerOrders,
+  } = useSellerOrdersQuery(user?.uid);
 
   const orderIdsWithReviews = sellerOrders
     .filter((order) => order.status === 'completed' && order.hasReview)
@@ -282,6 +285,10 @@ const SellerOrdersWrapper = (
       }}
       loading={sellerOrdersLoading}
       pendingOrdersCount={pendingOrdersCount}
+      onRefresh={() => {
+        void refetchSellerOrders();
+      }}
+      isRefreshing={isFetchingSellerOrders && !sellerOrdersLoading}
     />
   );
 };

@@ -16,9 +16,33 @@ const VerifyEmail = () => {
 
   const sanitizeRedirect = (url: string): string => {
     if (!url) return '/browse';
-    // If the continueUrl loops back to verify-email, drop to browse to avoid error loop
-    if (url.includes('/verify-email')) return '/browse';
-    return url;
+
+    try {
+      // Only allow redirects to our origin or a configured allowlist origin.
+      const defaultOrigin = window.location.origin;
+      const allowedEnvOrigin = import.meta.env.VITE_VERIFICATION_REDIRECT_URL
+        ? new URL(import.meta.env.VITE_VERIFICATION_REDIRECT_URL).origin
+        : null;
+      const allowedOrigins = new Set([defaultOrigin]);
+      if (allowedEnvOrigin) {
+        allowedOrigins.add(allowedEnvOrigin);
+      }
+
+      const candidate = new URL(url, defaultOrigin);
+
+      if (!allowedOrigins.has(candidate.origin)) {
+        return '/browse';
+      }
+
+      // If the continueUrl loops back to verify-email, drop to browse to avoid error loop
+      if (candidate.pathname.includes('/verify-email')) return '/browse';
+
+      // Return a path relative to our site to avoid open redirects
+      return `${candidate.pathname}${candidate.search}${candidate.hash}` || '/browse';
+    } catch (err) {
+      logger.warn('Invalid continueUrl provided, falling back to browse', err);
+      return '/browse';
+    }
   };
 
   const redirectTarget = useMemo(() => sanitizeRedirect(continueUrl), [continueUrl]);

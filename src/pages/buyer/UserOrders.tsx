@@ -33,6 +33,8 @@ interface UserOrdersProps {
   onAddToCart?: (item: CartItem) => void;
   loading?: boolean;
   pendingOrdersCount?: number;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -69,6 +71,8 @@ const UserOrders = ({
   onAddToCart,
   loading = false,
   pendingOrdersCount = 0,
+  onRefresh,
+  isRefreshing = false,
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
@@ -163,9 +167,22 @@ const UserOrders = ({
           </button>
         </div>
 
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-white">My Orders</h1>
-          <p className="text-[#A0A0A0]">Track and manage your food orders</p>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="mb-2 text-3xl font-bold text-white">My Orders</h1>
+            <p className="text-[#A0A0A0]">Track and manage your food orders</p>
+          </div>
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={loading || isRefreshing}
+            className="flex items-center gap-2 rounded-lg border border-[#3A3A3A] px-3 py-2 text-sm font-semibold text-white transition hover:border-[#CC0000] disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label="Refresh orders"
+            aria-busy={isRefreshing ? 'true' : 'false'}
+          >
+            <RefreshCw size={16} className={isRefreshing ? 'animate-spin text-[#CC0000]' : ''} />
+            Refresh
+          </button>
         </div>
 
         {/* Tabs */}
@@ -258,6 +275,8 @@ const UserOrders = ({
                             src={item.image}
                             alt={item.name}
                             loading="lazy"
+                            decoding="async"
+                            sizes="(max-width: 768px) 48px, 64px"
                             className="h-full w-full object-cover"
                           />
                         ) : (

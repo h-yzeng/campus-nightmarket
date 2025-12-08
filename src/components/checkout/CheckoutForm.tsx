@@ -12,6 +12,8 @@ interface CheckoutFormProps {
   onPaymentChange: (method: PaymentMethod) => void;
   notes: string;
   onNotesChange: (notes: string) => void;
+  timeErrors: Record<string, string>;
+  hasSubmitted: boolean;
 }
 
 const CheckoutForm = ({
@@ -22,6 +24,8 @@ const CheckoutForm = ({
   onPaymentChange,
   notes,
   onNotesChange,
+  timeErrors,
+  hasSubmitted,
 }: CheckoutFormProps) => {
   const generateTimeSlots = () => {
     const slots: string[] = [];
@@ -68,6 +72,8 @@ const CheckoutForm = ({
       </div>
       {Object.entries(itemsBySeller).map(([seller, items]) => {
         const sellerTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const timeError = timeErrors[seller];
+        const timeErrorId = `pickup-error-${seller.replace(/\s+/g, '-').toLowerCase()}`;
 
         return (
           <div
@@ -107,6 +113,8 @@ const CheckoutForm = ({
                             src={item.image}
                             alt={item.name}
                             loading="lazy"
+                            decoding="async"
+                            sizes="(max-width: 768px) 64px, 96px"
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -141,6 +149,8 @@ const CheckoutForm = ({
                 className="mb-3 grid grid-cols-2 gap-2 md:grid-cols-4"
                 role="radiogroup"
                 aria-label={`Pickup time for ${seller}`}
+                aria-invalid={timeError ? 'true' : 'false'}
+                aria-describedby={timeError ? timeErrorId : undefined}
               >
                 {timeSlots.slice(0, 12).map((time) => (
                   <button
@@ -155,13 +165,24 @@ const CheckoutForm = ({
                     role="radio"
                     aria-checked={pickupTimesBySeller[seller] === time ? 'true' : 'false'}
                     aria-label={time}
+                    aria-describedby={timeError ? timeErrorId : undefined}
                   >
                     {time}
                   </button>
                 ))}
               </div>
+              {timeError && (
+                <div
+                  id={timeErrorId}
+                  className="rounded-xl border-2 border-[#4A2A1A] bg-[#2A1A0A] p-3"
+                  role="alert"
+                  aria-live="assertive"
+                >
+                  <p className="text-sm text-[#FFD699]">⚠️ {timeError}</p>
+                </div>
+              )}
 
-              {!pickupTimesBySeller[seller] && (
+              {!pickupTimesBySeller[seller] && !timeError && hasSubmitted && (
                 <div className="rounded-xl border-2 border-[#4A2A1A] bg-[#2A1A0A] p-3" role="alert">
                   <p className="text-sm text-[#FFD699]">
                     ⚠️ Please select a pickup time for this seller

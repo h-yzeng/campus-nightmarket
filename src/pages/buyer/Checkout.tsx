@@ -1,5 +1,5 @@
 import { ArrowLeft, AlertCircle, X } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { UserMode, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -45,6 +45,9 @@ const Checkout = ({
   const [notes, setNotes] = useState<string>('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [validationError, setValidationError] = useState<string>('');
+  const [timeErrors, setTimeErrors] = useState<Record<string, string>>({});
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const validationAlertRef = useRef<HTMLDivElement | null>(null);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -66,16 +69,34 @@ const Checkout = ({
       ...prev,
       [seller]: time,
     }));
+    setTimeErrors((prev) => {
+      const next = { ...prev };
+      delete next[seller];
+      return next;
+    });
+    if (validationError) {
+      setValidationError('');
+    }
   };
 
   const handlePlaceOrder = async () => {
+    setHasSubmitted(true);
     const missingTimes = sellers.filter((seller) => !pickupTimesBySeller[seller]);
 
     if (missingTimes.length > 0) {
+      const nextErrors = missingTimes.reduce<Record<string, string>>((acc, seller) => {
+        acc[seller] = `Select a pickup time for ${seller}`;
+        return acc;
+      }, {});
+      setTimeErrors(nextErrors);
       setValidationError(`Please select a pickup time for: ${missingTimes.join(', ')}`);
+      requestAnimationFrame(() => {
+        validationAlertRef.current?.focus();
+      });
       return;
     }
 
+    setTimeErrors({});
     setValidationError('');
     setIsPlacingOrder(true);
     try {
@@ -83,6 +104,9 @@ const Checkout = ({
     } catch (error) {
       logger.error('Error placing order:', error);
       setValidationError('Failed to place order. Please try again.');
+      requestAnimationFrame(() => {
+        validationAlertRef.current?.focus();
+      });
     } finally {
       setIsPlacingOrder(false);
     }
@@ -124,6 +148,10 @@ const Checkout = ({
           <div
             className="mb-6 flex items-start gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4"
             role="alert"
+            ref={validationAlertRef}
+            tabIndex={-1}
+            aria-live="assertive"
+            id="checkout-validation-error"
           >
             <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
             <p className="flex-1 text-sm text-[#FFB0B0]">{validationError}</p>
@@ -147,6 +175,8 @@ const Checkout = ({
             onPaymentChange={setSelectedPayment}
             notes={notes}
             onNotesChange={setNotes}
+            timeErrors={timeErrors}
+            hasSubmitted={hasSubmitted}
           />
 
           <OrderSummary
@@ -158,6 +188,7 @@ const Checkout = ({
             allTimesSelected={allTimesSelected}
             isPlacingOrder={isPlacingOrder}
             onPlaceOrder={handlePlaceOrder}
+            validationMessageId={validationError ? 'checkout-validation-error' : undefined}
           />
         </div>
       </main>

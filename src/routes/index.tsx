@@ -6,6 +6,7 @@ import { renderAuthRoutes } from './authRoutes';
 import { renderBuyerRoutes } from './buyerRoutes';
 import { renderSellerRoutes } from './sellerRoutes';
 import type { AppRoutesProps } from './types';
+export { RequireAuth } from './shared';
 
 export const AppRoutes = (props: AppRoutesProps) => {
   const user = useAuthStore((state) => state.user);

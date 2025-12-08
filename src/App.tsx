@@ -75,6 +75,8 @@ function App() {
   const resetNavigation = useNavigationStore((state) => state.resetNavigation);
   const setNotifications = useNotificationStore((state) => state.setNotifications);
   const setNotificationHandlers = useNotificationStore((state) => state.setHandlers);
+  const setPermissionState = useNotificationStore((state) => state.setPermissionState);
+  const setPermissionControls = useNotificationStore((state) => state.setPermissionControls);
 
   useEffect(() => {
     setUser(user);
@@ -92,7 +94,19 @@ function App() {
       clearNotification: notifications.clearNotification,
       clearAll: notifications.clearAll,
     });
-  }, [notifications, setNotifications, setNotificationHandlers]);
+    setPermissionState(notifications.permissionState);
+    setPermissionControls({
+      isRequestingPermission: notifications.isRequestingPermission,
+      requestPermission: notifications.requestPermission,
+      refreshNotifications: notifications.refreshNotifications,
+    });
+  }, [
+    notifications,
+    setNotifications,
+    setNotificationHandlers,
+    setPermissionControls,
+    setPermissionState,
+  ]);
 
   /**
    * Enhanced sign out handler that cleans up all application state:

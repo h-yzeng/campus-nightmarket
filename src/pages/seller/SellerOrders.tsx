@@ -32,6 +32,8 @@ interface SellerOrdersProps {
   onLogoClick?: () => void;
   loading?: boolean;
   pendingOrdersCount?: number;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 type OrderTab = 'active' | 'completed';
@@ -53,6 +55,8 @@ const SellerOrders = ({
   onLogoClick,
   loading = false,
   pendingOrdersCount = 0,
+  onRefresh,
+  isRefreshing = false,
 }: SellerOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('active');
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
@@ -144,9 +148,22 @@ const SellerOrders = ({
           </button>
         </div>
 
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-white">Incoming Orders</h1>
-          <p className="text-[#A0A0A0]">Manage and fulfill customer orders</p>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="mb-2 text-3xl font-bold text-white">Incoming Orders</h1>
+            <p className="text-[#A0A0A0]">Manage and fulfill customer orders</p>
+          </div>
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={loading || isRefreshing}
+            className="flex items-center gap-2 rounded-lg border border-[#3A3A3A] px-3 py-2 text-sm font-semibold text-white transition hover:border-[#CC0000] disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label="Refresh orders"
+            aria-busy={isRefreshing ? 'true' : 'false'}
+          >
+            <Loader2 size={16} className={isRefreshing ? 'animate-spin text-[#CC0000]' : ''} />
+            Refresh
+          </button>
         </div>
 
         {/* Stats Cards */}
@@ -270,6 +287,8 @@ const SellerOrders = ({
                                 src={item.image}
                                 alt={item.name}
                                 loading="lazy"
+                                decoding="async"
+                                sizes="(max-width: 768px) 48px, 64px"
                                 className="h-full w-full object-cover"
                               />
                             ) : (
@@ -350,6 +369,8 @@ const SellerOrders = ({
                                       src={item.image}
                                       alt={item.name}
                                       loading="lazy"
+                                      decoding="async"
+                                      sizes="(max-width: 768px) 64px, 96px"
                                       className="h-full w-full object-cover"
                                     />
                                   ) : (

@@ -47,6 +47,10 @@ const Header = ({
   const notifications = useNotificationStore((state) => state.notifications);
   const unreadCount = useNotificationStore((state) => state.unreadCount);
   const handlers = useNotificationStore((state) => state.handlers);
+  const permissionState = useNotificationStore((state) => state.permissionState);
+  const isRequestingPermission = useNotificationStore((state) => state.isRequestingPermission);
+  const requestPermission = useNotificationStore((state) => state.requestPermission);
+  const refreshNotifications = useNotificationStore((state) => state.refreshNotifications);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -226,6 +230,10 @@ const Header = ({
                 onMarkAllAsRead={handlers.markAllAsRead}
                 onClear={handlers.clearNotification}
                 onClearAll={handlers.clearAll}
+                permissionState={permissionState}
+                onRequestPermission={requestPermission}
+                isRequestingPermission={isRequestingPermission}
+                onRefresh={refreshNotifications}
               />
             )}
 

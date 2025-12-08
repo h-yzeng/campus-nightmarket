@@ -10,6 +10,7 @@ interface OrderSummaryProps {
   allTimesSelected: boolean;
   isPlacingOrder: boolean;
   onPlaceOrder: () => void;
+  validationMessageId?: string;
 }
 
 const OrderSummary = ({
@@ -21,6 +22,7 @@ const OrderSummary = ({
   allTimesSelected,
   isPlacingOrder,
   onPlaceOrder,
+  validationMessageId,
 }: OrderSummaryProps) => {
   return (
     <div className="lg:col-span-1">
@@ -83,6 +85,7 @@ const OrderSummary = ({
                 : 'Select all pickup times to continue'
           }
           aria-busy={isPlacingOrder ? 'true' : 'false'}
+          aria-describedby={validationMessageId}
         >
           {isPlacingOrder ? (
             <>

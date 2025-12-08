@@ -1,4 +1,4 @@
-import { Search, MapPin, Filter, DollarSign, SlidersHorizontal } from 'lucide-react';
+import { Search, MapPin, Filter, DollarSign, SlidersHorizontal, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import {
   LOCATIONS,
@@ -21,6 +21,8 @@ interface FiltersPanelProps {
   showAvailableOnly: boolean;
   onAvailableOnlyChange: (value: boolean) => void;
   resultCount: number;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 const FiltersPanel = ({
@@ -37,6 +39,8 @@ const FiltersPanel = ({
   showAvailableOnly,
   onAvailableOnlyChange,
   resultCount,
+  onRefresh,
+  isRefreshing,
 }: FiltersPanelProps) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
@@ -49,11 +53,11 @@ const FiltersPanel = ({
 
   return (
     <div className="border-b-2 border-[#2A2A2A] bg-[#1A1A1B] shadow-sm">
-      <div className="mx-auto max-w-7xl px-6 py-6">
-        {/* Primary Filters */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="mx-auto max-w-7xl space-y-4 px-6 py-6">
+        {/* Primary Filters: search + location in one row */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           {/* Search */}
-          <div className="relative md:col-span-2">
+          <div className="relative min-w-[220px] flex-1">
             <Search
               className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
               size={20}
@@ -70,12 +74,12 @@ const FiltersPanel = ({
           </div>
 
           {/* Location */}
-          <div className="flex items-center gap-2">
-            <MapPin size={20} className="text-[#CC0000]" aria-hidden="true" />
+          <div className="flex flex-1 items-center gap-3 md:max-w-sm">
+            <MapPin size={20} className="shrink-0 text-[#CC0000]" aria-hidden="true" />
             <select
               value={selectedLocation}
               onChange={(e) => onLocationChange(e.target.value)}
-              className="flex-1 rounded-xl border-2 border-[#3A3A3A] bg-[#252525] px-4 py-3 text-base font-medium text-[#E0E0E0] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+              className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#252525] px-4 py-3 text-base font-medium text-[#E0E0E0] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
               aria-label="Filter by location"
             >
               <option>{ALL_LOCATIONS_OPTION}</option>
@@ -86,8 +90,8 @@ const FiltersPanel = ({
           </div>
         </div>
 
-        {/* Advanced Filters Toggle */}
-        <div className="mt-4 flex items-center justify-between">
+        {/* Advanced Filters Toggle + actions */}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
@@ -99,9 +103,27 @@ const FiltersPanel = ({
             {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
           </button>
 
-          <p className="text-sm font-medium text-[#B0B0B0]">
-            {resultCount} item{resultCount !== 1 ? 's' : ''} available
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm font-medium text-[#B0B0B0]">
+              {resultCount} item{resultCount !== 1 ? 's' : ''} available
+            </p>
+            {onRefresh && (
+              <button
+                type="button"
+                onClick={onRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center gap-2 rounded-lg border-2 border-[#2F2F2F] bg-[#1A1A1B] px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-[#CC0000] hover:bg-[#1f1f1f] disabled:cursor-not-allowed disabled:opacity-60"
+                aria-label={isRefreshing ? 'Refreshing listings' : 'Refresh listings'}
+              >
+                {isRefreshing ? (
+                  <RefreshCw size={16} className="animate-spin" />
+                ) : (
+                  <RefreshCw size={16} />
+                )}
+                {isRefreshing ? 'Refreshing…' : 'Refresh'}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Advanced Filters */}

@@ -245,7 +245,12 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const logoToBrowse = makeLogoToBrowse(navigate);
 
   const user = useAuthStore((state) => state.user);
-  const { data: buyerOrders = [], isLoading: buyerOrdersLoading } = useBuyerOrdersQuery(user?.uid);
+  const {
+    data: buyerOrders = [],
+    isLoading: buyerOrdersLoading,
+    refetch: refetchBuyerOrders,
+    isFetching: isFetchingBuyerOrders,
+  } = useBuyerOrdersQuery(user?.uid);
   const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   const profileData = useAuthStore((state) => state.profileData);
@@ -285,6 +290,10 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
       loading={buyerOrdersLoading}
       onAddToCart={addToCart}
       pendingOrdersCount={pendingOrdersCount}
+      onRefresh={() => {
+        void refetchBuyerOrders();
+      }}
+      isRefreshing={isFetchingBuyerOrders && !buyerOrdersLoading}
     />
   );
 };

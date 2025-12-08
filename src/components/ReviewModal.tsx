@@ -1,5 +1,5 @@
 import { X, Star, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -15,8 +15,53 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const lastFocusedRef = useRef<HTMLElement | null>(null);
 
   if (!isOpen) return null;
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    lastFocusedRef.current = document.activeElement as HTMLElement;
+    dialogRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isSubmitting) {
+        handleClose();
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+
+      if (!focusable || focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey) {
+        if (document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (lastFocusedRef.current) {
+        lastFocusedRef.current.focus();
+      }
+    };
+  }, [isOpen, isSubmitting]);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -50,10 +95,20 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
 
   return (
     <div className="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
-      <div className="w-full max-w-lg rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] shadow-2xl">
+      <div
+        className="w-full max-w-lg rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="review-modal-title"
+        aria-describedby="review-modal-description"
+        tabIndex={-1}
+        ref={dialogRef}
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b-2 border-[#3A3A3A] p-6">
-          <h2 className="text-2xl font-bold text-white">Leave a Review</h2>
+          <h2 id="review-modal-title" className="text-2xl font-bold text-white">
+            Leave a Review
+          </h2>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
@@ -67,7 +122,7 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
         {/* Content */}
         <div className="space-y-6 p-6">
           {/* Seller Info */}
-          <div>
+          <div id="review-modal-description">
             <p className="mb-1 text-sm text-[#A0A0A0]">Reviewing order from</p>
             <p className="text-lg font-semibold text-white">{sellerName}</p>
             {itemNames.length > 0 && (
@@ -145,7 +200,11 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
 
           {/* Error Message */}
           {error && (
-            <div className="flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4">
+            <div
+              className="flex gap-3 rounded-xl border-2 border-[#4A1A1A] bg-[#2A0A0A] p-4"
+              role="alert"
+              aria-live="assertive"
+            >
               <AlertCircle size={20} className="mt-0.5 shrink-0 text-[#CC0000]" />
               <p className="text-sm text-[#FFB0B0]">{error}</p>
             </div>

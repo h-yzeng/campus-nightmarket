@@ -9,6 +9,10 @@ interface NotificationBellProps {
   onMarkAllAsRead: () => void;
   onClear: (id: string) => void;
   onClearAll: () => void;
+  permissionState?: NotificationPermission | 'unsupported';
+  onRequestPermission?: () => void;
+  isRequestingPermission?: boolean;
+  onRefresh?: () => void;
 }
 
 const NotificationBell = ({
@@ -18,6 +22,10 @@ const NotificationBell = ({
   onMarkAllAsRead,
   onClear,
   onClearAll,
+  permissionState = 'default',
+  onRequestPermission,
+  isRequestingPermission = false,
+  onRefresh,
 }: NotificationBellProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -52,7 +60,9 @@ const NotificationBell = ({
         onClick={() => setIsOpen(!isOpen)}
         className="relative rounded-lg p-2 transition-colors hover:bg-[#252525]"
         type="button"
-        aria-label="Notifications"
+        aria-label={
+          unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications (none unread)'
+        }
       >
         <Bell size={24} className="text-[#B0B0B0]" />
         {unreadCount > 0 && (
@@ -78,6 +88,15 @@ const NotificationBell = ({
                     Mark all read
                   </button>
                 )}
+                {onRefresh && (
+                  <button
+                    onClick={onRefresh}
+                    className="text-xs text-[#888888] hover:text-[#E0E0E0]"
+                    type="button"
+                  >
+                    Refresh
+                  </button>
+                )}
                 <button
                   onClick={onClearAll}
                   className="text-xs text-[#888888] hover:text-[#E0E0E0]"
@@ -88,6 +107,35 @@ const NotificationBell = ({
               </div>
             )}
           </div>
+
+          {permissionState !== 'granted' && (
+            <div
+              className="flex items-start gap-3 border-b border-[#3A3A3A] bg-[#1F1F1F] p-4 text-sm text-[#E0E0E0]"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="mt-0.5 text-lg">🔔</div>
+              <div className="flex-1">
+                <p className="font-semibold">
+                  {permissionState === 'denied'
+                    ? 'Notifications are blocked in your browser settings'
+                    : permissionState === 'unsupported'
+                      ? 'Notifications are not supported on this device'
+                      : 'Enable notifications to get live order updates'}
+                </p>
+                {permissionState !== 'unsupported' && onRequestPermission && (
+                  <button
+                    type="button"
+                    onClick={onRequestPermission}
+                    disabled={isRequestingPermission}
+                    className="mt-2 inline-flex items-center gap-2 rounded-lg border border-[#3A3A3A] px-3 py-1 text-xs font-semibold text-white transition hover:border-[#CC0000] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isRequestingPermission ? 'Requesting…' : 'Enable notifications'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Notifications List */}
           <div className="flex-1 overflow-y-auto">
