@@ -228,6 +228,8 @@ function App() {
             addToCart={addToCart}
             updateCartQuantity={updateCartQuantity}
             removeFromCart={removeFromCart}
+            handleResendVerification={handleResendVerification}
+            handleReloadUser={handleReloadUser}
             authLoading={loading}
           />
         </div>

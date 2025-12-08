@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { shouldBypassVerification } from '../config/emailWhitelist';
 import { lazy, Suspense, useState, useEffect, type ReactElement } from 'react';
 import type { User } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
@@ -36,6 +37,7 @@ const SellerListings = lazy(() => import('../pages/seller/SellerListings'));
 const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
 const ViewProfileWrapper = lazy(() => import('../pages/buyer/ViewProfileWrapper'));
 const VerifyEmail = lazy(() => import('../pages/VerifyEmail'));
+const VerifyRequired = lazy(() => import('../pages/VerifyRequired'));
 import { useSellerProfile } from '../hooks/useSellerProfile';
 import type { ProfileData, Order, FoodItem } from '../types';
 import { useAuthStore, useCartStore, useNavigationStore } from '../stores';
@@ -79,6 +81,10 @@ interface AppRoutesProps {
   handleDeleteListing: (listingId: number | string) => void;
   handleUpdateListing: () => Promise<void>;
 
+  // Email verification helpers
+  handleResendVerification: () => Promise<void>;
+  handleReloadUser: () => Promise<void>;
+
   // Auth loading state to prevent premature redirects
   authLoading: boolean;
 }
@@ -105,6 +111,10 @@ export const RequireAuth = ({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (user && user.email && !user.emailVerified && !shouldBypassVerification(user.email)) {
+    return <Navigate to="/verify-required" replace />;
   }
 
   return <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>;
@@ -871,6 +881,15 @@ export const AppRoutes = (props: AppRoutesProps) => {
         }
       />
       <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route
+        path="/verify-required"
+        element={
+          <VerifyRequired
+            onResend={props.handleResendVerification}
+            onReload={props.handleReloadUser}
+          />
+        }
+      />
 
       {/* Buyer routes */}
       <Route

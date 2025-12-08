@@ -43,13 +43,17 @@ const buildVerificationActionCodeSettings = () => {
   const authDomain = getEnvVar('VITE_FIREBASE_AUTH_DOMAIN');
   const origin =
     typeof window !== 'undefined' && window.location ? window.location.origin : 'http://localhost';
+  const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
 
-  const baseUrl =
-    configured || (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : origin);
+  // In local dev, always prefer the running dev server origin; otherwise use configured/authorized domain
+  const baseUrl = isLocal
+    ? origin
+    : configured || (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : origin);
 
   return {
-    url: `${baseUrl.replace(/\/$/, '')}/verify-email`,
-    handleCodeInApp: true,
+    // Let Firebase host the verification page, then return to a safe landing in our app
+    url: `${baseUrl.replace(/\/$/, '')}/browse`,
+    handleCodeInApp: false,
   } as const;
 };
 

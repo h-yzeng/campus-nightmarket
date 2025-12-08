@@ -17,7 +17,9 @@ const VerifyEmail = () => {
   const [status, setStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>(
     oobCode ? 'verifying' : 'error'
   );
-  const [error, setError] = useState('');
+  const [error, setError] = useState(
+    oobCode ? '' : 'Verification link is missing a code. Please request a new verification email.'
+  );
 
   useEffect(() => {
     let timeout: number | undefined;
@@ -41,7 +43,18 @@ const VerifyEmail = () => {
         }, SUCCESS_REDIRECT_DELAY_MS);
       } catch (err) {
         logger.error('Email verification failed', err);
-        setError('This verification link is invalid or has expired. Please resend and try again.');
+        const code = (err as { code?: string })?.code;
+
+        if (code === 'auth/expired-action-code') {
+          setError('This verification link has expired. Please resend a new verification email.');
+        } else if (code === 'auth/invalid-action-code') {
+          setError('This verification link is invalid or has already been used. Please resend.');
+        } else {
+          setError(
+            'Unable to verify this link. Please resend a new verification email and try again.'
+          );
+        }
+
         setStatus('error');
       }
     };
