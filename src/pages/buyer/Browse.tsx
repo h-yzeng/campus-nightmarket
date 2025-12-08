@@ -1,13 +1,15 @@
 import { useCallback, useState, useEffect } from 'react';
-import { Loader2, HelpCircle } from 'lucide-react';
+import { Loader2, RefreshCw, HelpCircle } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ListingCard from '../../components/ListingCard';
 import FiltersPanel from '../../components/browse/FiltersPanel';
 import ErrorAlert from '../../components/common/ErrorAlert';
+import MobileActionBar from '../../components/common/MobileActionBar';
 import FirstTimeUserGuide from '../../components/onboarding/FirstTimeUserGuide';
 import { useFilteredListings } from '../../hooks/useFilteredListings';
+import { ALL_LOCATIONS_OPTION, ALL_CATEGORIES_OPTION } from '../../constants';
 
 // Debounce hook for search optimization
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -149,6 +151,15 @@ const Browse = ({
     [onViewProfile]
   );
 
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSelectedLocation(ALL_LOCATIONS_OPTION);
+    setSelectedCategory(ALL_CATEGORIES_OPTION);
+    setPriceRange([0, 50]);
+    setSortBy('newest');
+    setShowAvailableOnly(false);
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       {/* First-time user guide */}
@@ -168,7 +179,7 @@ const Browse = ({
         showCart={true}
       />
 
-      <main className="flex-1">
+      <main className="flex-1 pb-24 md:pb-0">
         {error && (
           <div className="mx-auto max-w-7xl px-6 py-4">
             <ErrorAlert
@@ -222,7 +233,7 @@ const Browse = ({
               ))}
 
               {filteredAndSortedItems.length === 0 && !loading && (
-                <div className="col-span-full rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-16 text-center shadow-md">
+                <div className="col-span-full rounded-2xl border-2 border-[#3A3A3A] bg-[#1A1A1B] py-16 text-center shadow-md">
                   <div className="mb-4 text-7xl">🔍</div>
                   <h2 className="mb-2 text-2xl font-bold text-white">No items found</h2>
                   <p className="mb-6 text-[#A0A0A0]">
@@ -230,16 +241,42 @@ const Browse = ({
                       ? 'No food items are currently available. Be the first to sell!'
                       : 'Try adjusting your search query or filters to find more listings'}
                   </p>
-                  <div className="mx-auto max-w-md space-y-4 text-left">
+                  <div className="mx-auto flex max-w-2xl flex-col items-center gap-4">
                     {foodItems.length > 0 ? (
                       <>
-                        <p className="text-sm text-[#B0B0B0]">💡 Tips:</p>
-                        <ul className="space-y-1 text-sm text-[#888888]">
-                          <li>• Try broader search terms</li>
-                          <li>• Check if "Available Only" filter is limiting results</li>
-                          <li>• Expand your location or price range</li>
-                          <li>• Browse all categories</li>
-                        </ul>
+                        <div className="flex flex-wrap justify-center gap-3">
+                          <button
+                            type="button"
+                            onClick={handleResetFilters}
+                            className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
+                          >
+                            <RefreshCw size={14} />
+                            Reset filters
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSortBy('rating')}
+                            className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
+                          >
+                            ⭐ Sort by rating
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowAvailableOnly(false)}
+                            className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
+                          >
+                            👀 Show all items
+                          </button>
+                        </div>
+                        <div className="text-left text-sm text-[#8D8D8D]">
+                          <p className="mb-2 font-semibold text-[#B0B0B0]">Quick tips</p>
+                          <ul className="space-y-1">
+                            <li>• Try broader search terms</li>
+                            <li>• Loosen price slider above</li>
+                            <li>• Toggle off "In-stock only"</li>
+                            <li>• Switch category to "All"</li>
+                          </ul>
+                        </div>
                       </>
                     ) : (
                       <div className="text-center">
@@ -266,11 +303,17 @@ const Browse = ({
       </main>
 
       <Footer />
-
+      <MobileActionBar
+        active="browse"
+        onBrowse={onLogoClick || (() => {})}
+        onCart={onCartClick}
+        onOrders={onOrdersClick}
+        onProfile={onProfileClick}
+      />
       {/* Floating Help Button */}
       <button
         onClick={handleShowGuide}
-        className="fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl"
+        className="help-fab fixed right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl active:scale-95"
         type="button"
         title="Show tutorial guide"
         aria-label="Open help guide"

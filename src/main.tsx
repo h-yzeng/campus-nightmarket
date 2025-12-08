@@ -8,6 +8,13 @@ import './styles/index.css';
 import { logger } from './utils/logger';
 import { initializeSentry } from './config/sentry.tsx';
 
+// Expose Vite env to non-Vite contexts (e.g., Jest) via globals
+const viteEnv = import.meta.env;
+(globalThis as Record<string, unknown>).__VITE_VERIFICATION_REDIRECT_URL__ =
+  viteEnv.VITE_VERIFICATION_REDIRECT_URL;
+(globalThis as Record<string, unknown>).__VITE_FIREBASE_AUTH_DOMAIN__ =
+  viteEnv.VITE_FIREBASE_AUTH_DOMAIN;
+
 // Initialize Sentry for error tracking
 initializeSentry();
 

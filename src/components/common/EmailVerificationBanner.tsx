@@ -30,9 +30,11 @@ const EmailVerificationBanner = ({
         text: 'Verification email sent! Please check your inbox.',
       });
     } catch (error) {
+      const errText =
+        error instanceof Error ? error.message : 'Failed to send email. Please try again.';
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'Failed to send email',
+        text: errText,
       });
     } finally {
       setResending(false);

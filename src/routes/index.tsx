@@ -35,6 +35,7 @@ const EditListing = lazy(() => import('../pages/seller/EditListing'));
 const SellerListings = lazy(() => import('../pages/seller/SellerListings'));
 const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
 const ViewProfileWrapper = lazy(() => import('../pages/buyer/ViewProfileWrapper'));
+const VerifyEmail = lazy(() => import('../pages/VerifyEmail'));
 import { useSellerProfile } from '../hooks/useSellerProfile';
 import type { ProfileData, Order, FoodItem } from '../types';
 import { useAuthStore, useCartStore, useNavigationStore } from '../stores';
@@ -869,6 +870,7 @@ export const AppRoutes = (props: AppRoutesProps) => {
           />
         }
       />
+      <Route path="/verify-email" element={<VerifyEmail />} />
 
       {/* Buyer routes */}
       <Route

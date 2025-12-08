@@ -120,12 +120,14 @@ const Header = ({
             type="button"
             aria-label="Go to Night Market home page"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC0000]">
-              <span className="text-2xl">🌙</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC0000] md:h-11 md:w-11">
+              <span className="text-xl leading-none md:text-2xl">🌙</span>
             </div>
             <div className="text-left">
-              <h1 className="text-xl font-bold text-[#CC0000]">Night Market</h1>
-              <p className="text-xs text-[#B0B0B0]">Campus Late-Night Food Exchange</p>
+              <h1 className="text-lg font-bold text-[#CC0000] md:text-xl">Night Market</h1>
+              <p className="text-[11px] text-[#B0B0B0] md:text-xs">
+                Campus Late-Night Food Exchange
+              </p>
             </div>
           </button>
 

@@ -27,6 +27,37 @@ export interface LoginData {
   password: string;
 }
 
+const getEnvVar = (key: 'VITE_VERIFICATION_REDIRECT_URL' | 'VITE_FIREBASE_AUTH_DOMAIN') => {
+  if (typeof globalThis !== 'undefined') {
+    const val = (globalThis as Record<string, unknown>)[`__${key}__`];
+    if (typeof val === 'string' && val.trim()) {
+      return val.trim();
+    }
+  }
+
+  if (typeof process !== 'undefined' && process.env?.[key]) {
+    return process.env[key]?.trim();
+  }
+
+  return undefined;
+};
+
+const buildVerificationActionCodeSettings = () => {
+  // Prefer an explicitly configured redirect to avoid invalid/expired links when developing locally
+  const configured = getEnvVar('VITE_VERIFICATION_REDIRECT_URL');
+  const authDomain = getEnvVar('VITE_FIREBASE_AUTH_DOMAIN');
+  const origin =
+    typeof window !== 'undefined' && window.location ? window.location.origin : 'http://localhost';
+
+  const baseUrl =
+    configured || (authDomain ? `https://${authDomain.replace(/^https?:\/\//, '')}` : origin);
+
+  return {
+    url: `${baseUrl.replace(/\/$/, '')}/verify-email`,
+    handleCodeInApp: true,
+  } as const;
+};
+
 export const signUp = async (data: SignupData): Promise<User> => {
   try {
     const { email, password } = data;
@@ -39,13 +70,7 @@ export const signUp = async (data: SignupData): Promise<User> => {
 
     // Send email verification with proper action code settings
     try {
-      const actionCodeSettings = {
-        // URL to redirect to after email verification
-        url: window.location.origin + '/browse',
-        handleCodeInApp: false, // Let Firebase handle verification on their servers
-      };
-
-      await sendEmailVerification(userCredential.user, actionCodeSettings);
+      await sendEmailVerification(userCredential.user, buildVerificationActionCodeSettings());
       logger.info('Verification email sent to:', email);
     } catch (verificationError) {
       logger.error('Failed to send verification email:', verificationError);
@@ -72,16 +97,16 @@ export const resendVerificationEmail = async (): Promise<void> => {
       throw new Error('Email is already verified');
     }
 
-    const actionCodeSettings = {
-      // URL to redirect to after email verification
-      url: window.location.origin + '/browse',
-      handleCodeInApp: false, // Let Firebase handle verification on their servers
-    };
-
-    await sendEmailVerification(user, actionCodeSettings);
+    await sendEmailVerification(user, buildVerificationActionCodeSettings());
     logger.info('Verification email resent to:', user.email);
   } catch (error) {
-    throw handleAuthError(error as AuthError);
+    const err = error as AuthError;
+    if (err.code === 'auth/too-many-requests') {
+      // Firebase throttles occasionally; surface a soft warning but do not block the UI
+      logger.warn('Verification email throttle encountered; allowing user to retry.');
+      return;
+    }
+    throw handleAuthError(err);
   }
 };
 

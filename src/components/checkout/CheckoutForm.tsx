@@ -51,6 +51,21 @@ const CheckoutForm = ({
 
   return (
     <div className="space-y-6 lg:col-span-2">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-[#2F2F2F] bg-[#161616] px-4 py-3 text-sm text-[#B0B0B0]">
+        <span className="font-semibold text-[#E0E0E0]">Review & schedule pickup</span>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full bg-[#222] px-3 py-1 font-semibold text-[#E0E0E0]">
+            {Object.values(itemsBySeller)
+              .flat()
+              .reduce((sum, item) => sum + item.quantity, 0)}{' '}
+            items
+          </span>
+          <span className="rounded-full bg-[#222] px-3 py-1 font-semibold text-[#E0E0E0]">
+            {Object.keys(itemsBySeller).length} seller
+            {Object.keys(itemsBySeller).length === 1 ? '' : 's'}
+          </span>
+        </div>
+      </div>
       {Object.entries(itemsBySeller).map(([seller, items]) => {
         const sellerTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -59,12 +74,18 @@ const CheckoutForm = ({
             key={seller}
             className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-md"
           >
-            <div className="mb-4 border-b-2 border-[#3A3A3A] pb-4">
-              <div className="mb-2 flex items-center gap-2">
-                <MapPin size={20} className="text-[#CC0000]" />
-                <h2 className="text-xl font-bold text-[#E0E0E0]">{seller}</h2>
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b-2 border-[#3A3A3A] pb-4">
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <MapPin size={20} className="text-[#CC0000]" />
+                  <h2 className="text-xl font-bold text-[#E0E0E0]">{seller}</h2>
+                </div>
+                <p className="text-sm text-[#A0A0A0]">{items[0].location}</p>
               </div>
-              <p className="text-sm text-[#A0A0A0]">{items[0].location}</p>
+              <div className="flex items-center gap-2 rounded-full bg-[#222] px-3 py-1 text-xs font-semibold text-[#E0E0E0]">
+                <ShoppingBag size={14} />
+                {items.length} item{items.length === 1 ? '' : 's'} · ${sellerTotal.toFixed(2)}
+              </div>
             </div>
 
             {/* Items List */}
@@ -103,9 +124,9 @@ const CheckoutForm = ({
                   </div>
                 ))}
               </div>
-              <div className="mt-3 flex items-center justify-between border-t-2 border-[#3A3A3A] pt-3">
+              <div className="mt-3 flex items-center justify-between border-t-2 border-[#3A3A3A] pt-3 text-sm">
                 <span className="font-bold text-[#E0E0E0]">Subtotal</span>
-                <span className="font-bold text-[#CC0000]">${sellerTotal.toFixed(2)}</span>
+                <span className="font-bold text-[#F25C54]">${sellerTotal.toFixed(2)}</span>
               </div>
             </div>
 
@@ -121,7 +142,7 @@ const CheckoutForm = ({
                 role="radiogroup"
                 aria-label={`Pickup time for ${seller}`}
               >
-                {timeSlots.slice(0, 16).map((time) => (
+                {timeSlots.slice(0, 12).map((time) => (
                   <button
                     key={time}
                     type="button"
@@ -169,13 +190,18 @@ const CheckoutForm = ({
 
       {/* Special Instructions */}
       <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] p-6 shadow-md">
-        <h2 className="mb-4 text-xl font-bold text-[#E0E0E0]">Special Instructions (Optional)</h2>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h2 className="text-xl font-bold text-[#E0E0E0]">Special Instructions (Optional)</h2>
+          <span className="text-xs tracking-wide text-[#8A8A8A] uppercase">
+            All sellers see this
+          </span>
+        </div>
 
         <textarea
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
-          placeholder="Add any special requests or dietary restrictions..."
-          className="min-h-[100px] w-full resize-none rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
+          placeholder="Add dietary needs, handoff notes, or arrival details..."
+          className="min-h-[110px] w-full resize-none rounded-xl border-2 border-[#3A3A3A] bg-[#2A2A2A] px-4 py-3 text-base text-[#E0E0E0] placeholder-[#888888] transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
           aria-label="Special instructions for your order"
         />
       </div>

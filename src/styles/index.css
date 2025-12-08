@@ -87,3 +87,19 @@
     color: hsl(var(--foreground));
   }
 }
+
+@layer components {
+  .safe-area-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  }
+
+  .help-fab {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
+  }
+
+  @media (min-width: 768px) {
+    .help-fab {
+      bottom: 24px;
+    }
+  }
+}
