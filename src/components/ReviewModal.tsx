@@ -1,5 +1,5 @@
 import { X, Star, AlertCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -18,7 +18,14 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
 
-  if (!isOpen) return null;
+  const handleClose = useCallback(() => {
+    if (!isSubmitting) {
+      setRating(0);
+      setComment('');
+      setError('');
+      onClose();
+    }
+  }, [isSubmitting, onClose]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -61,7 +68,7 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
         lastFocusedRef.current.focus();
       }
     };
-  }, [isOpen, isSubmitting]);
+  }, [handleClose, isOpen, isSubmitting]);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -84,14 +91,7 @@ const ReviewModal = ({ isOpen, onClose, onSubmit, sellerName, itemNames }: Revie
     }
   };
 
-  const handleClose = () => {
-    if (!isSubmitting) {
-      setRating(0);
-      setComment('');
-      setError('');
-      onClose();
-    }
-  };
+  if (!isOpen) return null;
 
   return (
     <div className="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
