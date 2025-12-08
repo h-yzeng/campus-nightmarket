@@ -851,6 +851,19 @@ const SellerOrdersWrapper = (
 export const AppRoutes = (props: AppRoutesProps) => {
   const user = useAuthStore((state) => state.user);
 
+  // Prefetch the most commonly visited routes after auth to smooth navigation
+  useEffect(() => {
+    if (!user) return;
+
+    void Promise.all([
+      import('../pages/buyer/Browse'),
+      import('../pages/buyer/Cart'),
+      import('../pages/buyer/Checkout'),
+      import('../pages/buyer/UserOrders'),
+      import('../pages/seller/SellerDashboard'),
+    ]);
+  }, [user]);
+
   return (
     <Routes>
       {/* Public routes */}

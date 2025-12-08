@@ -64,10 +64,12 @@ export const useListingsQuery = () => {
       const listings = await getAllListings(true);
       return listings.map(convertFirebaseListingToFoodItem);
     },
-    // Override global defaults for real-time synchronization in Browse.tsx
-    refetchOnMount: true, // Always refetch when Browse.tsx mounts
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    staleTime: 0, // Always consider data stale for immediate updates
+    // Keep listings reasonably fresh without thrashing network requests
+    staleTime: 30_000, // 30s freshness window for scrolling-heavy browse page
+    gcTime: 5 * 60 * 1000, // Cache for 5 minutes to support tab hops
+    refetchOnMount: true,
+    refetchOnWindowFocus: 'always',
+    retry: 2,
   });
 };
 
@@ -81,10 +83,12 @@ export const useSellerListingsQuery = (sellerId: string | undefined) => {
       return listings.map(convertFirebaseListingToListingWithId);
     },
     enabled: !!sellerId,
-    // Optimize caching while still refreshing periodically
-    refetchOnMount: true, // Always refetch when SellerListings.tsx mounts
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    staleTime: 0, // Always consider data stale for immediate updates
+    // Cache seller view but refresh when user returns
+    staleTime: 60_000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: 'always',
+    retry: 2,
   });
 };
 
@@ -103,5 +107,9 @@ export const useInfiniteListingsQuery = (pageSize: number = 20) => {
     getNextPageParam: (lastPage) => {
       return lastPage.hasMore ? lastPage.lastDoc : undefined;
     },
+    staleTime: 15_000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 };

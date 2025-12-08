@@ -66,9 +66,12 @@ export const useBuyerOrdersQuery = (userId: string | undefined, refetchInterval?
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
-    refetchInterval: refetchInterval !== undefined ? refetchInterval : 10000, // Soften polling to reduce load
-    refetchOnWindowFocus: true, // Refetch when user returns to the page
-    refetchIntervalInBackground: false, // Don't refetch when tab is in background to save resources
+    staleTime: 15_000,
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: refetchInterval !== undefined ? refetchInterval : 12_000,
+    refetchOnWindowFocus: 'always',
+    refetchIntervalInBackground: false,
+    retry: 2,
   });
 };
 
@@ -81,8 +84,11 @@ export const useSellerOrdersQuery = (userId: string | undefined, refetchInterval
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
-    refetchInterval: refetchInterval !== undefined ? refetchInterval : 5000, // Softer polling while keeping seller view responsive
-    refetchOnWindowFocus: true, // Refetch when user returns to the page
-    refetchIntervalInBackground: false, // Don't refetch when tab is in background
+    staleTime: 7_500,
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: refetchInterval !== undefined ? refetchInterval : 6_000,
+    refetchOnWindowFocus: 'always',
+    refetchIntervalInBackground: false,
+    retry: 2,
   });
 };

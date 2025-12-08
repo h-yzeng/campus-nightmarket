@@ -43,6 +43,9 @@ export const useSellerReviewsQuery = (sellerId: string | undefined) => {
       return firebaseReviews.map(convertFirebaseReviewToApp);
     },
     enabled: !!sellerId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 };
 
@@ -55,6 +58,9 @@ export const useBuyerReviewsQuery = (buyerId: string | undefined) => {
       return firebaseReviews.map(convertFirebaseReviewToApp);
     },
     enabled: !!buyerId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 };
 
@@ -67,6 +73,9 @@ export const useOrderReviewQuery = (orderId: string | undefined) => {
       return firebaseReview ? convertFirebaseReviewToApp(firebaseReview) : null;
     },
     enabled: !!orderId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 };
 
@@ -100,7 +109,9 @@ export const useSellerRatingsQuery = (sellerIds: string[]) => {
       );
     },
     enabled: sellerIds.length > 0,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 };
 
@@ -133,6 +144,8 @@ export const useOrderReviewsQuery = (orderIds: string[]) => {
       );
     },
     enabled: orderIds.length > 0,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 };

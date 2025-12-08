@@ -50,6 +50,18 @@ interface BrowseProps {
   onShowGuide?: () => void;
 }
 
+const ListingSkeletonCard = () => (
+  <div className="animate-pulse rounded-2xl border-2 border-[#2A2A2A] bg-[#141414] p-4 shadow-sm">
+    <div className="mb-4 h-40 w-full rounded-xl bg-[#1F1F1F]" />
+    <div className="mb-2 h-4 w-3/4 rounded bg-[#1F1F1F]" />
+    <div className="mb-4 h-4 w-1/2 rounded bg-[#1F1F1F]" />
+    <div className="flex items-center justify-between">
+      <div className="h-4 w-1/3 rounded bg-[#1F1F1F]" />
+      <div className="h-8 w-20 rounded-full bg-[#1F1F1F]" />
+    </div>
+  </div>
+);
+
 const Browse = ({
   foodItems,
   sellerRatings,
@@ -186,13 +198,16 @@ const Browse = ({
 
         <div className="mx-auto max-w-7xl px-6 py-8">
           {loading ? (
-            <div
-              className="flex flex-col items-center justify-center py-16"
-              role="status"
-              aria-live="polite"
-            >
-              <Loader2 size={48} className="mb-4 animate-spin text-[#CC0000]" />
-              <p className="text-lg text-[#B0B0B0]">Loading listings...</p>
+            <div className="space-y-6" role="status" aria-live="polite">
+              <div className="flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-[#B0B0B0]">
+                <Loader2 size={20} className="animate-spin text-[#CC0000]" />
+                <p className="text-sm">Fetching fresh listings…</p>
+              </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <ListingSkeletonCard key={idx} />
+                ))}
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

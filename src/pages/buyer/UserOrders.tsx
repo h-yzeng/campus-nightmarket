@@ -37,6 +37,21 @@ interface UserOrdersProps {
 
 type OrderTab = 'pending' | 'completed';
 
+const OrderCardSkeleton = () => (
+  <div className="animate-pulse rounded-2xl border-2 border-[#2A2A2A] bg-[#1A1A1A] p-6 shadow-md">
+    <div className="mb-4 flex items-center justify-between">
+      <div className="h-4 w-32 rounded bg-[#222222]" />
+      <div className="h-6 w-20 rounded-full bg-[#222222]" />
+    </div>
+    <div className="mb-4 h-10 rounded bg-[#222222]" />
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="h-4 rounded bg-[#222222]" />
+      <div className="h-4 rounded bg-[#222222]" />
+      <div className="h-4 rounded bg-[#222222]" />
+    </div>
+  </div>
+);
+
 const UserOrders = ({
   orders,
   profileData,
@@ -179,9 +194,14 @@ const UserOrders = ({
 
         {/* Orders List */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Loader2 size={48} className="mb-4 animate-spin text-[#CC0000]" />
-            <p className="text-lg text-[#A0A0A0]">Loading your orders...</p>
+          <div className="space-y-4" role="status" aria-live="polite">
+            <div className="flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-[#B0B0B0]">
+              <Loader2 size={20} className="animate-spin text-[#CC0000]" />
+              <p className="text-sm">Syncing your latest orders…</p>
+            </div>
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <OrderCardSkeleton key={idx} />
+            ))}
           </div>
         ) : displayOrders.length === 0 ? (
           <div className="rounded-2xl border-2 border-[#3A3A3A] bg-[#1E1E1E] py-16 text-center shadow-md">
