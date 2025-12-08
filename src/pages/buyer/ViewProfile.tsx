@@ -78,8 +78,14 @@ const ViewProfile = ({
               {sellerPhoto ? (
                 <img
                   src={sellerPhoto}
+                  srcSet={`${sellerPhoto} 160w, ${sellerPhoto} 240w, ${sellerPhoto} 320w`}
+                  sizes="128px"
                   alt={sellerName}
                   loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
+                  width={128}
+                  height={128}
                   className="h-full w-full object-cover"
                 />
               ) : (

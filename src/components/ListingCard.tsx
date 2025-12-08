@@ -20,8 +20,14 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           <div className="flex h-44 w-full items-center justify-center overflow-hidden rounded-xl border border-[#2F2F2F] bg-[#0F0F0F]">
             <img
               src={item.image}
+              srcSet={`${item.image} 640w, ${item.image} 960w, ${item.image} 1280w`}
+              sizes="(min-width: 1280px) 260px, (min-width: 1024px) 240px, (min-width: 640px) 300px, 100vw"
               alt={`${item.name} - ${item.description || 'Food listing'} by ${item.seller}`}
               loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              width={320}
+              height={176}
               className="h-full w-full object-cover"
             />
           </div>

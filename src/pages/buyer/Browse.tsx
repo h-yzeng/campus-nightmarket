@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Loader2, RefreshCw, HelpCircle } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
 import Header from '../../components/Header';
@@ -50,6 +50,7 @@ interface BrowseProps {
   loading?: boolean;
   error?: string | null;
   onShowGuide?: () => void;
+  onRefresh?: () => Promise<unknown>;
 }
 
 const ListingSkeletonCard = () => (
@@ -85,12 +86,17 @@ const Browse = ({
   onLogoClick,
   loading = false,
   error = null,
+  onRefresh,
 }: BrowseProps) => {
   // Advanced filter states
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50]);
   const [sortBy, setSortBy] = useState('newest');
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullStartY, setPullStartY] = useState<number | null>(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const PULL_THRESHOLD = 70;
 
   // First-time user guide
   const [showGuide, setShowGuide] = useState(false);
@@ -160,8 +166,48 @@ const Browse = ({
     setShowAvailableOnly(false);
   };
 
+  const triggerRefresh = async () => {
+    if (!onRefresh || refreshing) return;
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+      setPullDistance(0);
+    }
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (window.scrollY === 0) {
+      setPullStartY(event.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (pullStartY === null) return;
+    const distance = event.touches[0].clientY - pullStartY;
+    if (distance > 0) {
+      setPullDistance(Math.min(distance, 140));
+    } else {
+      setPullDistance(0);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullDistance >= PULL_THRESHOLD) {
+      void triggerRefresh();
+    }
+    setPullStartY(null);
+    setPullDistance(0);
+  };
+
   return (
-    <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
+    <div
+      className="flex min-h-screen flex-col bg-[#0A0A0B]"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* First-time user guide */}
       {showGuide && <FirstTimeUserGuide onClose={handleCloseGuide} />}
 
@@ -180,6 +226,39 @@ const Browse = ({
       />
 
       <main className="flex-1 pb-24 md:pb-0">
+        {onRefresh && (
+          <div
+            className="sticky top-0 z-30 flex items-center justify-center bg-[#0A0A0B]/80 px-6 pt-2 backdrop-blur"
+            aria-live="polite"
+          >
+            <div
+              className={`flex w-full max-w-7xl items-center justify-between rounded-xl border border-[#2A2A2A] px-3 py-2 text-xs text-[#B0B0B0] transition-all ${
+                pullDistance > 0 ? 'shadow-[0_10px_30px_rgba(0,0,0,0.35)]' : ''
+              }`}
+            >
+              <span>
+                {refreshing
+                  ? 'Refreshing listings...'
+                  : pullDistance >= PULL_THRESHOLD
+                    ? 'Release to refresh'
+                    : 'Pull down or tap refresh for latest listings'}
+              </span>
+              <button
+                type="button"
+                onClick={() => void triggerRefresh()}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-3 py-1 font-semibold text-white transition-colors hover:bg-[#171717] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#CC0000]"
+                disabled={refreshing}
+              >
+                {refreshing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                Refresh
+              </button>
+            </div>
+          </div>
+        )}
         {error && (
           <div className="mx-auto max-w-7xl px-6 py-4">
             <ErrorAlert

@@ -45,8 +45,23 @@ export const useUpdateOrderStatusMutation = () => {
     mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
       return await updateOrderStatus(orderId, status);
     },
-    onSuccess: (_data, variables) => {
+    onMutate: async ({ orderId, status }) => {
+      await queryClient.cancelQueries({ queryKey: ['orders'] });
+
+      const previousOrders = queryClient.getQueriesData<Order[]>({ queryKey: ['orders'] });
+
+      updateCachedOrders(orderId, status);
+
+      return { previousOrders };
+    },
+    onError: (_error, _variables, context) => {
+      context?.previousOrders?.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+    },
+    onSettled: (_data, _error, variables) => {
       updateCachedOrders(variables.orderId, variables.status);
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 };

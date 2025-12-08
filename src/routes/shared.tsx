@@ -1,0 +1,53 @@
+/* eslint-disable react-refresh/only-export-components */
+import { Navigate } from 'react-router-dom';
+import { Suspense, type ReactElement } from 'react';
+import type { User } from 'firebase/auth';
+import type { NavigateFunction } from 'react-router-dom';
+import LoadingState from '../components/common/LoadingState';
+import { shouldBypassVerification } from '../config/emailWhitelist';
+
+export type NavigateFn = NavigateFunction;
+
+// Loading fallback component for lazy loaded routes
+export const PageLoadingFallback = () => (
+  <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B]">
+    <LoadingState variant="spinner" size="lg" text="Loading page..." />
+  </div>
+);
+
+export const RequireAuth = ({
+  children,
+  user,
+  loading,
+}: {
+  children: ReactElement;
+  user: User | null;
+  loading: boolean;
+}) => {
+  if (loading) {
+    return <PageLoadingFallback />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user && user.email && !user.emailVerified && !shouldBypassVerification(user.email)) {
+    return <Navigate to="/verify-required" replace />;
+  }
+
+  return <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>;
+};
+
+export const makeSignOutToHome =
+  (navigate: NavigateFn, handleSignOut: () => Promise<void>) => () => {
+    void (async () => {
+      await handleSignOut();
+      navigate('/');
+    })();
+  };
+
+export const makeLogoToBrowse = (navigate: NavigateFn) => () => {
+  navigate('/browse');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};

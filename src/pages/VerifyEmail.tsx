@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { applyActionCode, checkActionCode } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
@@ -30,9 +30,15 @@ const VerifyEmail = () => {
     oobCode ? '' : 'Verification link is missing a code. Please request a new verification email.'
   );
   const [errorCode, setErrorCode] = useState('');
+  const statusRegionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let timeout: number | undefined;
+
+    // Move focus to the current status region so screen readers announce changes
+    if (status !== 'verifying' && statusRegionRef.current) {
+      statusRegionRef.current.focus();
+    }
 
     const verify = async () => {
       if (!oobCode) {
@@ -133,7 +139,13 @@ const VerifyEmail = () => {
   if (status === 'success') {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B] p-6">
-        <div className="w-full max-w-md rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
+        <div
+          ref={statusRegionRef}
+          tabIndex={-1}
+          role="status"
+          aria-live="polite"
+          className="w-full max-w-md rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)] outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+        >
           <h1 className="text-xl font-semibold text-white">Email verified</h1>
           <p className="mt-3 text-sm text-gray-300">Redirecting you now...</p>
         </div>
@@ -144,7 +156,13 @@ const VerifyEmail = () => {
   // Error state
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A0A0B] p-6">
-      <div className="w-full max-w-md space-y-4 rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)]">
+      <div
+        ref={statusRegionRef}
+        tabIndex={-1}
+        role="alert"
+        aria-live="assertive"
+        className="w-full max-w-md space-y-4 rounded-xl border border-white/10 bg-[#0F1115] p-8 shadow-[0_20px_70px_rgba(0,0,0,0.45)] outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+      >
         <h1 className="text-xl font-semibold text-white">Try verifying again</h1>
         <ErrorAlert message={error} />
         {errorCode ? <p className="text-xs text-gray-400">Debug code: {errorCode}</p> : null}
