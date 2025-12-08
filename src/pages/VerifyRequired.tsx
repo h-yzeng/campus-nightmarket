@@ -53,7 +53,8 @@ const VerifyRequired = ({ onResend, onReload }: VerifyRequiredProps) => {
             <h1 className="text-xl font-semibold text-white">Email verification required</h1>
             <p className="mt-2 text-sm text-gray-300">
               Please verify your email{user?.email ? ` (${user.email})` : ''} to access the app.
-              Open the verification email we sent, or resend a new one below.
+              Additionally, please wait 2-3 minutes before resending an email. Open the verification
+              email we sent, or resend a new one below.
             </p>
           </div>
         </div>
