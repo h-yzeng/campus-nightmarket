@@ -44,7 +44,12 @@ const VerifyEmail = () => {
         await auth.currentUser?.reload();
 
         timeout = window.setTimeout(() => {
-          navigate(continueUrl, { replace: true });
+          // If the continueUrl is absolute, use a full redirect; otherwise use client navigation
+          if (/^https?:\/\//i.test(continueUrl)) {
+            window.location.replace(continueUrl);
+          } else {
+            navigate(continueUrl || '/browse', { replace: true });
+          }
         }, SUCCESS_REDIRECT_DELAY_MS);
       } catch (err) {
         logger.error('Email verification failed', err);
