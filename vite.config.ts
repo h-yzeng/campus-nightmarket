@@ -56,21 +56,33 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Vendor chunks - only group large, stable dependencies
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-firebase-core': [
-            'firebase/app',
-            'firebase/auth',
-            'firebase/firestore',
-            'firebase/storage',
-          ],
-          // Firebase Messaging is lazy-loaded separately since it's only needed after login
-          'vendor-firebase-messaging': ['firebase/messaging'],
-          'vendor-query': ['@tanstack/react-query'],
-          'vendor-router': ['react-router-dom'],
-          'vendor-ui': ['lucide-react', 'zustand', 'sonner'],
-          // Pages are automatically code-split via lazy loading - no manual chunks needed
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+
+          // React core
+          if (/node_modules[\/](react|react-dom)[\/]/.test(id)) return 'vendor-react';
+
+          // Routing & data
+          if (id.includes('node_modules/react-router-dom')) return 'vendor-router';
+          if (id.includes('@tanstack/react-query-devtools')) return 'vendor-query-devtools';
+          if (id.includes('@tanstack/react-query')) return 'vendor-query';
+
+          // Forms/validation
+          if (/node_modules[\/](react-hook-form|@hookform\/resolvers|zod)[\/]/.test(id)) {
+            return 'vendor-forms';
+          }
+
+          // UI helpers
+          if (/node_modules[\/](lucide-react|zustand|sonner)[\/]/.test(id)) return 'vendor-ui';
+
+          // Firebase split: messaging separate from core
+          if (id.includes('firebase/messaging')) return 'vendor-firebase-messaging';
+          if (/node_modules[\/]firebase[\/]/.test(id)) return 'vendor-firebase-core';
+
+          // Sentry
+          if (id.includes('@sentry')) return 'vendor-sentry';
+
+          return undefined;
         },
       },
     },
