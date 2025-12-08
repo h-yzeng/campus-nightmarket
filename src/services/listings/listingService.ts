@@ -23,6 +23,8 @@ import {
 } from '../../types/firebase';
 import { logger } from '../../utils/logger';
 import { validatePrice, validateCategory, sanitizeString } from '../../utils/validation';
+import { toAppError } from '../../utils/firebaseErrorMapper';
+import { ErrorCategory, ErrorCode } from '../../utils/errorMessages';
 
 export const createListing = async (listingData: CreateListing): Promise<string> => {
   try {
@@ -51,10 +53,10 @@ export const createListing = async (listingData: CreateListing): Promise<string>
     return docRef.id;
   } catch (error) {
     logger.error('Error creating listing:', error);
-    if (error instanceof Error) {
-      throw error; // Re-throw validation errors with their messages
+    if (error instanceof Error && !(error as { code?: string }).code) {
+      throw error; // Keep validation errors intact
     }
-    throw new Error('Failed to create listing');
+    throw toAppError(error, ErrorCode.LISTING_CREATE_FAILED, ErrorCategory.LISTING);
   }
 };
 
@@ -73,7 +75,12 @@ export const getListing = async (listingId: string): Promise<FirebaseListing | n
     } as FirebaseListing;
   } catch (error) {
     logger.error('Error getting listing:', error);
-    throw new Error('Failed to get listing');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get listing'
+    );
   }
 };
 
@@ -103,7 +110,12 @@ export const getAllListings = async (onlyAvailable = false): Promise<FirebaseLis
     return listings;
   } catch (error) {
     logger.error('Error getting all listings:', error);
-    throw new Error('Failed to get listings');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get listings'
+    );
   }
 };
 
@@ -156,7 +168,12 @@ export const getPaginatedListings = async (
     return { listings, lastDoc: newLastDoc, hasMore };
   } catch (error) {
     logger.error('Error getting paginated listings:', error);
-    throw new Error('Failed to get listings');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get listings'
+    );
   }
 };
 
@@ -179,7 +196,12 @@ export const getListingsBySeller = async (sellerId: string): Promise<FirebaseLis
     return listings;
   } catch (error) {
     logger.error('Error getting seller listings:', error);
-    throw new Error('Failed to get seller listings');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get seller listings'
+    );
   }
 };
 
@@ -207,7 +229,12 @@ export const getListingsByLocation = async (location: string): Promise<FirebaseL
     return listings;
   } catch (error) {
     logger.error('Error getting listings by location:', error);
-    throw new Error('Failed to get listings by location');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get listings'
+    );
   }
 };
 
@@ -235,7 +262,12 @@ export const getListingsByCategory = async (category: string): Promise<FirebaseL
     return listings;
   } catch (error) {
     logger.error('Error getting listings by category:', error);
-    throw new Error('Failed to get listings by category');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get listings'
+    );
   }
 };
 
@@ -267,7 +299,12 @@ export const getTopListingByPurchaseCount = async (): Promise<FirebaseListing | 
     }
 
     logger.error('Error getting top listing by purchase count:', error);
-    return null;
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_NOT_FOUND,
+      ErrorCategory.LISTING,
+      'Failed to get listings'
+    );
   }
 };
 
@@ -281,7 +318,12 @@ export const updateListing = async (listingId: string, updates: UpdateListing): 
     });
   } catch (error) {
     logger.error('Error updating listing:', error);
-    throw new Error('Failed to update listing');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_UPDATE_FAILED,
+      ErrorCategory.LISTING,
+      'Failed to update listing'
+    );
   }
 };
 
@@ -297,10 +339,15 @@ export const toggleListingAvailability = async (listingId: string): Promise<void
     });
   } catch (error) {
     logger.error('Error toggling listing active status:', error);
-    if (error instanceof Error) {
-      throw error; // Re-throw with original message
+    if (error instanceof Error && !(error as { code?: string }).code) {
+      throw error;
     }
-    throw new Error('Failed to toggle listing active status');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_UPDATE_FAILED,
+      ErrorCategory.LISTING,
+      'Failed to update listing'
+    );
   }
 };
 
@@ -310,6 +357,11 @@ export const deleteListing = async (listingId: string): Promise<void> => {
     await deleteDoc(listingRef);
   } catch (error) {
     logger.error('Error deleting listing:', error);
-    throw new Error('Failed to delete listing');
+    throw toAppError(
+      error,
+      ErrorCode.LISTING_DELETE_FAILED,
+      ErrorCategory.LISTING,
+      'Failed to delete listing'
+    );
   }
 };

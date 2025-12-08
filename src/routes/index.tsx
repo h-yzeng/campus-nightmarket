@@ -4,6 +4,20 @@ import type { User } from 'firebase/auth';
 import LoadingState from '../components/common/LoadingState';
 import { useRouteProtection } from '../hooks/useRouteProtection';
 
+type NavigateFn = ReturnType<typeof useNavigate>;
+
+const makeSignOutToHome = (navigate: NavigateFn, handleSignOut: () => Promise<void>) => () => {
+  void (async () => {
+    await handleSignOut();
+    navigate('/');
+  })();
+};
+
+const makeLogoToBrowse = (navigate: NavigateFn) => () => {
+  navigate('/browse');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
 // Lazy load all page components for code splitting
 const Home = lazy(() => import('../pages/Home'));
 const Signup = lazy(() => import('../pages/Signup'));
@@ -198,6 +212,8 @@ const FoodPreviewWrapper = () => {
 
 const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'>) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const {
@@ -237,10 +253,7 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'
       userMode={userMode}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -253,8 +266,7 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       loading={listingsLoading}
       error={listingsError?.message || null}
@@ -266,6 +278,8 @@ const UserProfileWrapper = (
   props: Pick<AppRoutesProps, 'setProfileData' | 'handleSaveProfile' | 'handleSignOut'>
 ) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from stores
   const profileData = useAuthStore((state) => state.profileData);
@@ -278,10 +292,7 @@ const UserProfileWrapper = (
       setProfileData={props.setProfileData}
       onSaveProfile={props.handleSaveProfile}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onBack={() => navigate('/browse')}
       userMode={userMode}
@@ -294,8 +305,7 @@ const UserProfileWrapper = (
         }
       }}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
     />
   );
@@ -304,6 +314,8 @@ const UserProfileWrapper = (
 const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
   const { sellerId } = useParams<{ sellerId: string }>();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from stores
   const profileData = useAuthStore((state) => state.profileData);
@@ -322,16 +334,12 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
       userMode={userMode}
       onBack={() => navigate('/browse')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onCartClick={() => navigate('/cart')}
       onProfileClick={() => navigate('/profile')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
     />
   );
@@ -341,6 +349,8 @@ const CartWrapper = (
   props: Pick<AppRoutesProps, 'updateCartQuantity' | 'removeFromCart' | 'handleSignOut'>
 ) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from stores
   const cart = useCartStore((state) => state.cart);
@@ -360,10 +370,7 @@ const CartWrapper = (
       onCheckout={() => navigate('/checkout')}
       onContinueShopping={() => navigate('/browse')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -376,8 +383,7 @@ const CartWrapper = (
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       userMode={userMode}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
     />
   );
@@ -385,6 +391,8 @@ const CartWrapper = (
 
 const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handleSignOut'>) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from stores
   const cart = useCartStore((state) => state.cart);
@@ -405,10 +413,7 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
         navigate('/orders');
       }}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
@@ -422,8 +427,7 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
       }}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
     />
   );
@@ -431,6 +435,8 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
 
 const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -460,10 +466,7 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
       onBackToBrowse={() => navigate('/browse')}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
@@ -475,8 +478,7 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
         }
       }}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       loading={buyerOrdersLoading}
       onAddToCart={addToCart}
@@ -490,6 +492,8 @@ const OrderDetailsWrapper = (
 ) => {
   const navigate = useNavigate();
   const { orderId } = useParams<{ orderId: string }>();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -534,16 +538,12 @@ const OrderDetailsWrapper = (
       onSubmitReview={props.handleSubmitReview}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       onAddToCart={addToCart}
     />
@@ -552,6 +552,8 @@ const OrderDetailsWrapper = (
 
 const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -594,17 +596,13 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       onViewOrders={() => navigate('/seller/orders')}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       pendingOrdersCount={pendingOrdersCount}
     />
@@ -615,6 +613,8 @@ const CreateListingWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCreateListing'>
 ) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -650,17 +650,13 @@ const CreateListingWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       pendingOrdersCount={pendingOrdersCount}
     />
@@ -672,6 +668,8 @@ const EditListingWrapper = (
 ) => {
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -708,17 +706,13 @@ const EditListingWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       pendingOrdersCount={pendingOrdersCount}
     />
@@ -729,6 +723,8 @@ const SellerListingsWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>
 ) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -765,17 +761,13 @@ const SellerListingsWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       pendingOrdersCount={pendingOrdersCount}
     />
@@ -786,6 +778,8 @@ const SellerOrdersWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>
 ) => {
   const navigate = useNavigate();
+  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
+  const logoToBrowse = makeLogoToBrowse(navigate);
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
@@ -830,17 +824,13 @@ const SellerOrdersWrapper = (
       }}
       onCartClick={() => navigate('/cart')}
       onSignOut={() => {
-        void (async () => {
-          await props.handleSignOut();
-          navigate('/');
-        })();
+        signOutToHome();
       }}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
-        navigate('/browse');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        logoToBrowse();
       }}
       loading={sellerOrdersLoading}
       pendingOrdersCount={pendingOrdersCount}

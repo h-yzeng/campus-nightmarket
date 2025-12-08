@@ -12,6 +12,8 @@ import {
 import { db } from '../../config/firebase';
 import { type FirebaseReview, type CreateReview, COLLECTIONS } from '../../types/firebase';
 import { logger } from '../../utils/logger';
+import { toAppError } from '../../utils/firebaseErrorMapper';
+import { ErrorCategory, ErrorCode } from '../../utils/errorMessages';
 
 export const createReview = async (reviewData: CreateReview): Promise<string> => {
   try {
@@ -26,7 +28,12 @@ export const createReview = async (reviewData: CreateReview): Promise<string> =>
     return docRef.id;
   } catch (error) {
     logger.error('Error creating review:', error);
-    throw new Error('Failed to create review');
+    throw toAppError(
+      error,
+      ErrorCode.UNKNOWN_ERROR,
+      ErrorCategory.FIRESTORE,
+      'Failed to create review'
+    );
   }
 };
 
@@ -45,7 +52,12 @@ export const getReview = async (reviewId: string): Promise<FirebaseReview | null
     } as FirebaseReview;
   } catch (error) {
     logger.error('Error getting review:', error);
-    throw new Error('Failed to get review');
+    throw toAppError(
+      error,
+      ErrorCode.UNKNOWN_ERROR,
+      ErrorCategory.FIRESTORE,
+      'Failed to get review'
+    );
   }
 };
 
@@ -67,7 +79,12 @@ export const getSellerReviews = async (sellerId: string): Promise<FirebaseReview
     return reviews;
   } catch (error) {
     logger.error('Error getting seller reviews:', error);
-    throw new Error('Failed to get seller reviews');
+    throw toAppError(
+      error,
+      ErrorCode.UNKNOWN_ERROR,
+      ErrorCategory.FIRESTORE,
+      'Failed to get seller reviews'
+    );
   }
 };
 
@@ -89,7 +106,12 @@ export const getBuyerReviews = async (buyerId: string): Promise<FirebaseReview[]
     return reviews;
   } catch (error) {
     logger.error('Error getting buyer reviews:', error);
-    throw new Error('Failed to get buyer reviews');
+    throw toAppError(
+      error,
+      ErrorCode.UNKNOWN_ERROR,
+      ErrorCategory.FIRESTORE,
+      'Failed to get buyer reviews'
+    );
   }
 };
 
@@ -104,14 +126,19 @@ export const getOrderReview = async (orderId: string): Promise<FirebaseReview | 
       return null;
     }
 
-    const doc = querySnapshot.docs[0];
+    const docSnap = querySnapshot.docs[0];
     return {
-      id: doc.id,
-      ...doc.data(),
+      id: docSnap.id,
+      ...docSnap.data(),
     } as FirebaseReview;
   } catch (error) {
     logger.error('Error getting order review:', error);
-    throw new Error('Failed to get order review');
+    throw toAppError(
+      error,
+      ErrorCode.UNKNOWN_ERROR,
+      ErrorCategory.FIRESTORE,
+      'Failed to get order review'
+    );
   }
 };
 

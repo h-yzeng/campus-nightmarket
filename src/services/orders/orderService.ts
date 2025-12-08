@@ -27,6 +27,8 @@ import {
   validateNotes,
   sanitizeString,
 } from '../../utils/validation';
+import { toAppError } from '../../utils/firebaseErrorMapper';
+import { ErrorCategory, ErrorCode } from '../../utils/errorMessages';
 
 export const createOrder = async (orderData: CreateOrder): Promise<string> => {
   try {
@@ -67,10 +69,10 @@ export const createOrder = async (orderData: CreateOrder): Promise<string> => {
     return docRef.id;
   } catch (error) {
     logger.error('Error creating order:', error);
-    if (error instanceof Error) {
-      throw error; // Re-throw validation errors with their messages
+    if (error instanceof Error && !(error as { code?: string }).code) {
+      throw error; // Keep validation errors intact
     }
-    throw new Error('Failed to create order');
+    throw toAppError(error, ErrorCode.ORDER_CREATE_FAILED, ErrorCategory.ORDER);
   }
 };
 
@@ -89,7 +91,7 @@ export const getOrder = async (orderId: string): Promise<FirebaseOrder | null> =
     } as FirebaseOrder;
   } catch (error) {
     logger.error('Error getting order:', error);
-    throw new Error('Failed to get order');
+    throw toAppError(error, ErrorCode.ORDER_NOT_FOUND, ErrorCategory.ORDER, 'Failed to get order');
   }
 };
 
@@ -111,7 +113,12 @@ export const getBuyerOrders = async (buyerId: string): Promise<FirebaseOrder[]> 
     return orders;
   } catch (error) {
     logger.error('Error getting buyer orders:', error);
-    throw new Error('Failed to get buyer orders');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_NOT_FOUND,
+      ErrorCategory.ORDER,
+      'Failed to get buyer orders'
+    );
   }
 };
 
@@ -134,7 +141,12 @@ export const getSellerOrders = async (sellerId: string): Promise<FirebaseOrder[]
     return orders;
   } catch (error) {
     logger.error('Error getting seller orders:', error);
-    throw new Error('Failed to get seller orders');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_NOT_FOUND,
+      ErrorCategory.ORDER,
+      'Failed to get seller orders'
+    );
   }
 };
 
@@ -164,7 +176,12 @@ export const getBuyerOrdersByStatus = async (
     return orders;
   } catch (error) {
     logger.error('Error getting buyer orders by status:', error);
-    throw new Error('Failed to get buyer orders by status');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_NOT_FOUND,
+      ErrorCategory.ORDER,
+      'Failed to get buyer orders'
+    );
   }
 };
 
@@ -194,7 +211,12 @@ export const getSellerOrdersByStatus = async (
     return orders;
   } catch (error) {
     logger.error('Error getting seller orders by status:', error);
-    throw new Error('Failed to get seller orders by status');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_NOT_FOUND,
+      ErrorCategory.ORDER,
+      'Failed to get seller orders'
+    );
   }
 };
 
@@ -208,7 +230,12 @@ export const updateOrder = async (orderId: string, updates: UpdateOrder): Promis
     });
   } catch (error) {
     logger.error('Error updating order:', error);
-    throw new Error('Failed to update order');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_UPDATE_FAILED,
+      ErrorCategory.ORDER,
+      'Failed to update order'
+    );
   }
 };
 
@@ -217,7 +244,12 @@ export const updateOrderStatus = async (orderId: string, status: OrderStatus): P
     await updateOrder(orderId, { status });
   } catch (error) {
     logger.error('Error updating order status:', error);
-    throw new Error('Failed to update order status');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_UPDATE_FAILED,
+      ErrorCategory.ORDER,
+      'Failed to update order'
+    );
   }
 };
 
@@ -226,7 +258,12 @@ export const cancelOrder = async (orderId: string): Promise<void> => {
     await updateOrderStatus(orderId, 'cancelled');
   } catch (error) {
     logger.error('Error cancelling order:', error);
-    throw new Error('Failed to cancel order');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_CANCEL_FAILED,
+      ErrorCategory.ORDER,
+      'Failed to cancel order'
+    );
   }
 };
 
@@ -252,9 +289,14 @@ export const completeOrder = async (orderId: string): Promise<void> => {
     await Promise.all(updatePromises);
   } catch (error) {
     logger.error('Error completing order:', error);
-    if (error instanceof Error) {
-      throw error; // Re-throw with original message
+    if (error instanceof Error && !(error as { code?: string }).code) {
+      throw error;
     }
-    throw new Error('Failed to complete order');
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_UPDATE_FAILED,
+      ErrorCategory.ORDER,
+      'Failed to update order'
+    );
   }
 };
