@@ -34,11 +34,6 @@ const getEnvVar = (key: 'VITE_VERIFICATION_REDIRECT_URL' | 'VITE_FIREBASE_AUTH_D
       return val.trim();
     }
   }
-
-  if (typeof process !== 'undefined' && process.env?.[key]) {
-    return process.env[key]?.trim();
-  }
-
   return undefined;
 };
 

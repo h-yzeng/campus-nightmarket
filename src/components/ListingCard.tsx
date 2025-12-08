@@ -90,7 +90,7 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           <button
             type="button"
             onClick={() => onAddToCart(item)}
-            className="transform rounded-lg bg-linear-to-r from-[#CC0000] to-[#E23E57] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-[#CC0000]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E23E57] active:scale-95"
+            className="transform rounded-lg bg-linear-to-r from-[#CC0000] to-[#E23E57] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-[#CC0000]/30 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-[#E23E57] active:scale-95"
             aria-label={`Add ${item.name} to cart - $${item.price.toFixed(2)}`}
           >
             Add +
