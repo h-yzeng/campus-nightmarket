@@ -31,11 +31,17 @@ const missingKeys = requiredKeys.filter(
 );
 
 if (missingKeys.length > 0) {
-  logger.error(
+  const message =
     `Missing Firebase configuration keys: ${missingKeys.join(', ')}\n` +
-      'Please check your .env.local file and ensure all required variables are set.\n' +
-      'See .env.local.example for required variables.'
-  );
+    'Please check your .env.local file and ensure all required variables are set.\n' +
+    'See .env.local.example for required variables.';
+
+  logger.error(message);
+
+  // Fail fast in production-like environments to avoid booting with broken Firebase
+  if (import.meta.env.PROD) {
+    throw new Error(message);
+  }
 }
 
 // Initialize Firebase

@@ -6,6 +6,7 @@ import {
 } from '../../services/orders/orderService';
 import type { CreateOrder } from '../../types/firebase';
 import type { OrderStatus } from '../../types';
+import type { Order } from '../../types';
 
 export const useCreateOrderMutation = () => {
   const queryClient = useQueryClient();
@@ -26,13 +27,26 @@ export const useCreateOrderMutation = () => {
 export const useUpdateOrderStatusMutation = () => {
   const queryClient = useQueryClient();
 
+  const updateCachedOrders = (orderId: string, status: OrderStatus) => {
+    const queries = queryClient.getQueriesData<Order[]>({ queryKey: ['orders'] });
+
+    queries.forEach(([queryKey, data]) => {
+      if (!data) return;
+
+      const next = data.map((order) =>
+        order.firebaseId === orderId ? { ...order, status } : order
+      );
+
+      queryClient.setQueryData(queryKey, next);
+    });
+  };
+
   return useMutation({
     mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
       return await updateOrderStatus(orderId, status);
     },
-    onSuccess: () => {
-      // Invalidate all orders to refresh both buyer and seller views
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    onSuccess: (_data, variables) => {
+      updateCachedOrders(variables.orderId, variables.status);
     },
   });
 };
@@ -40,13 +54,26 @@ export const useUpdateOrderStatusMutation = () => {
 export const useCancelOrderMutation = () => {
   const queryClient = useQueryClient();
 
+  const updateCachedOrders = (orderId: string) => {
+    const queries = queryClient.getQueriesData<Order[]>({ queryKey: ['orders'] });
+
+    queries.forEach(([queryKey, data]) => {
+      if (!data) return;
+
+      const next = data.map((order) =>
+        order.firebaseId === orderId ? { ...order, status: 'cancelled' as OrderStatus } : order
+      );
+
+      queryClient.setQueryData(queryKey, next);
+    });
+  };
+
   return useMutation({
     mutationFn: async (orderId: string) => {
       return await cancelOrderService(orderId);
     },
-    onSuccess: () => {
-      // Invalidate all orders to refresh
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    onSuccess: (_data, orderId) => {
+      updateCachedOrders(orderId);
     },
   });
 };

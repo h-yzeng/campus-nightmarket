@@ -3,14 +3,17 @@ export default {
   testEnvironment: 'jsdom',
   roots: ['<rootDir>/tests'],
   testMatch: ['**/__tests__/**/*.+(ts|tsx|js)', '**/?(*.)+(spec|test).+(ts|tsx|js)'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   transform: {
     '^.+\\.(ts|tsx)$': [
       'ts-jest',
       {
         tsconfig: {
+          jsx: 'react-jsx',
+          module: 'commonjs',
+          moduleResolution: 'node',
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
-          moduleResolution: 'node',
           resolveJsonModule: true,
           isolatedModules: true,
         },

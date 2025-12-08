@@ -75,7 +75,7 @@ const PageLoadingFallback = () => (
   </div>
 );
 
-const RequireAuth = ({
+export const RequireAuth = ({
   children,
   user,
   loading,
@@ -493,7 +493,7 @@ const OrderDetailsWrapper = (
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
-  const { data: buyerOrders = [] } = useBuyerOrdersQuery(user?.uid);
+  const { data: buyerOrders = [], isLoading: buyerOrdersLoading } = useBuyerOrdersQuery(user?.uid);
 
   // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
@@ -506,6 +506,10 @@ const OrderDetailsWrapper = (
 
   // Fetch the review if order has been reviewed
   const { data: review } = useOrderReviewQuery(order?.hasReview ? order.firebaseId : undefined);
+
+  if (buyerOrdersLoading) {
+    return <PageLoadingFallback />;
+  }
 
   if (!order) {
     return <Navigate to="/orders" replace />;
@@ -551,8 +555,11 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
 
   // Get data from React Query
   const user = useAuthStore((state) => state.user);
-  const { data: listings = [] } = useSellerListingsQuery(user?.uid);
-  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
+  const { data: listings = [], isLoading: listingsLoading } = useSellerListingsQuery(user?.uid);
+  const {
+    data: sellerOrders = [],
+    isLoading: sellerOrdersLoading,
+  } = useSellerOrdersQuery(user?.uid);
 
   // Get UI state from stores
   const profileData = useAuthStore((state) => state.profileData);
@@ -565,6 +572,10 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
 
   // Calculate pending orders count
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
+
+  if (listingsLoading || sellerOrdersLoading) {
+    return <PageLoadingFallback />;
+  }
 
   return (
     <SellerDashboard

@@ -1,6 +1,6 @@
 import { onDocumentCreated, onDocumentUpdated } from 'firebase-functions/v2/firestore';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { onCall } from 'firebase-functions/v2/https';
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { onObjectFinalized } from 'firebase-functions/v2/storage';
 import { logger } from 'firebase-functions';
 import * as admin from 'firebase-admin';
@@ -46,6 +46,12 @@ const PROGRESSIVE_BLOCKING = {
   6: 15 * 60 * 1000, // 15 minutes
   7: 30 * 60 * 1000, // 30 minutes
 };
+
+// Login/signup server-side rate limiting (lightweight, per-identifier in-memory)
+const loginRateLimitStore = new Map<string, { attempts: number; blockedUntil?: number; windowReset: number }>();
+const LOGIN_RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_BLOCK_MS = 15 * 60 * 1000; // 15 minutes
 
 // Verification tokens storage - now using Firestore instead of in-memory Map
 // to persist tokens across Cloud Function cold starts and scaling
@@ -141,9 +147,77 @@ function generateToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
+function checkLoginRateLimitInternal(identifier: string): {
+  allowed: boolean;
+  retryAfterMs?: number;
+  message?: string;
+} {
+  const now = Date.now();
+  const record = loginRateLimitStore.get(identifier);
+
+  if (record?.blockedUntil && record.blockedUntil > now) {
+    return {
+      allowed: false,
+      retryAfterMs: record.blockedUntil - now,
+      message: 'Too many attempts. Please try again later.',
+    };
+  }
+
+  if (!record || now > record.windowReset) {
+    loginRateLimitStore.set(identifier, {
+      attempts: 1,
+      windowReset: now + LOGIN_RATE_LIMIT_WINDOW,
+    });
+    return { allowed: true };
+  }
+
+  const nextAttempts = record.attempts + 1;
+
+  if (nextAttempts > LOGIN_MAX_ATTEMPTS) {
+    const blockedUntil = now + LOGIN_BLOCK_MS;
+    loginRateLimitStore.set(identifier, {
+      attempts: nextAttempts,
+      blockedUntil,
+      windowReset: record.windowReset,
+    });
+
+    return {
+      allowed: false,
+      retryAfterMs: LOGIN_BLOCK_MS,
+      message: 'Too many attempts. Please try again later.',
+    };
+  }
+
+  loginRateLimitStore.set(identifier, {
+    ...record,
+    attempts: nextAttempts,
+  });
+
+  return { allowed: true };
+}
+
 // App URL for notifications - configure via Firebase Functions config:
 // firebase functions:config:set app.url="https://your-domain.com"
 const APP_URL = process.env.APP_URL || 'https://campus-night-market.web.app';
+
+// Callable endpoint for login/signup attempts rate limiting
+export const checkLoginRateLimit = onCall(async (request) => {
+  const identifier =
+    (request.data?.identifier as string | undefined) ||
+    request.auth?.uid ||
+    request.rawRequest.ip ||
+    'anonymous';
+
+  const result = checkLoginRateLimitInternal(identifier);
+
+  if (!result.allowed) {
+    throw new HttpsError('resource-exhausted', result.message ?? 'Too many attempts', {
+      retryAfterMs: result.retryAfterMs,
+    });
+  }
+
+  return { allowed: true };
+});
 
 // Type for order items
 interface OrderItem {

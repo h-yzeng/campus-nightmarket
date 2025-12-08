@@ -3,6 +3,8 @@
  * Mocks and configurations that run before tests
  */
 
+import '@testing-library/jest-dom';
+
 // Mock the logger utility to avoid import.meta issues
 jest.mock('../src/utils/logger', () => ({
   logger: {
@@ -13,3 +15,10 @@ jest.mock('../src/utils/logger', () => ({
     general: jest.fn(),
   },
 }));
+
+// Polyfill TextEncoder/Decoder for react-router in Node test env
+import { TextEncoder, TextDecoder } from 'util';
+// @ts-expect-error global assignment for test environment
+global.TextEncoder = TextEncoder;
+// @ts-expect-error global assignment for test environment
+global.TextDecoder = TextDecoder as unknown as typeof globalThis.TextDecoder;

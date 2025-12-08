@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { ProfileData, PageType } from '../types';
+import type { ProfileData } from '../types';
 import { useFirebaseAuth } from './useFirebaseAuth';
 import type { SignupData } from '../services/auth/authService';
 import type { FirebaseUserProfile } from '../types/firebase';
@@ -53,26 +53,10 @@ export const useAuth = () => {
   );
 
   const [profileData, setProfileData] = useState<ProfileData>(derivedProfileData);
-  const [currentPage, setCurrentPage] = useState<PageType>('home');
 
   useEffect(() => {
     setProfileData(derivedProfileData);
   }, [derivedProfileData]);
-
-  useEffect(() => {
-    if (firebaseProfile && currentPage === 'home') {
-      setCurrentPage('browse');
-    }
-    if (
-      !firebaseProfile &&
-      !loading &&
-      currentPage !== 'home' &&
-      currentPage !== 'login' &&
-      currentPage !== 'signup'
-    ) {
-      setCurrentPage('home');
-    }
-  }, [firebaseProfile, loading, currentPage]);
 
   const handleCreateProfile = async (password: string) => {
     try {
@@ -85,7 +69,6 @@ export const useAuth = () => {
       };
 
       await handleSignUp(signupData);
-      setCurrentPage('browse');
     } catch (err) {
       logger.error('Error creating profile:', err);
       throw err;
@@ -95,7 +78,6 @@ export const useAuth = () => {
   const handleLogin = async (email: string, password: string): Promise<boolean> => {
     try {
       await handleSignIn({ email, password });
-      setCurrentPage('browse');
       return true;
     } catch (err) {
       logger.error('Error logging in:', err);
@@ -138,7 +120,6 @@ export const useAuth = () => {
   const handleSignOut = async () => {
     try {
       await firebaseSignOut();
-      setCurrentPage('home');
     } catch (err) {
       logger.error('Error signing out:', err);
       throw err;
@@ -173,8 +154,6 @@ export const useAuth = () => {
   return {
     profileData,
     setProfileData,
-    currentPage,
-    setCurrentPage,
     handleCreateProfile,
     handleLogin,
     handleSaveProfile,

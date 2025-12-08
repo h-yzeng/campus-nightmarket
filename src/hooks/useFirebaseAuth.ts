@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
+import * as Sentry from '@sentry/react';
 import { auth } from '../config/firebase';
 import {
   signUp,
@@ -77,6 +78,13 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     setLoading(true);
 
     try {
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'sign_up_start',
+        data: { email: data.email },
+        level: 'info',
+      });
+
       const user = await signUp(data);
 
       await createUserProfile(user.uid, {
@@ -88,9 +96,19 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
         photoURL: null,
         isSeller: false,
       });
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'sign_up_success',
+        data: { email: data.email },
+        level: 'info',
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign up';
       setError(errorMessage);
+      Sentry.captureMessage('sign_up_failed', {
+        level: 'error',
+        extra: { error: errorMessage, email: data.email },
+      });
       throw err;
     } finally {
       setLoading(false);
@@ -102,10 +120,27 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     setLoading(true);
 
     try {
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'sign_in_start',
+        data: { email: data.email },
+        level: 'info',
+      });
+
       await signIn(data);
+      Sentry.addBreadcrumb({
+        category: 'auth',
+        message: 'sign_in_success',
+        data: { email: data.email },
+        level: 'info',
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign in';
       setError(errorMessage);
+      Sentry.captureMessage('sign_in_failed', {
+        level: 'error',
+        extra: { error: errorMessage, email: data.email },
+      });
       throw err;
     } finally {
       setLoading(false);
@@ -117,12 +152,18 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     setLoading(true);
 
     try {
+      Sentry.addBreadcrumb({ category: 'auth', message: 'sign_out_start', level: 'info' });
       await logOut();
       setUser(null);
       setProfile(null);
+      Sentry.addBreadcrumb({ category: 'auth', message: 'sign_out_success', level: 'info' });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign out';
       setError(errorMessage);
+      Sentry.captureMessage('sign_out_failed', {
+        level: 'error',
+        extra: { error: errorMessage },
+      });
       throw err;
     } finally {
       setLoading(false);
@@ -144,9 +185,20 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
       if (profile) {
         setProfile({ ...profile, ...updates });
       }
+
+      Sentry.addBreadcrumb({
+        category: 'profile',
+        message: 'profile_update_success',
+        data: { uid: user.uid },
+        level: 'info',
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
       setError(errorMessage);
+      Sentry.captureMessage('profile_update_failed', {
+        level: 'error',
+        extra: { error: errorMessage, uid: user.uid },
+      });
       throw err;
     } finally {
       setLoading(false);
@@ -171,9 +223,20 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
       if (profile) {
         setProfile({ ...profile, isSeller: true, sellerInfo });
       }
+
+      Sentry.addBreadcrumb({
+        category: 'seller',
+        message: 'become_seller_success',
+        data: { uid: user.uid },
+        level: 'info',
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to become seller';
       setError(errorMessage);
+      Sentry.captureMessage('become_seller_failed', {
+        level: 'error',
+        extra: { error: errorMessage, uid: user.uid },
+      });
       throw err;
     } finally {
       setLoading(false);
@@ -189,6 +252,10 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to reset password';
       setError(errorMessage);
+      Sentry.captureMessage('reset_password_failed', {
+        level: 'error',
+        extra: { error: errorMessage, email },
+      });
       throw err;
     } finally {
       setLoading(false);
@@ -204,6 +271,10 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to resend verification email';
       setError(errorMessage);
+      Sentry.captureMessage('resend_verification_failed', {
+        level: 'error',
+        extra: { error: errorMessage },
+      });
       throw err;
     }
   };
@@ -218,6 +289,10 @@ export const useFirebaseAuth = (): UseFirebaseAuthReturn => {
       }
     } catch (err) {
       logger.error('Error reloading user:', err);
+      Sentry.captureMessage('reload_user_failed', {
+        level: 'error',
+        extra: { error: err instanceof Error ? err.message : String(err) },
+      });
     }
   };
 

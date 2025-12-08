@@ -66,7 +66,7 @@ export const useBuyerOrdersQuery = (userId: string | undefined, refetchInterval?
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
-    refetchInterval: refetchInterval !== undefined ? refetchInterval : 3000, // Auto-refetch every 3 seconds by default
+    refetchInterval: refetchInterval !== undefined ? refetchInterval : 10000, // Soften polling to reduce load
     refetchOnWindowFocus: true, // Refetch when user returns to the page
     refetchIntervalInBackground: false, // Don't refetch when tab is in background to save resources
   });
@@ -81,7 +81,7 @@ export const useSellerOrdersQuery = (userId: string | undefined, refetchInterval
       return firebaseOrders.map(convertFirebaseOrderToApp);
     },
     enabled: !!userId,
-    refetchInterval: refetchInterval !== undefined ? refetchInterval : 3000, // Auto-refetch every 3 seconds for sellers (more critical)
+    refetchInterval: refetchInterval !== undefined ? refetchInterval : 5000, // Softer polling while keeping seller view responsive
     refetchOnWindowFocus: true, // Refetch when user returns to the page
     refetchIntervalInBackground: false, // Don't refetch when tab is in background
   });

@@ -6,6 +6,7 @@ import {
   toggleListingAvailability,
 } from '../../services/listings/listingService';
 import type { CreateListing, UpdateListing } from '../../types/firebase';
+import type { ListingWithFirebaseId } from '../../types';
 
 export const useCreateListingMutation = () => {
   const queryClient = useQueryClient();
@@ -29,12 +30,34 @@ export const useCreateListingMutation = () => {
 export const useUpdateListingMutation = () => {
   const queryClient = useQueryClient();
 
+  const updateSellerListingsCache = (
+    listingId: string,
+    updater: (listing: ListingWithFirebaseId) => ListingWithFirebaseId
+  ) => {
+    const queries = queryClient.getQueriesData<ListingWithFirebaseId[]>({
+      queryKey: ['listings', 'seller'],
+    });
+
+    queries.forEach(([queryKey, data]) => {
+      if (!data) return;
+      const next = data.map((listing) =>
+        listing.firebaseId === listingId ? updater(listing) : listing
+      );
+      queryClient.setQueryData(queryKey, next);
+    });
+  };
+
   return useMutation({
     mutationFn: async ({ listingId, data }: { listingId: string; data: UpdateListing }) => {
       return await updateListing(listingId, data);
     },
-    onSuccess: () => {
-      // Invalidate and refetch all listings immediately
+    onSuccess: (_data, variables) => {
+      updateSellerListingsCache(variables.listingId, (listing) => ({
+        ...listing,
+        ...variables.data,
+        // Keep firebaseId and other existing fields intact
+        firebaseId: listing.firebaseId,
+      }));
       queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
     },
   });
@@ -43,12 +66,24 @@ export const useUpdateListingMutation = () => {
 export const useDeleteListingMutation = () => {
   const queryClient = useQueryClient();
 
+  const pruneSellerListingsCache = (listingId: string) => {
+    const queries = queryClient.getQueriesData<ListingWithFirebaseId[]>({
+      queryKey: ['listings', 'seller'],
+    });
+
+    queries.forEach(([queryKey, data]) => {
+      if (!data) return;
+      const next = data.filter((listing) => listing.firebaseId !== listingId);
+      queryClient.setQueryData(queryKey, next);
+    });
+  };
+
   return useMutation({
     mutationFn: async (listingId: string) => {
       return await deleteListing(listingId);
     },
-    onSuccess: () => {
-      // Invalidate and refetch all listings immediately
+    onSuccess: (_data, listingId) => {
+      pruneSellerListingsCache(listingId);
       queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
     },
   });
@@ -57,12 +92,28 @@ export const useDeleteListingMutation = () => {
 export const useToggleListingAvailabilityMutation = () => {
   const queryClient = useQueryClient();
 
+  const toggleSellerListingsCache = (listingId: string) => {
+    const queries = queryClient.getQueriesData<ListingWithFirebaseId[]>({
+      queryKey: ['listings', 'seller'],
+    });
+
+    queries.forEach(([queryKey, data]) => {
+      if (!data) return;
+      const next = data.map((listing) =>
+        listing.firebaseId === listingId
+          ? { ...listing, isAvailable: !listing.isAvailable }
+          : listing
+      );
+      queryClient.setQueryData(queryKey, next);
+    });
+  };
+
   return useMutation({
     mutationFn: async (listingId: string) => {
       return await toggleListingAvailability(listingId);
     },
-    onSuccess: () => {
-      // Invalidate and refetch all listings immediately
+    onSuccess: (_data, listingId) => {
+      toggleSellerListingsCache(listingId);
       queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
     },
   });

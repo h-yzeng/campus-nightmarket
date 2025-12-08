@@ -6,7 +6,6 @@ import {
 } from './mutations/useOrderMutations';
 import type { CartItem, Order, ProfileData } from '../types';
 import type { CreateOrder, FirebaseOrderItem } from '../types/firebase';
-import type { PageType } from './useNavigation';
 import type { User } from 'firebase/auth';
 import { logger } from '../utils/logger';
 import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
@@ -26,7 +25,6 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
     cart: CartItem[],
     paymentMethod: string,
     pickupTimes: Record<string, string>,
-    setCurrentPage: (page: PageType) => void,
     clearCart: () => void,
     notes?: string
   ) => {
@@ -129,7 +127,6 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
         // All orders succeeded
         logger.general('[useOrderManagement] All orders created successfully');
         clearCart();
-        setCurrentPage('userOrders');
         toast.success('All orders placed successfully!');
       } else if (successfulOrders.length === 0) {
         // All orders failed
@@ -146,8 +143,6 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
           `${successfulOrders.length} order(s) placed successfully! ${failedOrders.length} order(s) failed for: ${failedOrders.join(', ')}. Please review your cart and try again for failed orders.`,
           { duration: 6000 }
         );
-
-        setCurrentPage('userOrders');
       }
     } catch (err) {
       logger.error('[useOrderManagement] Unexpected error placing order:', err);
@@ -155,7 +150,7 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
     }
   };
 
-  const handleCancelOrder = async (orderId: number, setCurrentPage: (page: PageType) => void) => {
+  const handleCancelOrder = async (orderId: number) => {
     // Get buyer orders from React Query cache
     const buyerOrders = queryClient.getQueryData<Order[]>(['orders', 'buyer', user?.uid]) || [];
     const order = buyerOrders.find((o) => o.id === orderId);
@@ -170,7 +165,6 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
       await cancelOrderMutation.mutateAsync(order.firebaseId);
       logger.general('[useOrderManagement] Order cancelled successfully');
       toast.success('Order cancelled successfully');
-      setCurrentPage('userOrders');
     } catch (err) {
       logger.error('[useOrderManagement] Error cancelling order:', err);
       toast.error('Failed to cancel order. Please try again.');

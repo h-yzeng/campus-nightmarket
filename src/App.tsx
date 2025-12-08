@@ -144,11 +144,11 @@ function App() {
     pickupTimes: Record<string, string>,
     notes?: string
   ) => {
-    await handlePlaceOrder(cart, paymentMethod, pickupTimes, () => {}, clearCart, notes);
+    await handlePlaceOrder(cart, paymentMethod, pickupTimes, clearCart, notes);
   };
 
   const wrappedHandleCancelOrder = async (orderId: number) => {
-    await handleCancelOrder(orderId, () => {});
+    await handleCancelOrder(orderId);
   };
 
   /**
