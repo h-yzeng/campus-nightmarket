@@ -16,6 +16,7 @@ interface HeaderProps {
   onProfileClick?: () => void;
   onOrdersClick?: () => void;
   onModeChange?: (mode: UserMode) => void;
+  onShowSellerOnboarding?: () => void;
   onSellerDashboardClick?: () => void;
   onLogoClick?: () => void;
   showCart?: boolean;
@@ -31,6 +32,7 @@ const Header = ({
   onProfileClick,
   onOrdersClick,
   onModeChange,
+  onShowSellerOnboarding,
   onSellerDashboardClick,
   onLogoClick,
   showCart = false,
@@ -79,6 +81,12 @@ const Header = ({
 
     // If already in this mode, do nothing
     if (mode === userMode) return;
+
+    // If switching to seller mode and user is not a seller yet, show onboarding
+    if (mode === 'seller' && !profileData.isSeller && onShowSellerOnboarding) {
+      onShowSellerOnboarding();
+      return;
+    }
 
     // Check if we need confirmation
     const needsConfirmation =

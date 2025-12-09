@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, useState } from 'react';
 import { Route, useParams, Navigate } from 'react-router-dom';
 import type { User } from 'firebase/auth';
 import { RequireAuth, PageLoadingFallback, useNavBasics } from './shared';
@@ -10,6 +10,9 @@ import { useSellerRatingsQuery } from '../hooks/queries/useReviewsQuery';
 import { useBuyerOrdersQuery, useSellerOrdersQuery } from '../hooks/queries/useOrdersQuery';
 import { useOrderReviewQuery } from '../hooks/queries/useReviewsQuery';
 import { useCartStore, useAuthStore, useNavigationStore } from '../stores';
+import SellerOnboarding from '../components/onboarding/SellerOnboarding';
+import { updateUserProfile } from '../services/auth/userService';
+import { logger } from '../utils/logger';
 
 const Browse = lazy(() => import('../pages/buyer/Browse'));
 const UserProfile = lazy(() => import('../pages/UserProfile'));
@@ -20,8 +23,11 @@ const UserOrders = lazy(() => import('../pages/buyer/UserOrders'));
 const OrderDetails = lazy(() => import('../pages/buyer/OrderDetails'));
 
 // eslint-disable-next-line react-refresh/only-export-components
-const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'>) => {
+const BrowseWrapper = (
+  props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut' | 'setProfileData'>
+) => {
   const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
+  const [showSellerOnboarding, setShowSellerOnboarding] = useState(false);
 
   const {
     data: foodItems = [],
@@ -35,6 +41,8 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'
 
   const cart = useCartStore((state) => state.cart);
   const profileData = useAuthStore((state) => state.profileData);
+  const setProfileData = useAuthStore((state) => state.setProfileData);
+  const user = useAuthStore((state) => state.user);
   const userMode = useNavigationStore((state) => state.userMode);
   const searchQuery = useNavigationStore((state) => state.searchQuery);
   const setSearchQuery = useNavigationStore((state) => state.setSearchQuery);
@@ -44,39 +52,81 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'
 
   useRouteProtection(userMode, setUserMode);
 
+  const handleSellerOnboardingComplete = async (sellerInfo: {
+    phone: string;
+    paymentMethods: {
+      cashApp?: string;
+      venmo?: string;
+      zelle?: string;
+    };
+    preferredLocations: string[];
+  }) => {
+    if (!user) return;
+
+    try {
+      const updatedProfile = {
+        ...profileData,
+        isSeller: true,
+        sellerInfo,
+      };
+
+      await updateUserProfile(user.uid, {
+        isSeller: true,
+        sellerInfo,
+      });
+
+      setProfileData(updatedProfile);
+      props.setProfileData(updatedProfile);
+      setShowSellerOnboarding(false);
+      setUserMode('seller');
+      navigate('/seller/dashboard');
+    } catch (error) {
+      logger.error('Error completing seller onboarding:', error);
+    }
+  };
+
   return (
-    <Browse
-      foodItems={foodItems}
-      sellerRatings={sellerRatings}
-      cart={cart}
-      searchQuery={searchQuery}
-      setSearchQuery={setSearchQuery}
-      selectedLocation={selectedLocation}
-      setSelectedLocation={setSelectedLocation}
-      addToCart={props.addToCart}
-      profileData={profileData}
-      userMode={userMode}
-      onCartClick={() => navigate('/cart')}
-      onSignOut={() => {
-        signOutToHome();
-      }}
-      onProfileClick={() => navigate('/profile')}
-      onOrdersClick={() => navigate('/orders')}
-      onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
-      onModeChange={(mode) => {
-        setUserMode(mode);
-        if (mode === 'seller') {
-          navigate('/seller/dashboard');
-        }
-      }}
-      onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => {
-        logoToBrowse();
-      }}
-      loading={listingsLoading}
-      error={listingsError?.message || null}
-      onRefresh={refetch}
-    />
+    <>
+      {showSellerOnboarding && (
+        <SellerOnboarding
+          onComplete={handleSellerOnboardingComplete}
+          onCancel={() => setShowSellerOnboarding(false)}
+        />
+      )}
+      <Browse
+        foodItems={foodItems}
+        sellerRatings={sellerRatings}
+        cart={cart}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        addToCart={props.addToCart}
+        profileData={profileData}
+        userMode={userMode}
+        onCartClick={() => navigate('/cart')}
+        onSignOut={() => {
+          signOutToHome();
+        }}
+        onProfileClick={() => navigate('/profile')}
+        onOrdersClick={() => navigate('/orders')}
+        onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
+        onModeChange={(mode) => {
+          setUserMode(mode);
+          if (mode === 'seller') {
+            navigate('/seller/dashboard');
+          }
+        }}
+        onShowSellerOnboarding={() => setShowSellerOnboarding(true)}
+        onSellerDashboardClick={() => navigate('/seller/dashboard')}
+        onLogoClick={() => {
+          logoToBrowse();
+        }}
+        loading={listingsLoading}
+        error={listingsError?.message || null}
+        onRefresh={refetch}
+      />
+    </>
   );
 };
 
@@ -366,7 +416,11 @@ export const renderBuyerRoutes = (props: AppRoutesProps, user: User | null) => (
       path="/browse"
       element={
         <RequireAuth user={user} loading={props.authLoading}>
-          <BrowseWrapper addToCart={props.addToCart} handleSignOut={props.handleSignOut} />
+          <BrowseWrapper
+            addToCart={props.addToCart}
+            handleSignOut={props.handleSignOut}
+            setProfileData={props.setProfileData}
+          />
         </RequireAuth>
       }
     />
