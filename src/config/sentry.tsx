@@ -2,7 +2,7 @@ export async function initializeSentry() {
   // Sentry temporarily disabled due to bundling issues with replay integration
   // TODO: Re-enable with @sentry/browser (lighter package) instead of @sentry/react
   return;
-  
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   // Initialize Sentry if DSN is provided (works in both dev and prod)
   // Set VITE_SENTRY_DSN to empty string to disable
