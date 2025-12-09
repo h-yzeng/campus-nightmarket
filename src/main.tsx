@@ -15,8 +15,10 @@ const viteEnv = import.meta.env;
 (globalThis as Record<string, unknown>).__VITE_FIREBASE_AUTH_DOMAIN__ =
   viteEnv.VITE_FIREBASE_AUTH_DOMAIN;
 
-// Initialize Sentry for error tracking
-initializeSentry();
+// Initialize Sentry for error tracking (async, non-blocking)
+initializeSentry().catch((error) => {
+  console.warn('Sentry initialization failed:', error);
+});
 
 document.documentElement.classList.add('dark');
 
