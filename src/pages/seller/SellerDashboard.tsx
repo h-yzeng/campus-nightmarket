@@ -50,6 +50,10 @@ const SellerDashboard = ({
     profileData.sellerInfo?.paymentMethods?.zelle
   );
 
+  const hasPhone = Boolean(profileData.sellerInfo?.phone);
+  const hasLocation = Boolean(profileData.sellerInfo?.preferredLocations?.length);
+  const hasCompleteSellerInfo = hasPaymentInfo && hasPhone && hasLocation;
+
   return (
     <div className="flex min-h-screen flex-col bg-[#0A0A0B]">
       <Header
@@ -129,15 +133,41 @@ const SellerDashboard = ({
           onCreateListing={onCreateListing}
         />
 
-        {/* Payment Info Alert */}
-        {!hasPaymentInfo && (
+        {/* Seller Profile Completion Alert */}
+        {!hasCompleteSellerInfo && (
           <div className="mt-8 flex gap-3 rounded-2xl border-2 border-[#4A3A1A] bg-[#2A1A0A] p-6">
             <AlertCircle size={24} className="shrink-0 text-[#FFB088]" />
             <div>
               <p className="mb-2 text-lg font-bold text-[#E0E0E0]">Complete Your Seller Profile</p>
               <p className="mb-4 text-sm text-[#D0B0A0]">
-                Add your payment information to make it easier for buyers to pay you. Go to your
-                profile settings to add CashApp, Venmo, or Zelle details.
+                {!hasPhone &&
+                  !hasPaymentInfo &&
+                  !hasLocation &&
+                  'Add your phone number, payment information, and preferred pickup locations to start selling. Go to your profile settings to complete your seller profile.'}
+                {hasPhone &&
+                  !hasPaymentInfo &&
+                  !hasLocation &&
+                  'Add your payment information and preferred pickup locations to complete your seller profile.'}
+                {hasPhone &&
+                  hasPaymentInfo &&
+                  !hasLocation &&
+                  'Add your preferred pickup locations to complete your seller profile.'}
+                {!hasPhone &&
+                  hasPaymentInfo &&
+                  hasLocation &&
+                  'Add your phone number to complete your seller profile.'}
+                {!hasPhone &&
+                  !hasPaymentInfo &&
+                  hasLocation &&
+                  'Add your phone number and payment information to complete your seller profile.'}
+                {!hasPhone &&
+                  hasPaymentInfo &&
+                  !hasLocation &&
+                  'Add your phone number and preferred pickup locations to complete your seller profile.'}
+                {hasPhone &&
+                  !hasPaymentInfo &&
+                  hasLocation &&
+                  'Add your payment information (CashApp, Venmo, or Zelle) to complete your seller profile.'}
               </p>
               <button
                 type="button"

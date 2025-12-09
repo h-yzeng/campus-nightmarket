@@ -11,12 +11,28 @@ import { useCartStore, useAuthStore, useNavigationStore } from '../stores';
 import SellerOnboarding from '../components/onboarding/SellerOnboarding';
 import { updateUserProfile } from '../services/auth/userService';
 import { logger } from '../utils/logger';
+import type { ProfileData } from '../types';
 
 const SellerDashboard = lazy(() => import('../pages/seller/SellerDashboard'));
 const CreateListing = lazy(() => import('../pages/seller/CreateListing'));
 const EditListing = lazy(() => import('../pages/seller/EditListing'));
 const SellerListings = lazy(() => import('../pages/seller/SellerListings'));
 const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
+
+// Helper function to check if seller profile is incomplete
+const hasIncompleteSellerProfile = (profileData: ProfileData): boolean => {
+  if (!profileData.isSeller) return true;
+
+  const hasPhone = Boolean(profileData.sellerInfo?.phone);
+  const hasPayment = Boolean(
+    profileData.sellerInfo?.paymentMethods?.cashApp ||
+    profileData.sellerInfo?.paymentMethods?.venmo ||
+    profileData.sellerInfo?.paymentMethods?.zelle
+  );
+  const hasLocation = Boolean(profileData.sellerInfo?.preferredLocations?.length);
+
+  return !hasPhone || !hasPayment || !hasLocation;
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 const SellerDashboardWrapper = (
@@ -36,8 +52,8 @@ const SellerDashboardWrapper = (
 
   useRouteProtection(userMode, setUserMode);
 
-  // Derived state: show onboarding if user is in seller mode but not a seller
-  const showSellerOnboarding = !profileData.isSeller && userMode === 'seller';
+  // Derived state: show onboarding if seller profile is incomplete and in seller mode
+  const showSellerOnboarding = hasIncompleteSellerProfile(profileData) && userMode === 'seller';
 
   const handleSellerOnboardingComplete = async (sellerInfo: {
     phone: string;
@@ -130,8 +146,8 @@ const CreateListingWrapper = (
 
   useRouteProtection(userMode, setUserMode);
 
-  // Derived state: show onboarding if user is in seller mode but not a seller
-  const showSellerOnboarding = !profileData.isSeller && userMode === 'seller';
+  // Derived state: show onboarding if seller profile is incomplete and in seller mode
+  const showSellerOnboarding = hasIncompleteSellerProfile(profileData) && userMode === 'seller';
 
   const handleSellerOnboardingComplete = async (sellerInfo: {
     phone: string;
@@ -221,8 +237,8 @@ const EditListingWrapper = (
 
   useRouteProtection(userMode, setUserMode);
 
-  // Derived state: show onboarding if user is in seller mode but not a seller
-  const showSellerOnboarding = !profileData.isSeller && userMode === 'seller';
+  // Derived state: show onboarding if seller profile is incomplete and in seller mode
+  const showSellerOnboarding = hasIncompleteSellerProfile(profileData) && userMode === 'seller';
 
   const handleSellerOnboardingComplete = async (sellerInfo: {
     phone: string;
@@ -316,8 +332,8 @@ const SellerListingsWrapper = (
 
   useRouteProtection(userMode, setUserMode);
 
-  // Derived state: show onboarding if user is in seller mode but not a seller
-  const showSellerOnboarding = !profileData.isSeller && userMode === 'seller';
+  // Derived state: show onboarding if seller profile is incomplete and in seller mode
+  const showSellerOnboarding = hasIncompleteSellerProfile(profileData) && userMode === 'seller';
 
   const handleSellerOnboardingComplete = async (sellerInfo: {
     phone: string;
@@ -417,8 +433,8 @@ const SellerOrdersWrapper = (
 
   useRouteProtection(userMode, setUserMode);
 
-  // Derived state: show onboarding if user is in seller mode but not a seller
-  const showSellerOnboarding = !profileData.isSeller && userMode === 'seller';
+  // Derived state: show onboarding if seller profile is incomplete and in seller mode
+  const showSellerOnboarding = hasIncompleteSellerProfile(profileData) && userMode === 'seller';
 
   const handleSellerOnboardingComplete = async (sellerInfo: {
     phone: string;
