@@ -91,12 +91,12 @@ describe('Seller route role enforcement', () => {
     resetStores();
   });
 
-  it('redirects non-seller users to browse', async () => {
+  it('allows all logged-in users to access seller routes', async () => {
     useAuthStore.setState({ user: makeUser('user-1'), profileData: baseProfile });
 
     renderAt('/seller/dashboard');
 
-    expect(await screen.findByText('Browse Page')).toBeInTheDocument();
+    expect(await screen.findByText('Seller Dashboard')).toBeInTheDocument();
   });
 
   it('allows sellers to access seller routes', async () => {

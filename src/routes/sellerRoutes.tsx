@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Route, useParams, Navigate } from 'react-router-dom';
+import { Route, useParams } from 'react-router-dom';
 import type { User } from 'firebase/auth';
 import { RequireAuth, PageLoadingFallback, useNavBasics } from './shared';
 import type { AppRoutesProps } from './types';
@@ -29,10 +29,6 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
   );
 
   useRouteProtection(userMode, setUserMode);
-
-  if (!profileData?.isSeller) {
-    return <Navigate to="/browse" replace />;
-  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -81,10 +77,6 @@ const CreateListingWrapper = (
 
   useRouteProtection(userMode, setUserMode);
 
-  if (!profileData?.isSeller) {
-    return <Navigate to="/browse" replace />;
-  }
-
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
   return (
@@ -128,10 +120,6 @@ const EditListingWrapper = (
   const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   useRouteProtection(userMode, setUserMode);
-
-  if (!profileData?.isSeller) {
-    return <Navigate to="/browse" replace />;
-  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -177,10 +165,6 @@ const SellerListingsWrapper = (
   const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   useRouteProtection(userMode, setUserMode);
-
-  if (!profileData?.isSeller) {
-    return <Navigate to="/browse" replace />;
-  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -235,10 +219,6 @@ const SellerOrdersWrapper = (
   const { data: orderReviews = {} } = useOrderReviewsQuery(orderIdsWithReviews);
 
   useRouteProtection(userMode, setUserMode);
-
-  if (!profileData?.isSeller) {
-    return <Navigate to="/browse" replace />;
-  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
