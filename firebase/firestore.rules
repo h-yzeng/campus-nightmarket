@@ -61,8 +61,8 @@ service cloud.firestore {
     // LISTINGS COLLECTION
     // ====================
     match /listings/{listingId} {
-      // Anyone authenticated can read listings
-      allow read: if isAuthenticated();
+      // Allow public read of active listings for preview; authenticated users can read all
+      allow read: if resource.data.isActive == true || isAuthenticated();
 
       // Only authenticated sellers can create listings
       allow create: if isEmailVerified()
