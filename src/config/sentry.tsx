@@ -1,4 +1,9 @@
 export async function initializeSentry() {
+  // Sentry temporarily disabled due to bundling issues with replay integration
+  // TODO: Re-enable with @sentry/browser (lighter package) instead of @sentry/react
+  return;
+  
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   // Initialize Sentry if DSN is provided (works in both dev and prod)
   // Set VITE_SENTRY_DSN to empty string to disable
   if (import.meta.env.VITE_SENTRY_DSN) {
@@ -11,21 +16,10 @@ export async function initializeSentry() {
         environment: import.meta.env.MODE,
         integrations: [
           Sentry.browserTracingIntegration(),
-          // Only include replay in production to avoid development issues
-          ...(import.meta.env.PROD
-            ? [
-                Sentry.replayIntegration({
-                  maskAllText: true,
-                  blockAllMedia: true,
-                }),
-              ]
-            : []),
+          // Replay integration disabled due to bundling issues
         ],
         // Performance Monitoring
         tracesSampleRate: 0.1, // Capture 10% of transactions for performance monitoring
-        // Session Replay
-        replaysSessionSampleRate: 0.1, // Sample 10% of sessions
-        replaysOnErrorSampleRate: 1.0, // Sample 100% of sessions with errors
         // Before send hook to filter sensitive data
         beforeSend(event) {
           // Filter out personally identifiable information
@@ -44,4 +38,5 @@ export async function initializeSentry() {
       console.warn('Failed to initialize Sentry:', error);
     }
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
