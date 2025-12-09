@@ -47,14 +47,11 @@ const PROGRESSIVE_BLOCKING = {
   7: 30 * 60 * 1000, // 30 minutes
 };
 
-// Login/signup server-side rate limiting (lightweight, per-identifier in-memory)
-const loginRateLimitStore = new Map<
-  string,
-  { attempts: number; blockedUntil?: number; windowReset: number }
->();
+// Login/signup server-side rate limiting (persisted in Firestore to survive cold starts)
 const LOGIN_RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_BLOCK_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_COLLECTION = 'rateLimits';
 
 // Verification tokens storage - now using Firestore instead of in-memory Map
 // to persist tokens across Cloud Function cold starts and scaling
@@ -150,53 +147,64 @@ function generateToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
 
-function checkLoginRateLimitInternal(identifier: string): {
+async function checkLoginRateLimitInternal(identifier: string): Promise<{
   allowed: boolean;
   retryAfterMs?: number;
   message?: string;
-} {
+}> {
+  const normalizedId = identifier.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const ref = admin.firestore().collection(RATE_LIMIT_COLLECTION).doc(`login_${normalizedId}`);
   const now = Date.now();
-  const record = loginRateLimitStore.get(identifier);
 
-  if (record?.blockedUntil && record.blockedUntil > now) {
-    return {
-      allowed: false,
-      retryAfterMs: record.blockedUntil - now,
-      message: 'Too many attempts. Please try again later.',
-    };
-  }
+  const result = await admin.firestore().runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const data = snap.data() as
+      | { attempts: number; windowReset: number; blockedUntil?: number }
+      | undefined;
 
-  if (!record || now > record.windowReset) {
-    loginRateLimitStore.set(identifier, {
-      attempts: 1,
-      windowReset: now + LOGIN_RATE_LIMIT_WINDOW,
-    });
-    return { allowed: true };
-  }
+    if (data?.blockedUntil && data.blockedUntil > now) {
+      return {
+        allowed: false as const,
+        retryAfterMs: data.blockedUntil - now,
+        message: 'Too many attempts. Please try again later.',
+      };
+    }
 
-  const nextAttempts = record.attempts + 1;
+    // Reset window if expired or new
+    if (!data || now > data.windowReset) {
+      tx.set(ref, {
+        attempts: 1,
+        windowReset: now + LOGIN_RATE_LIMIT_WINDOW,
+        updatedAt: now,
+      });
+      return { allowed: true as const };
+    }
 
-  if (nextAttempts > LOGIN_MAX_ATTEMPTS) {
-    const blockedUntil = now + LOGIN_BLOCK_MS;
-    loginRateLimitStore.set(identifier, {
+    const nextAttempts = data.attempts + 1;
+    if (nextAttempts > LOGIN_MAX_ATTEMPTS) {
+      const blockedUntil = now + LOGIN_BLOCK_MS;
+      tx.set(ref, {
+        attempts: nextAttempts,
+        windowReset: data.windowReset,
+        blockedUntil,
+        updatedAt: now,
+      });
+      return {
+        allowed: false as const,
+        retryAfterMs: LOGIN_BLOCK_MS,
+        message: 'Too many attempts. Please try again later.',
+      };
+    }
+
+    tx.set(ref, {
       attempts: nextAttempts,
-      blockedUntil,
-      windowReset: record.windowReset,
+      windowReset: data.windowReset,
+      updatedAt: now,
     });
-
-    return {
-      allowed: false,
-      retryAfterMs: LOGIN_BLOCK_MS,
-      message: 'Too many attempts. Please try again later.',
-    };
-  }
-
-  loginRateLimitStore.set(identifier, {
-    ...record,
-    attempts: nextAttempts,
+    return { allowed: true as const };
   });
 
-  return { allowed: true };
+  return result;
 }
 
 // App URL for notifications - configure via Firebase Functions config:
@@ -211,7 +219,7 @@ export const checkLoginRateLimit = onCall(async (request) => {
     request.rawRequest.ip ||
     'anonymous';
 
-  const result = checkLoginRateLimitInternal(identifier);
+  const result = await checkLoginRateLimitInternal(identifier);
 
   if (!result.allowed) {
     throw new HttpsError('resource-exhausted', result.message ?? 'Too many attempts', {

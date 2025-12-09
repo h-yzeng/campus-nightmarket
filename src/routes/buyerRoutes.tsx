@@ -1,7 +1,7 @@
 import { lazy } from 'react';
-import { Route, useNavigate, useParams, Navigate } from 'react-router-dom';
+import { Route, useParams, Navigate } from 'react-router-dom';
 import type { User } from 'firebase/auth';
-import { RequireAuth, PageLoadingFallback, makeLogoToBrowse, makeSignOutToHome } from './shared';
+import { RequireAuth, PageLoadingFallback, useNavBasics } from './shared';
 import type { AppRoutesProps } from './types';
 import { useRouteProtection } from '../hooks/useRouteProtection';
 import { useSellerProfile } from '../hooks/useSellerProfile';
@@ -21,9 +21,7 @@ const OrderDetails = lazy(() => import('../pages/buyer/OrderDetails'));
 
 // eslint-disable-next-line react-refresh/only-export-components
 const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'>) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const {
     data: foodItems = [],
@@ -86,9 +84,7 @@ const BrowseWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'
 const UserProfileWrapper = (
   props: Pick<AppRoutesProps, 'setProfileData' | 'handleSaveProfile' | 'handleSignOut'>
 ) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const profileData = useAuthStore((state) => state.profileData);
   const userMode = useNavigationStore((state) => state.userMode);
@@ -121,10 +117,8 @@ const UserProfileWrapper = (
 
 // eslint-disable-next-line react-refresh/only-export-components
 const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
-  const navigate = useNavigate();
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
   const { sellerId } = useParams<{ sellerId: string }>();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
 
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
@@ -156,9 +150,7 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
 const CartWrapper = (
   props: Pick<AppRoutesProps, 'updateCartQuantity' | 'removeFromCart' | 'handleSignOut'>
 ) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const cart = useCartStore((state) => state.cart);
   const profileData = useAuthStore((state) => state.profileData);
@@ -197,9 +189,7 @@ const CartWrapper = (
 
 // eslint-disable-next-line react-refresh/only-export-components
 const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handleSignOut'>) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const cart = useCartStore((state) => state.cart);
   const profileData = useAuthStore((state) => state.profileData);
@@ -240,9 +230,7 @@ const CheckoutWrapper = (props: Pick<AppRoutesProps, 'handlePlaceOrder' | 'handl
 
 // eslint-disable-next-line react-refresh/only-export-components
 const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const user = useAuthStore((state) => state.user);
   const {
@@ -302,10 +290,8 @@ const UserOrdersWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
 const OrderDetailsWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCancelOrder' | 'handleSubmitReview'>
 ) => {
-  const navigate = useNavigate();
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
   const { orderId } = useParams<{ orderId: string }>();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
 
   const user = useAuthStore((state) => state.user);
   const { data: buyerOrders = [], isLoading: buyerOrdersLoading } = useBuyerOrdersQuery(user?.uid);
@@ -314,8 +300,10 @@ const OrderDetailsWrapper = (
   const cart = useCartStore((state) => state.cart);
   const addToCart = useCartStore((state) => state.addToCart);
   const userMode = useNavigationStore((state) => state.userMode);
-
-  const order = buyerOrders.find((o) => o.id === parseInt(orderId || '0', 10));
+  const parsedOrderId = Number.parseInt(orderId || '', 10);
+  const order = Number.isNaN(parsedOrderId)
+    ? undefined
+    : buyerOrders.find((o) => o.id === parsedOrderId);
   const { sellerProfile } = useSellerProfile(order?.sellerId);
 
   const { data: review } = useOrderReviewQuery(order?.hasReview ? order.firebaseId : undefined);
@@ -324,7 +312,7 @@ const OrderDetailsWrapper = (
     return <PageLoadingFallback />;
   }
 
-  if (!order) {
+  if (Number.isNaN(parsedOrderId) || !order) {
     return <Navigate to="/orders" replace />;
   }
 

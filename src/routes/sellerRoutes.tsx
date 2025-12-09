@@ -1,7 +1,7 @@
 import { lazy } from 'react';
-import { Route, useNavigate, useParams } from 'react-router-dom';
+import { Route, useParams, Navigate } from 'react-router-dom';
 import type { User } from 'firebase/auth';
-import { RequireAuth, PageLoadingFallback, makeLogoToBrowse, makeSignOutToHome } from './shared';
+import { RequireAuth, PageLoadingFallback, useNavBasics } from './shared';
 import type { AppRoutesProps } from './types';
 import { useRouteProtection } from '../hooks/useRouteProtection';
 import { useSellerListingsQuery } from '../hooks/queries/useListingsQuery';
@@ -17,9 +17,7 @@ const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
 
 // eslint-disable-next-line react-refresh/only-export-components
 const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const user = useAuthStore((state) => state.user);
   const { data: listings = [], isLoading: listingsLoading } = useSellerListingsQuery(user?.uid);
@@ -33,6 +31,10 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   useRouteProtection(userMode, setUserMode);
+
+  if (!profileData?.isSeller) {
+    return <Navigate to="/browse" replace />;
+  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -75,9 +77,7 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
 const CreateListingWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCreateListing'>
 ) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const user = useAuthStore((state) => state.user);
   const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
@@ -88,6 +88,10 @@ const CreateListingWrapper = (
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   useRouteProtection(userMode, setUserMode);
+
+  if (!profileData?.isSeller) {
+    return <Navigate to="/browse" replace />;
+  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -126,10 +130,8 @@ const CreateListingWrapper = (
 const EditListingWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateListing'>
 ) => {
-  const navigate = useNavigate();
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
   const { listingId } = useParams<{ listingId: string }>();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
 
   const user = useAuthStore((state) => state.user);
   const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
@@ -140,6 +142,10 @@ const EditListingWrapper = (
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   useRouteProtection(userMode, setUserMode);
+
+  if (!profileData?.isSeller) {
+    return <Navigate to="/browse" replace />;
+  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -179,9 +185,7 @@ const EditListingWrapper = (
 const SellerListingsWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>
 ) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const user = useAuthStore((state) => state.user);
   const { data: listings = [] } = useSellerListingsQuery(user?.uid);
@@ -193,6 +197,10 @@ const SellerListingsWrapper = (
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   useRouteProtection(userMode, setUserMode);
+
+  if (!profileData?.isSeller) {
+    return <Navigate to="/browse" replace />;
+  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 
@@ -231,9 +239,7 @@ const SellerListingsWrapper = (
 const SellerOrdersWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>
 ) => {
-  const navigate = useNavigate();
-  const signOutToHome = makeSignOutToHome(navigate, props.handleSignOut);
-  const logoToBrowse = makeLogoToBrowse(navigate);
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
 
   const user = useAuthStore((state) => state.user);
   const {
@@ -255,6 +261,10 @@ const SellerOrdersWrapper = (
   const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   useRouteProtection(userMode, setUserMode);
+
+  if (!profileData?.isSeller) {
+    return <Navigate to="/browse" replace />;
+  }
 
   const pendingOrdersCount = sellerOrders.filter((o) => o.status === 'pending').length;
 

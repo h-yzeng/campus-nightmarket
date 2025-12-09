@@ -147,6 +147,7 @@ Deploy the Firestore and Storage rules:
 ```bash
 firebase deploy --only firestore:rules
 firebase deploy --only storage:rules
+firebase deploy --only firestore:indexes
 ```
 
 ### 5. Configure Email Whitelist (Development)
@@ -181,6 +182,9 @@ npm run preview
 # Run all tests
 npm test
 
+# Seller role guard (also runs in CI)
+npm test -- --runTestsByPath tests/security/sellerRoutes.guard.test.tsx
+
 # Run tests in watch mode
 npm run test:watch
 
@@ -200,24 +204,6 @@ npm run format:check
 # Lint code
 npm run lint
 ```
-
-## Firebase Emulator (Optional)
-
-For local development without using live Firebase services:
-
-1. Install Firebase CLI:
-
-   ```bash
-   npm install -g firebase-tools
-   ```
-
-2. Start emulators:
-
-   ```bash
-   firebase emulators:start
-   ```
-
-3. Update `src/config/firebase.ts` to use emulator endpoints when in development mode
 
 ## Project Structure
 

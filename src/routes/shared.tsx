@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Suspense, type ReactElement } from 'react';
 import type { User } from 'firebase/auth';
 import type { NavigateFunction } from 'react-router-dom';
@@ -46,6 +46,14 @@ export const makeSignOutToHome =
       navigate('/');
     })();
   };
+
+export const useNavBasics = (handleSignOut: () => Promise<void>) => {
+  const navigate = useNavigate();
+  const logoToBrowse = makeLogoToBrowse(navigate);
+  const signOutToHome = makeSignOutToHome(navigate, handleSignOut);
+
+  return { navigate, logoToBrowse, signOutToHome };
+};
 
 export const makeLogoToBrowse = (navigate: NavigateFn) => () => {
   navigate('/browse');

@@ -42,13 +42,13 @@ This directory contains Firebase Cloud Functions that handle automatic notificat
 npm install -g firebase-tools
 ```
 
-2. **Login to Firebase**:
+1. **Login to Firebase**:
 
 ```bash
 firebase login
 ```
 
-3. **Initialize Firebase** (if not already done):
+1. **Initialize Firebase** (if not already done):
 
 ```bash
 firebase init
@@ -85,16 +85,6 @@ firebase deploy --only functions
 firebase deploy --only functions:sendNewOrderNotification
 firebase deploy --only functions:sendOrderStatusNotification
 ```
-
-## Testing Locally
-
-### Run Functions Emulator
-
-```bash
-npm run serve
-```
-
-This starts the Firebase emulators for local testing.
 
 ## Monitoring & Logs
 
