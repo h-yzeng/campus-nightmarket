@@ -16,6 +16,7 @@ interface ViewProfileWrapperProps {
   onSignOut: () => void;
   onCartClick: () => void;
   onProfileClick: () => void;
+  onModeChange?: (mode: UserMode) => void;
   onLogoClick?: () => void;
 }
 
@@ -28,6 +29,7 @@ const ViewProfileWrapper = ({
   onSignOut,
   onCartClick,
   onProfileClick,
+  onModeChange,
   onLogoClick,
 }: ViewProfileWrapperProps) => {
   const [loading, setLoading] = useState(true);
@@ -85,6 +87,7 @@ const ViewProfileWrapper = ({
           onCartClick={onCartClick}
           onSignOut={onSignOut}
           onProfileClick={onProfileClick}
+          onModeChange={onModeChange}
           onLogoClick={onLogoClick}
           showCart={true}
           userMode={userMode}
@@ -109,6 +112,7 @@ const ViewProfileWrapper = ({
           onCartClick={onCartClick}
           onSignOut={onSignOut}
           onProfileClick={onProfileClick}
+          onModeChange={onModeChange}
           onLogoClick={onLogoClick}
           showCart={true}
           userMode={userMode}
@@ -146,6 +150,7 @@ const ViewProfileWrapper = ({
       onSignOut={onSignOut}
       onCartClick={onCartClick}
       onProfileClick={onProfileClick}
+      onModeChange={onModeChange}
       onLogoClick={onLogoClick}
     />
   );

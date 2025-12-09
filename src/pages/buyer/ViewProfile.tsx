@@ -21,6 +21,7 @@ interface ViewProfileProps {
   onSignOut: () => void;
   onCartClick: () => void;
   onProfileClick: () => void;
+  onModeChange?: (mode: UserMode) => void;
   onLogoClick?: () => void;
 }
 
@@ -40,6 +41,7 @@ const ViewProfile = ({
   onSignOut,
   onCartClick,
   onProfileClick,
+  onModeChange,
   onLogoClick,
 }: ViewProfileProps) => {
   const averageRating =
@@ -57,6 +59,7 @@ const ViewProfile = ({
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onModeChange={onModeChange}
         onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}

@@ -39,6 +39,7 @@ interface OrderDetailsProps {
   onCartClick: () => void;
   onSignOut: () => void;
   onProfileClick: () => void;
+  onModeChange?: (mode: UserMode) => void;
   onLogoClick?: () => void;
   onAddToCart?: (item: CartItem) => void;
 }
@@ -60,6 +61,7 @@ const OrderDetails = ({
   onCartClick,
   onSignOut,
   onProfileClick,
+  onModeChange,
   onLogoClick,
   onAddToCart,
 }: OrderDetailsProps) => {
@@ -151,6 +153,7 @@ const OrderDetails = ({
         onCartClick={onCartClick}
         onSignOut={onSignOut}
         onProfileClick={onProfileClick}
+        onModeChange={onModeChange}
         onLogoClick={onLogoClick}
         showCart={true}
         userMode={userMode}

@@ -139,6 +139,12 @@ const ViewSellerProfileWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) 
       }}
       onCartClick={() => navigate('/cart')}
       onProfileClick={() => navigate('/profile')}
+      onModeChange={(mode) => {
+        setUserMode(mode);
+        if (mode === 'seller') {
+          navigate('/seller/dashboard');
+        }
+      }}
       onLogoClick={() => {
         logoToBrowse();
       }}
@@ -300,6 +306,7 @@ const OrderDetailsWrapper = (
   const cart = useCartStore((state) => state.cart);
   const addToCart = useCartStore((state) => state.addToCart);
   const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
   const parsedOrderId = Number.parseInt(orderId || '', 10);
   const order = Number.isNaN(parsedOrderId)
     ? undefined
@@ -339,6 +346,12 @@ const OrderDetailsWrapper = (
       }}
       onProfileClick={() => navigate('/profile')}
       userMode={userMode}
+      onModeChange={(mode) => {
+        setUserMode(mode);
+        if (mode === 'seller') {
+          navigate('/seller/dashboard');
+        }
+      }}
       onLogoClick={() => {
         logoToBrowse();
       }}
