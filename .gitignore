@@ -58,3 +58,7 @@ functions/.runtimeconfig.json
 public/*
 public
 .hintrc
+.husky/
+.simple-git-hooks.js
+.simple-git-hooks.config.js
+simple-git-hooks.config.js

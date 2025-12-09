@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CartItem, FoodItem } from '../types';
 
 /**
@@ -23,50 +24,60 @@ interface CartState {
   setCart: (cart: CartItem[]) => void;
 }
 
-export const useCartStore = create<CartState>((set) => ({
-  // Initial state
-  cart: [],
+export const useCartStore = create<CartState>()(
+  persist(
+    (set) => ({
+      // Initial state
+      cart: [],
 
-  // Actions
-  addToCart: (item) =>
-    set((state) => {
-      const existingItem = state.cart.find((cartItem) => cartItem.id === item.id);
+      // Actions
+      addToCart: (item) =>
+        set((state) => {
+          const existingItem = state.cart.find((cartItem) => cartItem.id === item.id);
 
-      if (existingItem) {
-        return {
-          cart: state.cart.map((cartItem) =>
-            cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem
-          ),
-        };
-      }
+          if (existingItem) {
+            return {
+              cart: state.cart.map((cartItem) =>
+                cartItem.id === item.id
+                  ? { ...cartItem, quantity: cartItem.quantity + 1 }
+                  : cartItem
+              ),
+            };
+          }
 
-      const cartItem: CartItem = {
-        ...item,
-        quantity: 1,
-      };
+          const cartItem: CartItem = {
+            ...item,
+            quantity: 1,
+          };
 
-      return { cart: [...state.cart, cartItem] };
+          return { cart: [...state.cart, cartItem] };
+        }),
+
+      updateCartQuantity: (itemId, newQuantity) =>
+        set((state) => {
+          if (newQuantity <= 0) {
+            return { cart: state.cart.filter((item) => item.id !== itemId) };
+          }
+
+          return {
+            cart: state.cart.map((item) =>
+              item.id === itemId ? { ...item, quantity: newQuantity } : item
+            ),
+          };
+        }),
+
+      removeFromCart: (itemId) =>
+        set((state) => ({
+          cart: state.cart.filter((item) => item.id !== itemId),
+        })),
+
+      clearCart: () => set({ cart: [] }),
+
+      setCart: (cart) => set({ cart }),
     }),
-
-  updateCartQuantity: (itemId, newQuantity) =>
-    set((state) => {
-      if (newQuantity <= 0) {
-        return { cart: state.cart.filter((item) => item.id !== itemId) };
-      }
-
-      return {
-        cart: state.cart.map((item) =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        ),
-      };
-    }),
-
-  removeFromCart: (itemId) =>
-    set((state) => ({
-      cart: state.cart.filter((item) => item.id !== itemId),
-    })),
-
-  clearCart: () => set({ cart: [] }),
-
-  setCart: (cart) => set({ cart }),
-}));
+    {
+      name: 'cart-store',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);

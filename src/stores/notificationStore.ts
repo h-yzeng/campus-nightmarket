@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Notification } from '../hooks/useNotifications';
 
 interface NotificationHandlers {
@@ -27,16 +28,32 @@ interface NotificationState {
   ) => void;
 }
 
-export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [],
-  unreadCount: 0,
-  handlers: null,
-  permissionState: typeof Notification !== 'undefined' ? Notification.permission : 'unsupported',
-  isRequestingPermission: false,
-  requestPermission: undefined,
-  refreshNotifications: undefined,
-  setNotifications: (notifications, unreadCount) => set({ notifications, unreadCount }),
-  setHandlers: (handlers) => set({ handlers }),
-  setPermissionState: (permissionState) => set({ permissionState }),
-  setPermissionControls: (controls) => set(controls),
-}));
+export const useNotificationStore = create<NotificationState>()(
+  persist(
+    (set) => ({
+      notifications: [],
+      unreadCount: 0,
+      handlers: null,
+      permissionState:
+        typeof Notification !== 'undefined' ? Notification.permission : 'unsupported',
+      isRequestingPermission: false,
+      requestPermission: undefined,
+      refreshNotifications: undefined,
+      setNotifications: (notifications, unreadCount) => set({ notifications, unreadCount }),
+      setHandlers: (handlers) => set({ handlers }),
+      setPermissionState: (permissionState) => set({ permissionState }),
+      setPermissionControls: (controls) => set(controls),
+    }),
+    {
+      name: 'notification-store',
+      storage: createJSONStorage(() => localStorage),
+      // Avoid persisting handler functions
+      partialize: (state) => ({
+        notifications: state.notifications,
+        unreadCount: state.unreadCount,
+        permissionState: state.permissionState,
+        isRequestingPermission: state.isRequestingPermission,
+      }),
+    }
+  )
+);

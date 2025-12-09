@@ -10,6 +10,8 @@ import type { User } from 'firebase/auth';
 import { logger } from '../utils/logger';
 import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
 import { toast } from 'sonner';
+import { queryKeys } from '../utils/queryKeys';
+import { reportError } from '../utils/reportError';
 
 interface UseOrderManagementProps {
   user: User | null;
@@ -145,14 +147,14 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
         );
       }
     } catch (err) {
-      logger.error('[useOrderManagement] Unexpected error placing order:', err);
-      toast.error('An unexpected error occurred. Please check your orders and try again.');
+      reportError(err, 'An unexpected error occurred. Please check your orders and try again.');
     }
   };
 
   const handleCancelOrder = async (orderId: number) => {
     // Get buyer orders from React Query cache
-    const buyerOrders = queryClient.getQueryData<Order[]>(['orders', 'buyer', user?.uid]) || [];
+    const buyerOrders =
+      queryClient.getQueryData<Order[]>(queryKeys.orders.buyer(user?.uid || '')) || [];
     const order = buyerOrders.find((o) => o.id === orderId);
 
     if (!order) {
@@ -166,14 +168,14 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
       logger.general('[useOrderManagement] Order cancelled successfully');
       toast.success('Order cancelled successfully');
     } catch (err) {
-      logger.error('[useOrderManagement] Error cancelling order:', err);
-      toast.error('Failed to cancel order. Please try again.');
+      reportError(err, 'Failed to cancel order. Please try again.');
     }
   };
 
   const handleUpdateOrderStatus = async (orderId: number, status: Order['status']) => {
     // Get seller orders from React Query cache
-    const sellerOrders = queryClient.getQueryData<Order[]>(['orders', 'seller', user?.uid]) || [];
+    const sellerOrders =
+      queryClient.getQueryData<Order[]>(queryKeys.orders.seller(user?.uid || '')) || [];
     const order = sellerOrders.find((o) => o.id === orderId);
 
     if (!order) {
@@ -196,8 +198,7 @@ export const useOrderManagement = ({ user, profileData }: UseOrderManagementProp
       };
       toast.success(statusMessages[status] || 'Order status updated successfully');
     } catch (err) {
-      logger.error('[useOrderManagement] Error updating order status:', err);
-      toast.error('Failed to update order status. Please try again.');
+      reportError(err, 'Failed to update order status. Please try again.');
     }
   };
 

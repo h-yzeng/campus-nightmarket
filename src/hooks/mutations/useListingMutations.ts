@@ -7,6 +7,7 @@ import {
 } from '../../services/listings/listingService';
 import type { CreateListing, UpdateListing } from '../../types/firebase';
 import type { ListingWithFirebaseId } from '../../types';
+import { queryKeys } from '../../utils/queryKeys';
 
 export const useCreateListingMutation = () => {
   const queryClient = useQueryClient();
@@ -17,10 +18,10 @@ export const useCreateListingMutation = () => {
     },
     onSuccess: (_data, variables) => {
       // Invalidate and refetch all listings immediately
-      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: queryKeys.listings.all, refetchType: 'active' });
       // Invalidate seller's listings specifically
       queryClient.invalidateQueries({
-        queryKey: ['listings', 'seller', variables.sellerId],
+        queryKey: queryKeys.listings.seller(variables.sellerId),
         refetchType: 'active',
       });
     },
@@ -35,7 +36,8 @@ export const useUpdateListingMutation = () => {
     updater: (listing: ListingWithFirebaseId) => ListingWithFirebaseId
   ) => {
     const queries = queryClient.getQueriesData<ListingWithFirebaseId[]>({
-      queryKey: ['listings', 'seller'],
+      queryKey: queryKeys.listings.all,
+      predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[1] === 'seller',
     });
 
     queries.forEach(([queryKey, data]) => {
@@ -58,7 +60,7 @@ export const useUpdateListingMutation = () => {
         // Keep firebaseId and other existing fields intact
         firebaseId: listing.firebaseId,
       }));
-      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: queryKeys.listings.all, refetchType: 'active' });
     },
   });
 };
@@ -68,7 +70,8 @@ export const useDeleteListingMutation = () => {
 
   const pruneSellerListingsCache = (listingId: string) => {
     const queries = queryClient.getQueriesData<ListingWithFirebaseId[]>({
-      queryKey: ['listings', 'seller'],
+      queryKey: queryKeys.listings.all,
+      predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[1] === 'seller',
     });
 
     queries.forEach(([queryKey, data]) => {
@@ -84,7 +87,7 @@ export const useDeleteListingMutation = () => {
     },
     onSuccess: (_data, listingId) => {
       pruneSellerListingsCache(listingId);
-      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: queryKeys.listings.all, refetchType: 'active' });
     },
   });
 };
@@ -97,10 +100,14 @@ export const useToggleListingAvailabilityMutation = () => {
       return await toggleListingAvailability(listingId);
     },
     onMutate: async (listingId) => {
-      await queryClient.cancelQueries({ queryKey: ['listings', 'seller'] });
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.listings.all,
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[1] === 'seller',
+      });
 
       const previousSellerQueries = queryClient.getQueriesData<ListingWithFirebaseId[]>({
-        queryKey: ['listings', 'seller'],
+        queryKey: queryKeys.listings.all,
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[1] === 'seller',
       });
 
       const toggleCache = (data?: ListingWithFirebaseId[]) =>
@@ -123,8 +130,12 @@ export const useToggleListingAvailabilityMutation = () => {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
-      queryClient.invalidateQueries({ queryKey: ['listings', 'seller'], refetchType: 'active' });
+      queryClient.invalidateQueries({ queryKey: queryKeys.listings.all, refetchType: 'active' });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.listings.all,
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[1] === 'seller',
+        refetchType: 'active',
+      });
     },
   });
 };

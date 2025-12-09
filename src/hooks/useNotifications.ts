@@ -7,6 +7,7 @@ import {
 } from '../services/notifications/notificationService';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../utils/logger';
+import { useNotificationStore } from '../stores';
 
 export interface Notification {
   id: string;
@@ -29,7 +30,10 @@ export const useNotifications = (userId: string | undefined) => {
   const queryClient = useQueryClient();
   const isMountedRef = useRef(true);
   const permissionRequestRef = useRef<Promise<void> | null>(null);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const persistedNotifications = useNotificationStore((state) => state.notifications);
+  const setNotificationStore = useNotificationStore((state) => state.setNotifications);
+
+  const [notifications, setNotifications] = useState<Notification[]>(persistedNotifications);
   const [hasPermission, setHasPermission] = useState(false);
   const [permissionState, setPermissionState] = useState<NotificationPermission | 'unsupported'>(
     typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
@@ -164,6 +168,11 @@ export const useNotifications = (userId: string | undefined) => {
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // Sync notification state into the store for persistence/hydration
+  useEffect(() => {
+    setNotificationStore(notifications, unreadCount);
+  }, [notifications, unreadCount, setNotificationStore]);
 
   const refreshNotifications = useCallback(async () => {
     await requestPermission();

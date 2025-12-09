@@ -12,6 +12,18 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    function isEmailVerified() {
+      return isAuthenticated() && request.auth.token.email_verified == true;
+    }
+
+    function getUser(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data;
+    }
+
+    function isSeller(userId) {
+      return isAuthenticated() && getUser(userId).isSeller == true;
+    }
+
     function isIITEmail(email) {
       return email.matches('.*@hawk\\.illinoistech\\.edu$');
     }
@@ -30,13 +42,16 @@ service cloud.firestore {
       // Users can create their own profile
       allow create: if isOwner(userId)
         && isIITEmail(request.resource.data.email)
-        && request.resource.data.uid == userId;
+        && request.resource.data.uid == userId
+        && request.resource.data.emailVerified == false;
 
       // Users can only update their own profile
       allow update: if isOwner(userId)
         // Prevent changing uid and email
         && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email;
+        && request.resource.data.email == resource.data.email
+        // Keep email verification flag in sync with auth token
+        && request.resource.data.emailVerified == request.auth.token.email_verified;
 
       // Users can delete their own profile
       allow delete: if isOwner(userId);
@@ -50,21 +65,26 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       // Only authenticated sellers can create listings
-      allow create: if isAuthenticated()
+      allow create: if isEmailVerified()
+        && isSeller(request.auth.uid)
         && request.resource.data.sellerId == request.auth.uid
         && request.resource.data.sellerName.size() > 0
         && request.resource.data.name.size() > 0
         && request.resource.data.price > 0
-        && request.resource.data.location.size() > 0;
+        && request.resource.data.location.size() > 0
+        && request.resource.data.isActive == true;
 
       // Only listing owner (seller) can update their listing
-      allow update: if isAuthenticated()
+      allow update: if isEmailVerified()
         && resource.data.sellerId == request.auth.uid
-        // Prevent changing the seller
-        && request.resource.data.sellerId == resource.data.sellerId;
+        && request.resource.data.sellerId == resource.data.sellerId
+        // Disallow price going negative and keep immutable core fields
+        && request.resource.data.price > 0
+        && request.resource.data.name.size() > 0
+        && request.resource.data.location.size() > 0;
 
       // Only listing owner can delete their listing
-      allow delete: if isAuthenticated()
+      allow delete: if isEmailVerified()
         && resource.data.sellerId == request.auth.uid;
     }
 
@@ -78,7 +98,7 @@ service cloud.firestore {
             || resource.data.sellerId == request.auth.uid);
 
       // Only authenticated buyers can create orders
-      allow create: if isAuthenticated()
+      allow create: if isEmailVerified()
         && request.resource.data.buyerId == request.auth.uid
         && request.resource.data.buyerName.size() > 0
         && request.resource.data.buyerEmail.size() > 0
@@ -90,19 +110,29 @@ service cloud.firestore {
 
       // Buyer can update their order (cancel it)
       // Seller can update order status
-      allow update: if isAuthenticated()
+      allow update: if isEmailVerified()
         && (
-          // Buyer can only cancel their own orders
+          // Buyer can only cancel their own orders and cannot change other fields
           (resource.data.buyerId == request.auth.uid
-            && request.resource.data.status == 'cancelled')
-          ||
-          // Seller can update order status
-          (resource.data.sellerId == request.auth.uid
-            && request.resource.data.status in ['pending', 'confirmed', 'ready', 'completed', 'cancelled']
-            // Prevent seller from changing order details
+            && request.resource.data.status == 'cancelled'
             && request.resource.data.buyerId == resource.data.buyerId
             && request.resource.data.sellerId == resource.data.sellerId
-            && request.resource.data.total == resource.data.total)
+            && request.resource.data.total == resource.data.total
+            && request.resource.data.items == resource.data.items)
+          ||
+          // Seller can update order status with controlled transitions
+          (resource.data.sellerId == request.auth.uid
+            && request.resource.data.status in ['pending', 'confirmed', 'ready', 'completed', 'cancelled']
+            && request.resource.data.buyerId == resource.data.buyerId
+            && request.resource.data.sellerId == resource.data.sellerId
+            && request.resource.data.total == resource.data.total
+            && request.resource.data.items == resource.data.items
+            // enforce forward-only transitions
+            && ((resource.data.status == 'pending' && request.resource.data.status in ['confirmed', 'cancelled'])
+              || (resource.data.status == 'confirmed' && request.resource.data.status in ['ready', 'cancelled'])
+              || (resource.data.status == 'ready' && request.resource.data.status in ['completed', 'cancelled'])
+              || (resource.data.status == 'completed' && request.resource.data.status == 'completed')
+              || (resource.data.status == 'cancelled' && request.resource.data.status == 'cancelled')))
         );
 
       // Orders should not be deleted, only cancelled
@@ -117,25 +147,24 @@ service cloud.firestore {
       allow read: if isAuthenticated();
 
       // Only buyers can create reviews for their completed orders
-      allow create: if isAuthenticated()
+      allow create: if isEmailVerified()
         && request.resource.data.buyerId == request.auth.uid
         && request.resource.data.rating >= 1
         && request.resource.data.rating <= 5
-        // Verify the order exists and is completed
+        // Verify the order exists and is completed and belongs to buyer
         && exists(/databases/$(database)/documents/orders/$(request.resource.data.orderId))
         && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'completed'
         && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.buyerId == request.auth.uid;
 
       // Review author can update their own review
-      allow update: if isAuthenticated()
+      allow update: if isEmailVerified()
         && resource.data.buyerId == request.auth.uid
-        // Prevent changing critical fields
         && request.resource.data.buyerId == resource.data.buyerId
         && request.resource.data.sellerId == resource.data.sellerId
         && request.resource.data.orderId == resource.data.orderId;
 
       // Review author can delete their own review
-      allow delete: if isAuthenticated()
+      allow delete: if isEmailVerified()
         && resource.data.buyerId == request.auth.uid;
     }
 

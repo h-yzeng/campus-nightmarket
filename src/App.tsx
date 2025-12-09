@@ -17,9 +17,10 @@ import { AppRoutes } from './routes';
 import EmailVerificationBanner from './components/common/EmailVerificationBanner';
 import { shouldBypassVerification } from './config/emailWhitelist';
 import type { Order, CartItem } from './types';
-import { useAuthStore, useNotificationStore, useNavigationStore } from './stores';
 import { logger } from './utils/logger';
 import { rateLimiter } from './utils/rateLimiter';
+import { queryKeys } from './utils/queryKeys';
+import { useAppStateSync } from './hooks/useAppStateSync';
 
 function App() {
   const queryClient = useQueryClient();
@@ -79,46 +80,19 @@ function App() {
    * - Cart: Managed by Zustand with localStorage persistence
    * - Notifications: Custom hook that syncs to Zustand store
    */
-  const setUser = useAuthStore((state) => state.setUser);
-  const setStoreProfileData = useAuthStore((state) => state.setProfileData);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
-  const resetNavigation = useNavigationStore((state) => state.resetNavigation);
-  const setNotifications = useNotificationStore((state) => state.setNotifications);
-  const setNotificationHandlers = useNotificationStore((state) => state.setHandlers);
-  const setPermissionState = useNotificationStore((state) => state.setPermissionState);
-  const setPermissionControls = useNotificationStore((state) => state.setPermissionControls);
-
-  useEffect(() => {
-    setUser(user);
-  }, [user, setUser]);
-
-  useEffect(() => {
-    setStoreProfileData(profileData);
-  }, [profileData, setStoreProfileData]);
-
-  useEffect(() => {
-    setNotifications(notifications, unreadCount);
-  }, [notifications, unreadCount, setNotifications]);
-
-  useEffect(() => {
-    setNotificationHandlers({ markAsRead, markAllAsRead, clearNotification, clearAll });
-  }, [clearAll, clearNotification, markAllAsRead, markAsRead, setNotificationHandlers]);
-
-  useEffect(() => {
-    setPermissionState(permissionState);
-    setPermissionControls({
+  const { clearAllAppState } = useAppStateSync({
+    user,
+    profileData,
+    notifications,
+    unreadCount,
+    handlers: { markAsRead, markAllAsRead, clearNotification, clearAll },
+    permission: {
+      permissionState,
       isRequestingPermission,
       requestPermission,
       refreshNotifications,
-    });
-  }, [
-    isRequestingPermission,
-    permissionState,
-    refreshNotifications,
-    requestPermission,
-    setPermissionControls,
-    setPermissionState,
-  ]);
+    },
+  });
 
   /**
    * Enhanced sign out handler that cleans up all application state:
@@ -131,9 +105,8 @@ function App() {
     await handleSignOut();
     queryClient.clear();
     clearCart();
-    clearAuth();
-    resetNavigation();
-  }, [clearAuth, clearCart, handleSignOut, queryClient, resetNavigation]);
+    clearAllAppState();
+  }, [clearAllAppState, clearCart, handleSignOut, queryClient]);
 
   // Auto-logout after 10 minutes of inactivity
   useInactivityTimeout({
@@ -144,11 +117,17 @@ function App() {
   });
 
   const wrappedHandleCreateListing = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.listings.all,
+      refetchType: 'active',
+    });
   }, [queryClient]);
 
   const wrappedHandleUpdateListing = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['listings'], refetchType: 'active' });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.listings.all,
+      refetchType: 'active',
+    });
   }, [queryClient]);
 
   const wrappedHandleToggleAvailability = useCallback(
@@ -199,7 +178,7 @@ function App() {
       }
 
       try {
-        const ordersData = queryClient.getQueryData<Order[]>(['orders', 'buyer', user.uid]);
+        const ordersData = queryClient.getQueryData<Order[]>(queryKeys.orders.buyer(user.uid));
         const order = ordersData?.find((o) => o.id === orderId);
 
         if (!order) {
@@ -220,8 +199,8 @@ function App() {
 
         await updateOrder(order.firebaseId, { hasReview: true });
 
-        queryClient.invalidateQueries({ queryKey: ['orders', 'buyer', user.uid] });
-        queryClient.invalidateQueries({ queryKey: ['reviews', 'seller', order.sellerId] });
+        queryClient.invalidateQueries({ queryKey: queryKeys.orders.buyer(user.uid) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.reviews.seller(order.sellerId) });
       } catch (error) {
         logger.error('Error submitting review:', error);
         throw error;

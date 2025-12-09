@@ -6,22 +6,27 @@
 
 import * as Sentry from '@sentry/react';
 
-// Safely detect development environment (handles Jest/test environment)
-interface GlobalWithProcess {
-  process?: {
-    env?: {
-      NODE_ENV?: string;
-    };
-  };
-}
-
+// Safely detect development environment (works in Node/Jest and Vite/browser without import.meta)
 let isDevelopment = false;
 try {
-  if (typeof import.meta !== 'undefined') {
-    isDevelopment = import.meta.env?.DEV || false;
-  } else if (typeof (globalThis as GlobalWithProcess).process !== 'undefined') {
-    const env = (globalThis as GlobalWithProcess).process?.env?.NODE_ENV;
-    isDevelopment = env === 'development' || env === 'test';
+  const maybeProcess =
+    typeof globalThis !== 'undefined'
+      ? (globalThis as { process?: { env?: { NODE_ENV?: unknown } } }).process
+      : undefined;
+
+  const nodeEnv =
+    typeof maybeProcess?.env?.NODE_ENV === 'string' ? maybeProcess.env.NODE_ENV : undefined;
+
+  if (nodeEnv) {
+    isDevelopment = nodeEnv === 'development' || nodeEnv === 'test';
+  } else {
+    // Fallback for browser globals if process is not available
+    const globalEnv = (globalThis as Record<string, unknown>).__ENV__ as
+      | 'development'
+      | 'test'
+      | 'production'
+      | undefined;
+    isDevelopment = globalEnv === 'development' || globalEnv === 'test';
   }
 } catch {
   isDevelopment = false;

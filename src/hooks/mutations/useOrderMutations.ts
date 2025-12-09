@@ -7,6 +7,7 @@ import {
 import type { CreateOrder } from '../../types/firebase';
 import type { OrderStatus } from '../../types';
 import type { Order } from '../../types';
+import { queryKeys } from '../../utils/queryKeys';
 
 export const useCreateOrderMutation = () => {
   const queryClient = useQueryClient();
@@ -17,9 +18,9 @@ export const useCreateOrderMutation = () => {
     },
     onSuccess: (_data, variables) => {
       // Invalidate buyer orders for the user who placed the order
-      queryClient.invalidateQueries({ queryKey: ['orders', 'buyer', variables.buyerId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.buyer(variables.buyerId) });
       // Invalidate seller orders for the seller
-      queryClient.invalidateQueries({ queryKey: ['orders', 'seller', variables.sellerId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.seller(variables.sellerId) });
     },
   });
 };
@@ -28,7 +29,7 @@ export const useUpdateOrderStatusMutation = () => {
   const queryClient = useQueryClient();
 
   const updateCachedOrders = (orderId: string, status: OrderStatus) => {
-    const queries = queryClient.getQueriesData<Order[]>({ queryKey: ['orders'] });
+    const queries = queryClient.getQueriesData<Order[]>({ queryKey: queryKeys.orders.all });
 
     queries.forEach(([queryKey, data]) => {
       if (!data) return;
@@ -46,9 +47,11 @@ export const useUpdateOrderStatusMutation = () => {
       return await updateOrderStatus(orderId, status);
     },
     onMutate: async ({ orderId, status }) => {
-      await queryClient.cancelQueries({ queryKey: ['orders'] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.orders.all });
 
-      const previousOrders = queryClient.getQueriesData<Order[]>({ queryKey: ['orders'] });
+      const previousOrders = queryClient.getQueriesData<Order[]>({
+        queryKey: queryKeys.orders.all,
+      });
 
       updateCachedOrders(orderId, status);
 
@@ -61,7 +64,7 @@ export const useUpdateOrderStatusMutation = () => {
     },
     onSettled: (_data, _error, variables) => {
       updateCachedOrders(variables.orderId, variables.status);
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
     },
   });
 };
@@ -70,7 +73,7 @@ export const useCancelOrderMutation = () => {
   const queryClient = useQueryClient();
 
   const updateCachedOrders = (orderId: string) => {
-    const queries = queryClient.getQueriesData<Order[]>({ queryKey: ['orders'] });
+    const queries = queryClient.getQueriesData<Order[]>({ queryKey: queryKeys.orders.all });
 
     queries.forEach(([queryKey, data]) => {
       if (!data) return;
