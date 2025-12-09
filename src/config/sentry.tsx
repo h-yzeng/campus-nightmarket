@@ -3,7 +3,6 @@ export async function initializeSentry() {
   // TODO: Re-enable with @sentry/browser (lighter package) instead of @sentry/react
   return;
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   // Initialize Sentry if DSN is provided (works in both dev and prod)
   // Set VITE_SENTRY_DSN to empty string to disable
   if (import.meta.env.VITE_SENTRY_DSN) {
@@ -38,5 +37,4 @@ export async function initializeSentry() {
       console.warn('Failed to initialize Sentry:', error);
     }
   }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

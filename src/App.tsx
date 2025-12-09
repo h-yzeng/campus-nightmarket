@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { useAuth } from './hooks/useAuth';
 import { useCart } from './hooks/useCart';
+import { useCartSync } from './hooks/useCartSync';
 import { useOrderManagement } from './hooks/useOrderManagement';
 import { useNotifications } from './hooks/useNotifications';
 import { useInactivityTimeout } from './hooks/useInactivityTimeout';
@@ -49,6 +50,9 @@ function App() {
   } = useAuth();
 
   const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
+
+  // Cart cloud sync - syncs cart to Firestore for cross-device access
+  const { clearCloudCart } = useCartSync(user?.uid);
 
   // Listing mutations
   const deleteListingMutation = useDeleteListingMutation();
@@ -98,16 +102,17 @@ function App() {
   /**
    * Enhanced sign out handler that cleans up all application state:
    * 1. Signs out from Firebase Authentication
-   * 2. Clears shopping cart
+   * 2. Clears shopping cart (local and cloud)
    * 3. Clears auth store (user, profile)
    * 4. Resets navigation state (search queries, filters, etc.)
    */
   const wrappedHandleSignOut = useCallback(async () => {
+    await clearCloudCart();
     await handleSignOut();
     queryClient.clear();
     clearCart();
     clearAllAppState();
-  }, [clearAllAppState, clearCart, handleSignOut, queryClient]);
+  }, [clearAllAppState, clearCart, clearCloudCart, handleSignOut, queryClient]);
 
   // Auto-logout after 10 minutes of inactivity
   useInactivityTimeout({

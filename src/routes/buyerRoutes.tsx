@@ -5,7 +5,7 @@ import { RequireAuth, PageLoadingFallback, useNavBasics } from './shared';
 import type { AppRoutesProps } from './types';
 import { useRouteProtection } from '../hooks/useRouteProtection';
 import { useSellerProfile } from '../hooks/useSellerProfile';
-import { useListingsQuery } from '../hooks/queries/useListingsQuery';
+import { useInfiniteListingsQuery } from '../hooks/queries/useListingsQuery';
 import { useSellerRatingsQuery } from '../hooks/queries/useReviewsQuery';
 import { useBuyerOrdersQuery, useSellerOrdersQuery } from '../hooks/queries/useOrdersQuery';
 import { useOrderReviewQuery } from '../hooks/queries/useReviewsQuery';
@@ -30,11 +30,17 @@ const BrowseWrapper = (
   const [showSellerOnboarding, setShowSellerOnboarding] = useState(false);
 
   const {
-    data: foodItems = [],
+    data: listingsData,
     isLoading: listingsLoading,
     error: listingsError,
     refetch,
-  } = useListingsQuery();
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteListingsQuery(20);
+
+  // Flatten paginated results into single array
+  const foodItems = listingsData?.pages.flatMap((page) => page.listings) ?? [];
 
   const sellerIds = [...new Set(foodItems.map((item) => item.sellerId))];
   const { data: sellerRatings = {} } = useSellerRatingsQuery(sellerIds);
@@ -125,6 +131,9 @@ const BrowseWrapper = (
         loading={listingsLoading}
         error={listingsError?.message || null}
         onRefresh={refetch}
+        onLoadMore={() => void fetchNextPage()}
+        hasMore={hasNextPage}
+        isLoadingMore={isFetchingNextPage}
       />
     </>
   );

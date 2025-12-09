@@ -52,6 +52,10 @@ interface BrowseProps {
   error?: string | null;
   onShowGuide?: () => void;
   onRefresh?: () => Promise<unknown>;
+  // Pagination props
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 const ListingSkeletonCard = () => (
@@ -89,6 +93,9 @@ const Browse = ({
   loading = false,
   error = null,
   onRefresh,
+  onLoadMore,
+  hasMore = false,
+  isLoadingMore = false,
 }: BrowseProps) => {
   // Advanced filter states
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
@@ -111,9 +118,7 @@ const Browse = ({
     // Use a delay to ensure the page is fully loaded
     const timer = setTimeout(() => {
       const hasSeenGuide = localStorage.getItem('hasSeenGuide');
-      console.log('Checking guide status:', hasSeenGuide); // Debug log
       if (!hasSeenGuide || hasSeenGuide === 'false') {
-        console.log('Showing guide for first-time user'); // Debug log
         setShowGuide(true);
       }
     }, 500); // Small delay to ensure page is ready
@@ -122,7 +127,6 @@ const Browse = ({
   }, []);
 
   const handleCloseGuide = () => {
-    console.log('Closing guide and marking as seen'); // Debug log
     localStorage.setItem('hasSeenGuide', 'true');
     setShowGuide(false);
   };
@@ -282,6 +286,30 @@ const Browse = ({
                   onViewProfile={handleViewProfile}
                 />
               ))}
+
+              {/* Load More Button */}
+              {filteredAndSortedItems.length > 0 && hasMore && onLoadMore && (
+                <div className="col-span-full flex justify-center py-8">
+                  <button
+                    type="button"
+                    onClick={onLoadMore}
+                    disabled={isLoadingMore}
+                    className="flex items-center gap-2 rounded-xl bg-[#1E1E1E] px-8 py-3 font-semibold text-white transition-all hover:bg-[#2A2A2A] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        Loading more...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw size={18} />
+                        Load More Listings
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
 
               {filteredAndSortedItems.length === 0 && !loading && (
                 <div className="col-span-full rounded-2xl border-2 border-[#3A3A3A] bg-[#1A1A1B] py-16 text-center shadow-md">

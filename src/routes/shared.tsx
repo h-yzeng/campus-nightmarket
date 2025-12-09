@@ -4,6 +4,7 @@ import { Suspense, type ReactElement } from 'react';
 import type { User } from 'firebase/auth';
 import type { NavigateFunction } from 'react-router-dom';
 import LoadingState from '../components/common/LoadingState';
+import RouteErrorBoundary from '../components/common/RouteErrorBoundary';
 import { shouldBypassVerification } from '../config/emailWhitelist';
 
 export type NavigateFn = NavigateFunction;
@@ -19,10 +20,12 @@ export const RequireAuth = ({
   children,
   user,
   loading,
+  routeName,
 }: {
   children: ReactElement;
   user: User | null;
   loading: boolean;
+  routeName?: string;
 }) => {
   if (loading) {
     return <PageLoadingFallback />;
@@ -36,7 +39,11 @@ export const RequireAuth = ({
     return <Navigate to="/verify-required" replace />;
   }
 
-  return <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>;
+  return (
+    <RouteErrorBoundary routeName={routeName}>
+      <Suspense fallback={<PageLoadingFallback />}>{children}</Suspense>
+    </RouteErrorBoundary>
+  );
 };
 
 export const makeSignOutToHome =
