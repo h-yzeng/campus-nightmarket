@@ -62,3 +62,4 @@ public
 .simple-git-hooks.js
 .simple-git-hooks.config.js
 simple-git-hooks.config.js
+.vercel.env

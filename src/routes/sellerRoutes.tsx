@@ -18,17 +18,15 @@ const SellerOrders = lazy(() => import('../pages/seller/SellerOrders'));
 // eslint-disable-next-line react-refresh/only-export-components
 const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) => {
   const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
-
   const user = useAuthStore((state) => state.user);
-  const { data: listings = [], isLoading: listingsLoading } = useSellerListingsQuery(user?.uid);
-  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(
-    user?.uid
-  );
-
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const { data: listings = [], isLoading: listingsLoading } = useSellerListingsQuery(user?.uid);
+  const { data: sellerOrders = [], isLoading: sellerOrdersLoading } = useSellerOrdersQuery(
+    user?.uid
+  );
 
   useRouteProtection(userMode, setUserMode);
 
@@ -59,15 +57,11 @@ const SellerDashboardWrapper = (props: Pick<AppRoutesProps, 'handleSignOut'>) =>
       onViewListings={() => navigate('/seller/listings')}
       onViewOrders={() => navigate('/seller/orders')}
       onCartClick={() => navigate('/cart')}
-      onSignOut={() => {
-        signOutToHome();
-      }}
+      onSignOut={signOutToHome}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => {
-        logoToBrowse();
-      }}
+      onLogoClick={logoToBrowse}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -78,14 +72,12 @@ const CreateListingWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleCreateListing'>
 ) => {
   const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
-
   const user = useAuthStore((state) => state.user);
-  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
-
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   useRouteProtection(userMode, setUserMode);
 
@@ -112,15 +104,11 @@ const CreateListingWrapper = (
         }
       }}
       onCartClick={() => navigate('/cart')}
-      onSignOut={() => {
-        signOutToHome();
-      }}
+      onSignOut={signOutToHome}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => {
-        logoToBrowse();
-      }}
+      onLogoClick={logoToBrowse}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -132,14 +120,12 @@ const EditListingWrapper = (
 ) => {
   const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
   const { listingId } = useParams<{ listingId: string }>();
-
   const user = useAuthStore((state) => state.user);
-  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
-
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   useRouteProtection(userMode, setUserMode);
 
@@ -167,15 +153,11 @@ const EditListingWrapper = (
         }
       }}
       onCartClick={() => navigate('/cart')}
-      onSignOut={() => {
-        signOutToHome();
-      }}
+      onSignOut={signOutToHome}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => {
-        logoToBrowse();
-      }}
+      onLogoClick={logoToBrowse}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -186,15 +168,13 @@ const SellerListingsWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleToggleAvailability' | 'handleDeleteListing'>
 ) => {
   const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
-
   const user = useAuthStore((state) => state.user);
-  const { data: listings = [] } = useSellerListingsQuery(user?.uid);
-  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
-
   const profileData = useAuthStore((state) => state.profileData);
   const cart = useCartStore((state) => state.cart);
   const userMode = useNavigationStore((state) => state.userMode);
   const setUserMode = useNavigationStore((state) => state.setUserMode);
+  const { data: listings = [] } = useSellerListingsQuery(user?.uid);
+  const { data: sellerOrders = [] } = useSellerOrdersQuery(user?.uid);
 
   useRouteProtection(userMode, setUserMode);
 
@@ -221,15 +201,11 @@ const SellerListingsWrapper = (
         }
       }}
       onCartClick={() => navigate('/cart')}
-      onSignOut={() => {
-        signOutToHome();
-      }}
+      onSignOut={signOutToHome}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => {
-        logoToBrowse();
-      }}
+      onLogoClick={logoToBrowse}
       pendingOrdersCount={pendingOrdersCount}
     />
   );
@@ -240,8 +216,11 @@ const SellerOrdersWrapper = (
   props: Pick<AppRoutesProps, 'handleSignOut' | 'handleUpdateOrderStatus'>
 ) => {
   const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
-
   const user = useAuthStore((state) => state.user);
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
   const {
     data: sellerOrders = [],
     isLoading: sellerOrdersLoading,
@@ -254,11 +233,6 @@ const SellerOrdersWrapper = (
     .map((order) => order.firebaseId);
 
   const { data: orderReviews = {} } = useOrderReviewsQuery(orderIdsWithReviews);
-
-  const profileData = useAuthStore((state) => state.profileData);
-  const cart = useCartStore((state) => state.cart);
-  const userMode = useNavigationStore((state) => state.userMode);
-  const setUserMode = useNavigationStore((state) => state.setUserMode);
 
   useRouteProtection(userMode, setUserMode);
 
@@ -284,15 +258,11 @@ const SellerOrdersWrapper = (
         }
       }}
       onCartClick={() => navigate('/cart')}
-      onSignOut={() => {
-        signOutToHome();
-      }}
+      onSignOut={signOutToHome}
       onProfileClick={() => navigate('/profile')}
       onOrdersClick={() => navigate('/orders')}
       onSellerDashboardClick={() => navigate('/seller/dashboard')}
-      onLogoClick={() => {
-        logoToBrowse();
-      }}
+      onLogoClick={logoToBrowse}
       loading={sellerOrdersLoading}
       pendingOrdersCount={pendingOrdersCount}
       onRefresh={() => {

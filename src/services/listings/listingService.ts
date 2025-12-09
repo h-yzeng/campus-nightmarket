@@ -288,6 +288,7 @@ export const getTopListingByPurchaseCount = async (): Promise<FirebaseListing | 
       listingsRef,
       where('isActive', '==', true),
       orderBy('purchaseCount', 'desc'),
+      orderBy('createdAt', 'desc'),
       limit(1)
     );
 
