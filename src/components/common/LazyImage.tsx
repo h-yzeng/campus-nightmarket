@@ -39,7 +39,6 @@ const LazyImage = ({
     return (
       <div
         className={`flex items-center justify-center bg-[#1F1F1F] ${className}`}
-        style={{ width, height }}
         role="img"
         aria-label={`Failed to load: ${alt}`}
       >
@@ -49,30 +48,19 @@ const LazyImage = ({
   }
 
   return (
-    <div className="relative overflow-hidden" style={{ width: '100%', height: '100%' }}>
+    <div className="relative h-full w-full overflow-hidden">
       {/* Blur placeholder */}
       <div
-        className={`absolute inset-0 transition-opacity duration-300 ${
+        className={`lazy-image-placeholder absolute inset-0 scale-110 blur-[10px] transition-opacity duration-300 ${
           isLoaded ? 'opacity-0' : 'opacity-100'
         }`}
-        style={{
-          backgroundColor: placeholderColor,
-          filter: 'blur(10px)',
-          transform: 'scale(1.1)',
-        }}
+        data-placeholder-color={placeholderColor}
       />
 
       {/* Shimmer effect while loading */}
       {!isLoaded && (
         <div className="absolute inset-0 animate-pulse">
-          <div
-            className="h-full w-full"
-            style={{
-              background: `linear-gradient(90deg, ${placeholderColor} 0%, #2A2A2A 50%, ${placeholderColor} 100%)`,
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 1.5s infinite',
-            }}
-          />
+          <div className="shimmer-effect h-full w-full" data-shimmer-color={placeholderColor} />
         </div>
       )}
 
@@ -94,6 +82,17 @@ const LazyImage = ({
       />
 
       <style>{`
+        .lazy-image-placeholder {
+          background-color: var(--placeholder-color, #1F1F1F);
+        }
+        .lazy-image-placeholder[data-placeholder-color] {
+          background-color: attr(data-placeholder-color color, #1F1F1F);
+        }
+        .shimmer-effect {
+          background: linear-gradient(90deg, var(--shimmer-color, #1F1F1F) 0%, #2A2A2A 50%, var(--shimmer-color, #1F1F1F) 100%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
         @keyframes shimmer {
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }

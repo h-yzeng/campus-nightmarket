@@ -28,7 +28,5 @@ jest.mock('../src/components/common/RouteErrorBoundary', () => ({
 
 // Polyfill TextEncoder/Decoder for react-router in Node test env
 import { TextEncoder, TextDecoder } from 'util';
-// @ts-expect-error global assignment for test environment
 global.TextEncoder = TextEncoder;
-// @ts-expect-error global assignment for test environment
 global.TextDecoder = TextDecoder as unknown as typeof globalThis.TextDecoder;
