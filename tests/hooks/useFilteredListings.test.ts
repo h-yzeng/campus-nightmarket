@@ -160,6 +160,59 @@ describe('useFilteredListings', () => {
     expect(result.current[2].name).toBe('Salad'); // 3.5 rating
   });
 
+  it('should sort by rating and popularity when ratings are equal', () => {
+    const itemsWithSameRating: FoodItem[] = [
+      {
+        id: 1,
+        name: 'Popular Pizza',
+        seller: 'John Doe',
+        sellerId: 'seller1',
+        price: 10,
+        image: 'pizza.jpg',
+        location: 'North Dorm',
+        rating: '4.5',
+        description: 'Very popular',
+        category: 'Main Dish',
+        isActive: true,
+        isAvailable: true,
+        datePosted: '2024-01-01T00:00:00.000Z',
+        purchaseCount: 50, // High popularity
+      },
+      {
+        id: 2,
+        name: 'Less Popular Pizza',
+        seller: 'Jane Smith',
+        sellerId: 'seller2',
+        price: 10,
+        image: 'pizza2.jpg',
+        location: 'South Dorm',
+        rating: '4.5',
+        description: 'Less popular',
+        category: 'Main Dish',
+        isActive: true,
+        isAvailable: true,
+        datePosted: '2024-01-02T00:00:00.000Z',
+        purchaseCount: 10, // Lower popularity
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useFilteredListings({
+        ...defaultParams,
+        items: itemsWithSameRating,
+        sellerRatings: {
+          seller1: '4.5',
+          seller2: '4.5', // Same rating
+        },
+        sortBy: 'rating',
+      })
+    );
+
+    // Should sort by popularity when ratings are equal
+    expect(result.current[0].name).toBe('Popular Pizza'); // 50 purchases
+    expect(result.current[1].name).toBe('Less Popular Pizza'); // 10 purchases
+  });
+
   it('should apply multiple filters together', () => {
     const { result } = renderHook(() =>
       useFilteredListings({

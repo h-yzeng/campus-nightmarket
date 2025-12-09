@@ -1,5 +1,6 @@
 import { MapPin, Star, Tag, TrendingUp } from 'lucide-react';
 import { memo } from 'react';
+import { toast } from 'sonner';
 import type { FoodItem } from '../types';
 
 interface ListingCardProps {
@@ -28,6 +29,10 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onAddToCart(item);
+      toast.success(`${item.name} added to cart!`, {
+        description: `$${item.price.toFixed(2)} • ${item.seller}`,
+        duration: 2000,
+      });
     }
   };
 
@@ -127,7 +132,13 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           </div>
           <button
             type="button"
-            onClick={() => onAddToCart(item)}
+            onClick={() => {
+              onAddToCart(item);
+              toast.success(`${item.name} added to cart!`, {
+                description: `$${item.price.toFixed(2)} • ${item.seller}`,
+                duration: 2000,
+              });
+            }}
             onKeyDown={handleAddToCartKeyDown}
             className="transform rounded-lg bg-linear-to-r from-[#CC0000] to-[#E23E57] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-[#CC0000]/30 focus:ring-2 focus:ring-[#E23E57] focus:ring-offset-2 focus:ring-offset-[#151515] focus:outline-none active:scale-95"
             aria-label={`Add ${item.name} to cart - $${item.price.toFixed(2)}`}

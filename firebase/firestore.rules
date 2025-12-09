@@ -42,8 +42,7 @@ service cloud.firestore {
       // Users can create their own profile
       allow create: if isOwner(userId)
         && isIITEmail(request.resource.data.email)
-        && request.resource.data.uid == userId
-        && request.resource.data.emailVerified == false;
+        && request.resource.data.uid == userId;
 
       // Users can only update their own profile
       allow update: if isOwner(userId)

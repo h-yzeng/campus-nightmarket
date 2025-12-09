@@ -73,7 +73,16 @@ export const useFilteredListings = ({
         case 'rating': {
           const ratingA = parseFloat(sellerRatings[a.sellerId] || '0');
           const ratingB = parseFloat(sellerRatings[b.sellerId] || '0');
-          return ratingB - ratingA;
+
+          // If ratings are different, sort by rating
+          if (ratingA !== ratingB) {
+            return ratingB - ratingA;
+          }
+
+          // If ratings are equal, sort by popularity (purchase count)
+          const purchasesA = a.purchaseCount || 0;
+          const purchasesB = b.purchaseCount || 0;
+          return purchasesB - purchasesA;
         }
         case 'newest':
         default: {
