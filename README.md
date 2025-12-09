@@ -8,6 +8,7 @@
 [![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Tests](https://img.shields.io/badge/tests-430%20passing-success)](https://github.com/h-yzeng/campus-nightmarket)
+[![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **A modern marketplace for late-night food exchange on campus**
@@ -47,10 +48,13 @@ npm test
 
 - **Browse Listings**: Search and filter food items by category, location, and seller
 - **Shopping Cart**: Add multiple items from different sellers
-- **Order Management**: Track your orders from placement to completion
+- **Favorites/Wishlist**: Save favorite listings for quick access later
+- **Search History**: Auto-suggestions based on recent and popular searches
+- **Order Management**: Track your orders from placement to completion with infinite scroll
 - **Seller Ratings**: View ratings and reviews before purchasing
-- **Real-time Notifications**: Get notified about order status updates
+- **Real-time Notifications**: Get notified about order status updates with sound feedback
 - **Review System**: Leave reviews for completed orders
+- **Dynamic Page Titles**: SEO-optimized titles for each page
 
 ### For Sellers
 
@@ -60,14 +64,16 @@ npm test
 - **Payment Options**: Support Cash, CashApp, Venmo, and Zelle
 - **Profile Management**: Set preferred locations and payment methods
 - **Sales Analytics**: View earnings, purchase counts and ratings
+- **Seller Onboarding**: Guided setup for new sellers
 
 ### Security & Authentication
 
 - **Student Verification**: Email verification required (must be @illinoistech.edu addresses)
 - **Secure Authentication**: Firebase Authentication with rate limiting
 - **Auto-logout**: 10-minute inactivity timeout
-- **Error Tracking**: Integrated Sentry for production monitoring
+- **Error Tracking**: Integrated Sentry for production monitoring (ready for re-enablement)
 - **Push Notifications**: Real-time order updates via Firebase Cloud Messaging
+- **Firestore Security Rules**: Granular access control for all collections including favorites
 
 ## 🛠 Tech Stack
 
@@ -78,6 +84,7 @@ npm test
 - **Vite 7.2** - Lightning-fast build tool and dev server
 - **TailwindCSS 4.1** - Utility-first styling with modern CSS
 - **React Router 7.9** - Client-side routing with type-safe navigation
+- **React Helmet Async** - Dynamic page titles and SEO optimization
 
 ### State Management & Data Fetching
 
@@ -99,8 +106,8 @@ npm test
 - **Prettier 3.7** - Opinionated code formatting with Tailwind plugin
 - **Jest 29** - Unit and integration testing (430 tests passing)
 - **React Testing Library** - Component testing best practices
-- **Sentry** - Error tracking (currently disabled, migration to @sentry/browser pending)
-- **Simple Git Hooks** - Pre-commit linting and testing
+- **Sentry** - Error tracking (ready for migration to @sentry/browser)
+- **Sharp** - Server-side image processing for PWA icons
 
 ## 📋 Prerequisites
 
@@ -249,12 +256,13 @@ npm run lint
 campus-nightmarket/
 ├── src/
 │   ├── components/          # Reusable React components
-│   │   ├── common/         # Shared UI components (LoadingState, ErrorAlert, etc.)
-│   │   ├── browse/         # Browse page components
+│   │   ├── common/         # Shared UI components (FavoriteButton, PageHead, etc.)
+│   │   ├── browse/         # Browse page components (SearchSuggestions, FiltersPanel)
 │   │   ├── checkout/       # Checkout flow components
 │   │   ├── dashboard/      # Seller dashboard components
 │   │   ├── onboarding/     # Seller onboarding modal (SellerOnboarding.tsx)
-│   │   └── orders/         # Order-related components
+│   │   ├── orders/         # Order-related components
+│   │   └── settings/       # Settings components (NotificationSoundSettings)
 │   ├── config/             # Configuration files
 │   │   ├── firebase.ts     # Firebase initialization
 │   │   ├── sentry.tsx      # Sentry error tracking setup
@@ -265,17 +273,19 @@ campus-nightmarket/
 │   │   └── index.ts        # Exported constants
 │   ├── hooks/              # Custom React hooks
 │   │   ├── mutations/      # TanStack Query mutations
-│   │   ├── queries/        # TanStack Query queries
+│   │   ├── queries/        # TanStack Query queries (useInfiniteQuery for orders)
 │   │   ├── useAuth.ts      # Authentication logic
 │   │   ├── useCart.ts      # Shopping cart management
+│   │   ├── useFavorites.ts # Favorites/wishlist management
+│   │   ├── useSearchHistory.ts # Search history with localStorage
 │   │   └── useNavigation.ts # Navigation helpers
 │   ├── lib/                # Library code and utilities
 │   │   ├── schemas/        # Zod validation schemas
 │   │   └── toast.ts        # Toast notification helpers
 │   ├── pages/              # Page components
-│   │   ├── buyer/          # Buyer-specific pages
-│   │   ├── seller/         # Seller-specific pages
-│   │   ├── Home.tsx        # Landing page
+│   │   ├── buyer/          # Buyer-specific pages (Browse, Cart, Favorites, Orders)
+│   │   ├── seller/         # Seller-specific pages (Dashboard, Listings, Orders)
+│   │   ├── Home.tsx        # Landing page with SEO
 │   │   ├── Login.tsx       # Login page
 │   │   └── Signup.tsx      # Registration page
 │   ├── routes/             # React Router configuration
@@ -283,9 +293,10 @@ campus-nightmarket/
 │   ├── services/           # Business logic and API calls
 │   │   ├── auth/           # Authentication services
 │   │   ├── listings/       # Listing management
-│   │   ├── orders/         # Order management
-│   │   ├── notifications/  # Push notifications
+│   │   ├── orders/         # Order management (with pagination support)
+│   │   ├── notifications/  # Push notifications with sound playback
 │   │   ├── reviews/        # Review system
+│   │   ├── favorites/      # Favorites/wishlist service
 │   │   └── storage/        # Image upload/storage
 │   ├── stores/             # Zustand state stores
 │   │   ├── authStore.ts    # Auth state
@@ -304,15 +315,22 @@ campus-nightmarket/
 │   │   ├── rateLimiter.ts  # Rate limiting logic
 │   │   ├── routeConfig.ts  # Route protection config
 │   │   ├── storage.ts      # LocalStorage helpers
-│   │   └── validation.ts   # Validation utilities
+│   │   ├── validation.ts   # Validation utilities
+│   │   └── notificationSounds.ts # Sound playback for notifications
 │   ├── App.tsx             # Root application component
 │   └── main.tsx            # Application entry point
 ├── firebase/               # Firebase configuration
-│   ├── firestore.rules     # Firestore security rules
+│   ├── firestore.rules     # Firestore security rules (includes favorites collection)
 │   ├── firestore.indexes.json # Firestore indexes
 │   └── storage.rules       # Storage security rules
+├── scripts/                # Build and utility scripts
+│   ├── generate-icons.js   # Generate PWA icons from SVG
+│   └── generate-sounds.js  # Generate notification sound files
 ├── public/                 # Static assets
-│   └── firebase-messaging-sw.js # Service worker for FCM
+│   ├── icons/              # PWA icons (72px to 512px)
+│   ├── sounds/             # Notification sound files (MP3)
+│   ├── firebase-messaging-sw.js # Service worker for FCM
+│   └── apple-touch-icon.png # iOS home screen icon
 ├── tests/                  # Test files
 ├── .env.local.example      # Example environment variables
 ├── firebase.json           # Firebase project configuration
@@ -355,6 +373,8 @@ React Query is configured for optimal performance:
 - **GC Time**: 10 minutes (unused data retained)
 - **Refetch on Focus**: Disabled by default
 - **Refetch on Reconnect**: Always for stale data
+- **Infinite Queries**: Used for orders pagination (Load More pattern)
+- **Optimistic Updates**: Favorites toggle with instant UI feedback
 
 ### Image Upload
 
@@ -369,10 +389,12 @@ Images are uploaded to Firebase Storage with the following flow:
 
 1. **Buyer adds items to cart** → Cart stored in Zustand + localStorage
 2. **Buyer proceeds to checkout** → Orders grouped by seller
-3. **Order placed** → Firestore document created, seller notified via FCM
+3. **Order placed** → Firestore document created, seller notified via FCM with sound
 4. **Seller updates status** → `pending` → `confirmed` → `ready` → `completed`
-5. **Buyer can cancel** → Only when status is `pending` or `confirmed`
-6. **Buyer leaves review** → After status is `completed`
+5. **Buyer receives notifications** → Push notifications with customizable sounds
+6. **Buyer can cancel** → Only when status is `pending` or `confirmed`
+7. **Buyer leaves review** → After status is `completed`
+8. **Orders paginated** → Infinite scroll with "Load More" button
 
 ### Seller Onboarding Flow
 
@@ -383,6 +405,22 @@ Images are uploaded to Firebase Storage with the following flow:
    - At least one payment method (CashApp, Venmo, or Zelle)
 3. **Submit onboarding** → Profile updated with `isSeller: true`
 4. **Auto-redirect to Seller Dashboard** → Ready to create first listing
+
+### Favorites/Wishlist System
+
+1. **Click heart icon** → Instantly toggle favorite status with optimistic updates
+2. **Firestore sync** → Favorites stored in `/favorites` collection with security rules
+3. **Access via menu** → "My Favorites" link in user dropdown (buyer mode only)
+4. **View favorites page** → Grid of all saved listings with heart icons to unfavorite
+5. **Cross-device sync** → Favorites persist across all logged-in devices
+
+### Search & Discovery
+
+1. **Search bar** → Type to search listings by name or description
+2. **Auto-suggestions** → Recent searches (last 10) + popular searches dropdown
+3. **Search history** → Stored in localStorage, with clear option
+4. **Enter to search** → Saves query to history automatically
+5. **Advanced filters** → Category, location, price range, availability, sorting
 
 ## 🔐 Environment Variables
 
