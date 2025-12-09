@@ -44,7 +44,7 @@ const NotificationBell = ({
   const formatTime = (date: Date | string) => {
     try {
       const dateObj = typeof date === 'string' ? new Date(date) : date;
-      
+
       // Check if date is valid
       if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
         return 'Recently';
@@ -63,7 +63,8 @@ const NotificationBell = ({
     } catch {
       return 'Recently';
     }
-  };  return (
+  };
+  return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
