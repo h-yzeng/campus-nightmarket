@@ -1,8 +1,47 @@
-# Campus Night Market
+<div align="center">
 
-A modern web application for late-night food exchange on campus, built specifically for IIT students. Buy, sell, and trade food with verified students - never go hungry during those late-night study sessions again.
+# 🌙 Campus Night Market
 
-## Features
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.2-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-12.6-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Tests](https://img.shields.io/badge/tests-227%20passing-success)](https://github.com/h-yzeng/campus-nightmarket)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**A modern marketplace for late-night food exchange on campus**
+
+Buy, sell, and trade food with verified IIT students • Never go hungry during late-night study sessions
+
+[Quick Start](#-quick-start) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Documentation](#-key-concepts)
+
+</div>
+
+---
+
+## ✨ Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/h-yzeng/campus-nightmarket.git
+cd campus-nightmarket
+
+# Install dependencies
+npm install
+
+# Set up environment variables (see Installation section)
+cp .env.local.example .env.local
+# Edit .env.local with your Firebase config
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+```
+
+## 🎯 Features
 
 ### For Buyers
 
@@ -30,49 +69,51 @@ A modern web application for late-night food exchange on campus, built specifica
 - **Error Tracking**: Integrated Sentry for production monitoring
 - **Push Notifications**: Real-time order updates via Firebase Cloud Messaging
 
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Frontend
 
-- **React 19.2** - Modern React with concurrent features
-- **TypeScript** - Type-safe development
-- **Vite** - Fast build tool and dev server
-- **TailwindCSS 4** - Utility-first styling
-- **React Router 7** - Client-side routing
+- **React 19.2** - Modern React with concurrent features and React Compiler
+- **TypeScript 5.9** - Type-safe development
+- **Vite 7.2** - Lightning-fast build tool and dev server
+- **TailwindCSS 4.1** - Utility-first styling with modern CSS
+- **React Router 7.9** - Client-side routing with type-safe navigation
 
 ### State Management & Data Fetching
 
-- **TanStack Query (React Query)** - Server state management with optimized caching
-- **Zustand** - Lightweight client state management
+- **TanStack Query 5.90** - Server state management with optimized caching and devtools
+- **Zustand 5.0** - Lightweight client state management with persistence
 
 ### Backend Services
 
-- **Firebase Authentication** - User authentication
-- **Cloud Firestore** - NoSQL database
-- **Firebase Storage** - Image uploads
-- **Firebase Cloud Messaging** - Push notifications
-- **Firebase Functions** - Serverless backend (optional)
+- **Firebase 12.6** - Complete backend infrastructure
+  - **Authentication** - Secure user authentication with email verification
+  - **Cloud Firestore** - Scalable NoSQL database with real-time sync
+  - **Storage** - Image uploads with compression
+  - **Cloud Messaging** - Push notifications via service worker
+  - **Functions** - Serverless backend (optional)
 
 ### Developer Tools
 
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Jest** - Unit testing
-- **React Testing Library** - Component testing
-- **Sentry** - Error tracking and monitoring
+- **ESLint 9** - Modern flat config linting
+- **Prettier 3.7** - Opinionated code formatting with Tailwind plugin
+- **Jest 29** - Unit and integration testing (227 tests passing)
+- **React Testing Library** - Component testing best practices
+- **Sentry** - Error tracking (currently disabled, migration to @sentry/browser pending)
+- **Simple Git Hooks** - Pre-commit linting and testing
 
-## Prerequisites
+## 📋 Prerequisites
 
 - **Node.js** 18+ and npm
 - **Firebase account** (free tier works)
 - **Git** for version control
 
-## Installation
+## 🚀 Installation
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/campus-nightmarket.git
+git clone https://github.com/h-yzeng/campus-nightmarket.git
 cd campus-nightmarket
 ```
 
@@ -154,7 +195,7 @@ firebase deploy --only firestore:indexes
 
 During development, you may want to bypass email verification for certain accounts. Edit `src/config/emailWhitelist.ts` to add email addresses.
 
-## Development
+## 💻 Development
 
 ### Start the development server
 
@@ -205,7 +246,7 @@ npm run format:check
 npm run lint
 ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```bash
 campus-nightmarket/
@@ -215,7 +256,7 @@ campus-nightmarket/
 │   │   ├── browse/         # Browse page components
 │   │   ├── checkout/       # Checkout flow components
 │   │   ├── dashboard/      # Seller dashboard components
-│   │   ├── onboarding/     # First-time user guide
+│   │   ├── onboarding/     # Seller onboarding modal (SellerOnboarding.tsx)
 │   │   └── orders/         # Order-related components
 │   ├── config/             # Configuration files
 │   │   ├── firebase.ts     # Firebase initialization
@@ -284,7 +325,7 @@ campus-nightmarket/
 └── vite.config.ts          # Vite configuration
 ```
 
-## Key Concepts
+## 📚 Key Concepts
 
 ### State Management Architecture
 
@@ -300,13 +341,14 @@ This application uses a hybrid approach to state management:
   - Persistent cart state using localStorage
   - Simple API for component consumption
 
-### Route Protection
+### Route Protection & User Modes
 
-Routes are automatically protected based on user mode (buyer/seller):
+Users can seamlessly switch between buyer and seller modes:
 
-- Buyer routes require buyer mode
-- Seller routes require seller mode and `isSeller: true` in profile
-- Auto-switching prevents manual URL manipulation
+- **Buyer Mode**: Browse, purchase, and review food listings
+- **Seller Mode**: List items, manage orders, and track sales
+- **Seller Onboarding**: First-time sellers complete a one-time setup (phone, location, payment methods)
+- **Auto-switching**: Mode syncs with route navigation automatically
 
 ### Caching Strategy
 
@@ -330,12 +372,22 @@ Images are uploaded to Firebase Storage with the following flow:
 
 1. **Buyer adds items to cart** → Cart stored in Zustand + localStorage
 2. **Buyer proceeds to checkout** → Orders grouped by seller
-3. **Order placed** → Firestore document created, seller notified
+3. **Order placed** → Firestore document created, seller notified via FCM
 4. **Seller updates status** → `pending` → `confirmed` → `ready` → `completed`
 5. **Buyer can cancel** → Only when status is `pending` or `confirmed`
 6. **Buyer leaves review** → After status is `completed`
 
-## Environment Variables
+### Seller Onboarding Flow
+
+1. **User clicks "Switch to Seller"** → System checks if user has completed seller onboarding
+2. **If not onboarded** → Modal appears requesting:
+   - Phone number (for buyer contact)
+   - Preferred pickup location
+   - At least one payment method (CashApp, Venmo, or Zelle)
+3. **Submit onboarding** → Profile updated with `isSeller: true`
+4. **Auto-redirect to Seller Dashboard** → Ready to create first listing
+
+## 🔐 Environment Variables
 
 | Variable                            | Description                          | Required      |
 | ----------------------------------- | ------------------------------------ | ------------- |
@@ -351,7 +403,7 @@ Images are uploaded to Firebase Storage with the following flow:
 | `VITE_RECAPTCHA_SITE_KEY`           | reCAPTCHA v3 site key                | No            |
 | `VITE_APP_CHECK_DEBUG_TOKEN`        | Firebase App Check debug token       | No (Dev only) |
 
-## Common Issues & Troubleshooting
+## 🔧 Common Issues & Troubleshooting
 
 ### Email verification not working
 
@@ -376,23 +428,27 @@ Images are uploaded to Firebase Storage with the following flow:
 - Development: Rate limits auto-clear on refresh
 - Production: Wait for timeout period or implement Redis-based solution
 
-## Deployment
+## 🌐 Deployment
 
-### Vercel (Recommended)
+### Firebase Hosting (Current)
 
-1. Push your code to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
-
-### Firebase Hosting
+The project is currently deployed on Firebase Hosting:
 
 ```bash
 npm run build
 firebase deploy --only hosting
 ```
 
-## Contributing
+**Important**: Ensure all environment variables are set in `.env.local` before building.
+
+### Alternative: Vercel
+
+1. Push your code to GitHub
+2. Import project in Vercel dashboard
+3. Add all `VITE_*` environment variables
+4. Deploy automatically on push to main
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -400,19 +456,37 @@ firebase deploy --only hosting
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## 💬 Support
 
 For issues and questions:
 
-- Open an issue on GitHub
-- Contact the development team at [hzeng9@illinoistech.edu]
+- 🐛 [Open an issue on GitHub](https://github.com/h-yzeng/campus-nightmarket/issues)
+- 📧 Contact: <hzeng9@illinoistech.edu>
+- 📚 Check the [troubleshooting section](#-common-issues--troubleshooting)
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
-- Built for Illinois Institute of Technology students
+- Built for **Illinois Institute of Technology** students
 - Designed for campus food exchange and community building
 - Powered by Firebase and modern React ecosystem
+
+---
+
+<div align="center">
+
+### Quick Links
+
+| Resource       | Link                                                                            |
+| -------------- | ------------------------------------------------------------------------------- |
+| 🏠 Repository  | [h-yzeng/campus-nightmarket](https://github.com/h-yzeng/campus-nightmarket)     |
+| 📝 Issues      | [Report a bug](https://github.com/h-yzeng/campus-nightmarket/issues/new)        |
+| 💬 Discussions | [GitHub Discussions](https://github.com/h-yzeng/campus-nightmarket/discussions) |
+| 📧 Contact     | <hzeng9@illinoistech.edu>                                                       |
+
+**Made with ❤️ for IIT students**
+
+</div>
