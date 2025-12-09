@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ListingCard from '../../src/components/ListingCard';
+import ListingCard from '../../src/components/features/ListingCard';
 import type { FoodItem } from '../../src/types';
 
 // Mock the useFavorites hook
-jest.mock('../../src/hooks/useFavorites', () => ({
+jest.mock('../../src/hooks/features/useFavorites', () => ({
   useFavorites: () => ({
     favoriteIds: [],
     isLoading: false,
@@ -17,7 +17,7 @@ jest.mock('../../src/hooks/useFavorites', () => ({
 }));
 
 // Mock the useAuth hook
-jest.mock('../../src/hooks/useAuth', () => ({
+jest.mock('../../src/hooks/auth/useAuth', () => ({
   useAuth: () => ({
     user: { uid: 'test-user-id' },
     loading: false,

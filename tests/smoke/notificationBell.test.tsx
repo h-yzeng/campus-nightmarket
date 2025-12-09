@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import NotificationBell from '../../src/components/NotificationBell';
-import type { Notification } from '../../src/hooks/useNotifications';
+import NotificationBell from '../../src/components/features/NotificationBell';
+import type { Notification } from '../../src/hooks/features/useNotifications';
 
 describe('NotificationBell permission messaging', () => {
   const baseNotification: Notification = {

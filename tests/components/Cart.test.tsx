@@ -5,14 +5,14 @@ import Cart from '../../src/pages/buyer/Cart';
 import type { CartItem, ProfileData } from '../../src/types';
 
 // Mock Header component
-jest.mock('../../src/components/Header', () => {
+jest.mock('../../src/components/layout/Header', () => {
   return function MockHeader() {
     return <header data-testid="header">Header</header>;
   };
 });
 
 // Mock Footer component
-jest.mock('../../src/components/Footer', () => {
+jest.mock('../../src/components/layout/Footer', () => {
   return function MockFooter() {
     return <footer data-testid="footer">Footer</footer>;
   };

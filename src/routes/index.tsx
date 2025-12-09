@@ -9,7 +9,7 @@ import { PageLoadingFallback } from './shared';
 import type { AppRoutesProps } from './types';
 export { RequireAuth } from './shared';
 
-const NotFound = lazy(() => import('../pages/NotFound'));
+const NotFound = lazy(() => import('../pages/shared/NotFound'));
 
 export const AppRoutes = (props: AppRoutesProps) => {
   const user = useAuthStore((state) => state.user);

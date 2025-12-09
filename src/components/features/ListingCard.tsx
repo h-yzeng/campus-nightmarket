@@ -1,11 +1,11 @@
 import { MapPin, Star, Tag, TrendingUp } from 'lucide-react';
 import { memo } from 'react';
 import { toast } from 'sonner';
-import type { FoodItem } from '../types';
-import LazyImage from './common/LazyImage';
-import FavoriteButton from './common/FavoriteButton';
-import { useFavorites } from '../hooks/useFavorites';
-import { useAuth } from '../hooks/useAuth';
+import type { FoodItem } from '../../types';
+import LazyImage from '../common/LazyImage';
+import FavoriteButton from '../common/FavoriteButton';
+import { useFavorites } from '../../hooks/features/useFavorites';
+import { useAuth } from '../../hooks/auth/useAuth';
 
 interface ListingCardProps {
   item: FoodItem;

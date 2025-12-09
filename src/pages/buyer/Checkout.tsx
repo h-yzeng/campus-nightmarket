@@ -1,8 +1,8 @@
 import { ArrowLeft, AlertCircle, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import type { UserMode, CartItem, ProfileData } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 import CheckoutForm from '../../components/checkout/CheckoutForm';
 import OrderSummary from '../../components/checkout/OrderSummary';
 import { logger } from '../../utils/logger';

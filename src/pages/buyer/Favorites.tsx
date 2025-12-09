@@ -1,10 +1,10 @@
 import { Heart, ArrowLeft, Loader2 } from 'lucide-react';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import ListingCard from '../../components/ListingCard';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import ListingCard from '../../components/features/ListingCard';
 import PageHead from '../../components/common/PageHead';
-import { useFavorites } from '../../hooks/useFavorites';
-import { useAuth } from '../../hooks/useAuth';
+import { useFavorites } from '../../hooks/features/useFavorites';
+import { useAuth } from '../../hooks/auth/useAuth';
 import type { FoodItem, CartItem, ProfileData, UserMode } from '../../types';
 
 interface FavoritesPageProps {

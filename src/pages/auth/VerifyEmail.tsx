@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { applyActionCode, checkActionCode } from 'firebase/auth';
-import LoadingState from '../components/common/LoadingState';
-import ErrorAlert from '../components/common/ErrorAlert';
-import { getFirebaseAuth } from '../config/firebase';
-import { logger } from '../utils/logger';
+import LoadingState from '../../components/common/LoadingState';
+import ErrorAlert from '../../components/common/ErrorAlert';
+import { getFirebaseAuth } from '../../config/firebase';
+import { logger } from '../../utils/logger';
 
 const SUCCESS_REDIRECT_DELAY_MS = 1500;
 

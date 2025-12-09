@@ -1,12 +1,12 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useCartStore } from '../stores';
+import { useCartStore } from '../../stores';
 import {
   saveCartToCloud,
   loadCartFromCloud,
   clearCartFromCloud,
   mergeCartItems,
-} from '../services/cart/cartSyncService';
-import { logger } from '../utils/logger';
+} from '../../services/cart/cartSyncService';
+import { logger } from '../../utils/logger';
 
 const SYNC_DEBOUNCE_MS = 2000;
 

@@ -4,7 +4,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import NotFound from '../../src/pages/NotFound';
+import NotFound from '../../src/pages/shared/NotFound';
 
 // Mock window.history.back
 const mockHistoryBack = jest.fn();

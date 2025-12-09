@@ -1,5 +1,5 @@
 import { Star, User } from 'lucide-react';
-import type { Review } from '../types';
+import type { Review } from '../../types';
 
 interface ReviewsListProps {
   reviews: Review[];

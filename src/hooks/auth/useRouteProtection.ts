@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getRouteConfig } from '../utils/routeConfig';
-import type { UserMode } from '../types';
+import { getRouteConfig } from '../../utils/routeConfig';
+import type { UserMode } from '../../types';
 
 /**
  * Hook to handle automatic mode syncing with routes

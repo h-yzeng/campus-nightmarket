@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getUserProfile } from '../services/auth/userService';
-import type { FirebaseUserProfile } from '../types/firebase';
-import { logger } from '../utils/logger';
+import { getUserProfile } from '../../services/auth/userService';
+import type { FirebaseUserProfile } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 export const useSellerProfile = (sellerId: string | undefined) => {
   const [sellerProfile, setSellerProfile] = useState<FirebaseUserProfile | null>(null);

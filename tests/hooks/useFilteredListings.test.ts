@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { useFilteredListings } from '../../src/hooks/useFilteredListings';
+import { useFilteredListings } from '../../src/hooks/data/useFilteredListings';
 import type { FoodItem } from '../../src/types';
 
 describe('useFilteredListings', () => {

@@ -12,15 +12,15 @@ import {
   Phone,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
-import type { ProfileData } from '../types';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import type { UserMode } from '../types';
-import { uploadProfilePhoto } from '../services/storage/imageService';
-import { useAuth } from '../hooks/useAuth';
-import { logger } from '../utils/logger';
-import { LOCATIONS } from '../constants';
-import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../services/auth/securityService';
+import type { ProfileData } from '../../types';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import type { UserMode } from '../../types';
+import { uploadProfilePhoto } from '../../services/storage/imageService';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { logger } from '../../utils/logger';
+import { LOCATIONS } from '../../constants';
+import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../../services/auth/securityService';
 
 interface UserProfileProps {
   profileData: ProfileData;
@@ -211,7 +211,7 @@ const UserProfile = ({
     }
 
     try {
-      const { changePassword } = await import('../services/auth/authService');
+      const { changePassword } = await import('../../services/auth/authService');
       await changePassword(currentPassword, newPassword);
 
       setCurrentPassword('');

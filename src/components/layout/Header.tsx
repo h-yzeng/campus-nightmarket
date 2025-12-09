@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect, memo } from 'react';
 import { useLocation } from 'react-router-dom';
-import NotificationBell from './NotificationBell';
-import Tooltip from './common/Tooltip';
-import { useNotificationStore } from '../stores';
-import { getRouteConfig } from '../utils/routeConfig';
-import type { CartItem, ProfileData, UserMode } from '../types';
+import NotificationBell from '../features/NotificationBell';
+import Tooltip from '../common/Tooltip';
+import { useNotificationStore } from '../../stores';
+import { getRouteConfig } from '../../utils/routeConfig';
+import type { CartItem, ProfileData, UserMode } from '../../types';
 
 interface HeaderProps {
   cartItems: CartItem[];

@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import type { UserMode, Order, ProfileData, CartItem } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 import { toast } from 'sonner';
 
 interface UserOrdersProps {

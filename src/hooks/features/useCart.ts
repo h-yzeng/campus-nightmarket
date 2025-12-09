@@ -1,5 +1,5 @@
-import { useCartStore } from '../stores/cartStore';
-import type { FoodItem } from '../types';
+import { useCartStore } from '../../stores/cartStore';
+import type { FoodItem } from '../../types';
 
 /**
  * Hook to manage shopping cart operations

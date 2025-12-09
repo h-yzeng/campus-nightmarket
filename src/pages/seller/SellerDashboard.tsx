@@ -1,7 +1,7 @@
 import { Plus, List, ShoppingBag, AlertCircle } from 'lucide-react';
 import type { ProfileData, CartItem, Order, ListingWithFirebaseId } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 import DashboardStats from '../../components/dashboard/DashboardStats';
 import RecentOrdersList from '../../components/dashboard/RecentOrdersList';
 import PageHead from '../../components/common/PageHead';

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Home, ArrowLeft, Search } from 'lucide-react';
-import PageHead from '../components/common/PageHead';
+import PageHead from '../../components/common/PageHead';
 
 const NotFound = () => {
   return (

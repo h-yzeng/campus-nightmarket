@@ -1,11 +1,11 @@
 import { ArrowLeft, DollarSign, MapPin, Tag, AlertCircle, Upload } from 'lucide-react';
 import { useState, useRef } from 'react';
 import type { ProfileData, CartItem } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 import { uploadListingImage } from '../../services/storage/imageService';
 import { createListing } from '../../services/listings/listingService';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/auth/useAuth';
 import { logger } from '../../utils/logger';
 import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
 import { LOCATIONS, CATEGORIES } from '../../constants';

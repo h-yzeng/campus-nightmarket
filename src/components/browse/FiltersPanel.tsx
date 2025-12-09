@@ -6,7 +6,7 @@ import {
   CATEGORIES,
   ALL_CATEGORIES_OPTION,
 } from '../../constants';
-import { useSearchHistory } from '../../hooks/useSearchHistory';
+import { useSearchHistory } from '../../hooks/features/useSearchHistory';
 import SearchSuggestions from './SearchSuggestions';
 
 interface FiltersPanelProps {

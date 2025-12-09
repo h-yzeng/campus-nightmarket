@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useOrderManagement } from '../../src/hooks/useOrderManagement';
+import { useOrderManagement } from '../../src/hooks/data/useOrderManagement';
 import type { ProfileData, CartItem } from '../../src/types';
 
 const createOrderMock = jest.fn();

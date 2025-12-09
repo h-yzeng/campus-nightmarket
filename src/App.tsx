@@ -2,12 +2,12 @@ import { useEffect, useCallback } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
-import { useAuth } from './hooks/useAuth';
-import { useCart } from './hooks/useCart';
-import { useCartSync } from './hooks/useCartSync';
-import { useOrderManagement } from './hooks/useOrderManagement';
-import { useNotifications } from './hooks/useNotifications';
-import { useInactivityTimeout } from './hooks/useInactivityTimeout';
+import { useAuth } from './hooks/auth/useAuth';
+import { useCart } from './hooks/features/useCart';
+import { useCartSync } from './hooks/features/useCartSync';
+import { useOrderManagement } from './hooks/data/useOrderManagement';
+import { useNotifications } from './hooks/features/useNotifications';
+import { useInactivityTimeout } from './hooks/auth/useInactivityTimeout';
 import {
   useDeleteListingMutation,
   useToggleListingAvailabilityMutation,
@@ -22,7 +22,7 @@ import type { Order, CartItem } from './types';
 import { logger } from './utils/logger';
 import { rateLimiter } from './utils/rateLimiter';
 import { queryKeys } from './utils/queryKeys';
-import { useAppStateSync } from './hooks/useAppStateSync';
+import { useAppStateSync } from './hooks/features/useAppStateSync';
 
 function App() {
   const queryClient = useQueryClient();

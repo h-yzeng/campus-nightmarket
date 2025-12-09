@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { LOCATIONS } from '../constants/locations';
-import { getAllListings, getTopListingByPurchaseCount } from '../services/listings/listingService';
-import PageHead from '../components/common/PageHead';
+import { LOCATIONS } from '../../constants/locations';
+import {
+  getAllListings,
+  getTopListingByPurchaseCount,
+} from '../../services/listings/listingService';
+import PageHead from '../../components/common/PageHead';
 
 interface HomeProps {
   onGetStarted: () => void;

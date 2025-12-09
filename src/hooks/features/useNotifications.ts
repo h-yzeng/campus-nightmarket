@@ -4,10 +4,10 @@ import {
   onForegroundMessage,
   saveFCMToken,
   removeFCMToken,
-} from '../services/notifications/notificationService';
+} from '../../services/notifications/notificationService';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '../utils/logger';
-import { useNotificationStore } from '../stores';
+import { logger } from '../../utils/logger';
+import { useNotificationStore } from '../../stores';
 
 export interface Notification {
   id: string;

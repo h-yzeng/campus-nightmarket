@@ -5,7 +5,7 @@ import {
   addToFavorites,
   removeFromFavorites,
   toggleFavorite,
-} from '../services/favorites/favoritesService';
+} from '../../services/favorites/favoritesService';
 
 /**
  * Hook for managing user's favorite listings

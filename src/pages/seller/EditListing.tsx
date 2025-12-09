@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { ProfileData, CartItem } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 import { uploadListingImage } from '../../services/storage/imageService';
 import { getListing, updateListing } from '../../services/listings/listingService';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/auth/useAuth';
 import { logger } from '../../utils/logger';
 import { LOCATIONS, CATEGORIES } from '../../constants';
 

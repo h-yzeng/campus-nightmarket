@@ -1,7 +1,7 @@
 import { Mail, RefreshCw, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../stores';
+import { useAuthStore } from '../../stores';
 
 interface VerifyRequiredProps {
   onResend: () => Promise<void>;

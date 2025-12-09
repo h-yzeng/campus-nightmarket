@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import type { User } from 'firebase/auth';
-import type { ProfileData } from '../types';
+import type { ProfileData } from '../../types';
 import type { Notification } from './useNotifications';
-import { useAuthStore, useNotificationStore, useNavigationStore } from '../stores';
+import { useAuthStore, useNotificationStore, useNavigationStore } from '../../stores';
 
 interface SyncArgs {
   user: User | null;

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { FoodItem } from '../types';
+import type { FoodItem } from '../../types';
 
 interface UseFilteredListingsParams {
   items: FoodItem[];

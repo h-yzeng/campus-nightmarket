@@ -1,8 +1,8 @@
 import { User, IdCard, Star, MapPin, Calendar, ShoppingBag } from 'lucide-react';
 import type { Transaction, ProfileData, CartItem, Review } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import ReviewsList from '../../components/ReviewsList';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import ReviewsList from '../../components/features/ReviewsList';
 import type { UserMode } from '../../types';
 
 interface ViewProfileProps {

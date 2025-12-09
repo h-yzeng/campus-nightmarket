@@ -1,6 +1,6 @@
 import { Bell } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import type { Notification } from '../hooks/useNotifications';
+import type { Notification } from '../../hooks/features/useNotifications';
 
 interface NotificationBellProps {
   notifications: Notification[];

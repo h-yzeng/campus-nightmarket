@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { ProfileData } from '../types';
+import type { ProfileData } from '../../types';
 import { useFirebaseAuth } from './useFirebaseAuth';
-import type { SignupData } from '../services/auth/authService';
-import type { FirebaseUserProfile } from '../types/firebase';
-import { logger } from '../utils/logger';
+import type { SignupData } from '../../services/auth/authService';
+import type { FirebaseUserProfile } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 const convertFirebaseProfileToApp = (firebaseProfile: FirebaseUserProfile | null): ProfileData => {
   if (!firebaseProfile) {

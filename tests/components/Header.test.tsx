@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Header from '../../src/components/Header';
+import Header from '../../src/components/layout/Header';
 import type { CartItem, ProfileData } from '../../src/types';
 
 // Mock NotificationBell component
-jest.mock('../../src/components/NotificationBell', () => {
+jest.mock('../../src/components/features/NotificationBell', () => {
   return function MockNotificationBell() {
     return <div data-testid="notification-bell">Notifications</div>;
   };

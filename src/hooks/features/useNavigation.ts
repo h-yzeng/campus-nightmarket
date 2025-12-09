@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { UserMode } from '../types';
+import type { UserMode } from '../../types';
 
 export type PageType =
   | 'home'

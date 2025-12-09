@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import * as Sentry from '@sentry/react';
-import { getFirebaseAuth } from '../config/firebase';
+import { getFirebaseAuth } from '../../config/firebase';
 import {
   signUp,
   signIn,
@@ -11,15 +11,15 @@ import {
   reloadUser,
   type SignupData,
   type LoginData,
-} from '../services/auth/authService';
+} from '../../services/auth/authService';
 import {
   createUserProfile,
   getUserProfile,
   updateUserProfile,
   becomeSeller,
-} from '../services/auth/userService';
-import type { FirebaseUserProfile } from '../types/firebase';
-import { logger } from '../utils/logger';
+} from '../../services/auth/userService';
+import type { FirebaseUserProfile } from '../../types/firebase';
+import { logger } from '../../utils/logger';
 
 export interface UseFirebaseAuthReturn {
   user: User | null;

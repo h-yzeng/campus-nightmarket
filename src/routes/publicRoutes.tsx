@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useListingsQuery } from '../hooks/queries/useListingsQuery';
 import { useSellerRatingsQuery } from '../hooks/queries/useReviewsQuery';
 
-const Home = lazy(() => import('../pages/Home'));
-const FoodPreview = lazy(() => import('../pages/FoodPreview'));
+const Home = lazy(() => import('../pages/shared/Home'));
+const FoodPreview = lazy(() => import('../pages/shared/FoodPreview'));
 
 // eslint-disable-next-line react-refresh/only-export-components
 const HomeWrapper = () => {

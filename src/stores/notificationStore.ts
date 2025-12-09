@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Notification } from '../hooks/useNotifications';
+import type { Notification } from '../hooks/features/useNotifications';
 
 interface NotificationHandlers {
   markAsRead: (id: string) => void;

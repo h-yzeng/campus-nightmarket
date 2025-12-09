@@ -4,10 +4,10 @@ import type { AppRoutesProps } from './types';
 import { PageLoadingFallback } from './shared';
 import type { ProfileData } from '../types';
 
-const Signup = lazy(() => import('../pages/Signup'));
-const Login = lazy(() => import('../pages/Login'));
-const VerifyEmail = lazy(() => import('../pages/VerifyEmail'));
-const VerifyRequired = lazy(() => import('../pages/VerifyRequired'));
+const Signup = lazy(() => import('../pages/auth/Signup'));
+const Login = lazy(() => import('../pages/auth/Login'));
+const VerifyEmail = lazy(() => import('../pages/auth/VerifyEmail'));
+const VerifyRequired = lazy(() => import('../pages/auth/VerifyRequired'));
 
 // eslint-disable-next-line react-refresh/only-export-components
 const LoginWrapper = (props: Pick<AppRoutesProps, 'handleLogin'>) => {

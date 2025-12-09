@@ -1,8 +1,8 @@
 import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import ForgotPassword from './ForgotPassword';
-import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
-import PageHead from '../components/common/PageHead';
+import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
+import PageHead from '../../components/common/PageHead';
 
 interface LoginProps {
   onLogin: (email: string, password: string) => Promise<boolean>;

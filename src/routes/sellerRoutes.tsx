@@ -3,7 +3,7 @@ import { Route, useParams } from 'react-router-dom';
 import type { User } from 'firebase/auth';
 import { RequireAuth, PageLoadingFallback, useNavBasics } from './shared';
 import type { AppRoutesProps } from './types';
-import { useRouteProtection } from '../hooks/useRouteProtection';
+import { useRouteProtection } from '../hooks/auth/useRouteProtection';
 import { useSellerListingsQuery } from '../hooks/queries/useListingsQuery';
 import { useSellerOrdersQuery } from '../hooks/queries/useOrdersQuery';
 import { useOrderReviewsQuery } from '../hooks/queries/useReviewsQuery';

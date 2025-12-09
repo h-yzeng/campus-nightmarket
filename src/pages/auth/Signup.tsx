@@ -1,10 +1,10 @@
 import { Camera, AlertCircle, Mail, Lock, Shield, Eye, EyeOff, Check, X } from 'lucide-react';
 import { useRef, useState } from 'react';
-import type { ProfileData } from '../types';
-import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../services/auth/securityService';
-import { useAuth } from '../hooks/useAuth';
-import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
-import PageHead from '../components/common/PageHead';
+import type { ProfileData } from '../../types';
+import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../../services/auth/securityService';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
+import PageHead from '../../components/common/PageHead';
 
 interface SignupProps {
   profileData: ProfileData;

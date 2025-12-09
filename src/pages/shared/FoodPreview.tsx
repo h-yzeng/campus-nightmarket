@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Search, MapPin, Star, ShoppingBag, ArrowLeft } from 'lucide-react';
-import type { FoodItem } from '../types';
-import { CATEGORIES, LOCATIONS } from '../constants';
-import LoadingState from '../components/common/LoadingState';
+import type { FoodItem } from '../../types';
+import { CATEGORIES, LOCATIONS } from '../../constants';
+import LoadingState from '../../components/common/LoadingState';
 
 interface FoodPreviewProps {
   foodItems: FoodItem[];

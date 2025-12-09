@@ -1,8 +1,11 @@
 import { Mail, AlertCircle, CheckCircle, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { getUserSecurityQuestions, verifySecurityAnswers } from '../services/auth/securityService';
-import { resetPasswordWithVerification } from '../services/auth/passwordResetService';
-import { rateLimiter, RATE_LIMITS } from '../utils/rateLimiter';
+import {
+  getUserSecurityQuestions,
+  verifySecurityAnswers,
+} from '../../services/auth/securityService';
+import { resetPasswordWithVerification } from '../../services/auth/passwordResetService';
+import { rateLimiter, RATE_LIMITS } from '../../utils/rateLimiter';
 
 interface ForgotPasswordProps {
   onBack: () => void;

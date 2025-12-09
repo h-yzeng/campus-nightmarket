@@ -1,14 +1,14 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Loader2, RefreshCw, HelpCircle } from 'lucide-react';
 import type { FoodItem, CartItem, ProfileData } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import ListingCard from '../../components/ListingCard';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import ListingCard from '../../components/features/ListingCard';
 import FiltersPanel from '../../components/browse/FiltersPanel';
 import ErrorAlert from '../../components/common/ErrorAlert';
 import MobileActionBar from '../../components/common/MobileActionBar';
 import FirstTimeUserGuide from '../../components/onboarding/FirstTimeUserGuide';
-import { useFilteredListings } from '../../hooks/useFilteredListings';
+import { useFilteredListings } from '../../hooks/data/useFilteredListings';
 import { ALL_LOCATIONS_OPTION, ALL_CATEGORIES_OPTION } from '../../constants';
 import PageHead from '../../components/common/PageHead';
 

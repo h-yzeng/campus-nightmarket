@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App.tsx';
-import ErrorBoundary from './components/ErrorBoundary.tsx';
+import ErrorBoundary from './components/layout/ErrorBoundary.tsx';
 import './styles/index.css';
 import { logger } from './utils/logger';
 import { initializeSentry } from './config/sentry.tsx';

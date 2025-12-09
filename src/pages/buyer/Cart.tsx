@@ -1,7 +1,7 @@
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import type { UserMode, CartItem, ProfileData } from '../../types';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
 
 interface CartProps {
   cart: CartItem[];
