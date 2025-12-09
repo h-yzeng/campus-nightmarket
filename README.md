@@ -7,7 +7,7 @@
 [![Firebase](https://img.shields.io/badge/Firebase-12.6-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![Vite](https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Tests](https://img.shields.io/badge/tests-227%20passing-success)](https://github.com/h-yzeng/campus-nightmarket)
+[![Tests](https://img.shields.io/badge/tests-430%20passing-success)](https://github.com/h-yzeng/campus-nightmarket)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **A modern marketplace for late-night food exchange on campus**
@@ -97,7 +97,7 @@ npm test
 
 - **ESLint 9** - Modern flat config linting
 - **Prettier 3.7** - Opinionated code formatting with Tailwind plugin
-- **Jest 29** - Unit and integration testing (227 tests passing)
+- **Jest 29** - Unit and integration testing (430 tests passing)
 - **React Testing Library** - Component testing best practices
 - **Sentry** - Error tracking (currently disabled, migration to @sentry/browser pending)
 - **Simple Git Hooks** - Pre-commit linting and testing
@@ -222,9 +222,6 @@ npm run preview
 ```bash
 # Run all tests
 npm test
-
-# Seller role guard (also runs in CI)
-npm test -- --runTestsByPath tests/security/sellerRoutes.guard.test.tsx
 
 # Run tests in watch mode
 npm run test:watch
@@ -430,23 +427,37 @@ Images are uploaded to Firebase Storage with the following flow:
 
 ## 🌐 Deployment
 
-### Firebase Hosting (Current)
+### Vercel (Current)
 
-The project is currently deployed on Firebase Hosting:
+The project is currently deployed on Vercel with automatic deployments:
+
+1. Push your code to GitHub
+2. Vercel automatically builds and deploys from the `main` branch
+3. Environment variables are configured in Vercel dashboard
+4. Preview deployments are created for pull requests
+
+**Production URL**: Automatically assigned by Vercel
+
+**Environment Variables**: All `VITE_*` variables must be added in Vercel Project Settings → Environment Variables
+
+### Manual Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Preview the build locally
+npm run preview
+```
+
+### Alternative: Firebase Hosting
+
+You can also deploy to Firebase Hosting:
 
 ```bash
 npm run build
 firebase deploy --only hosting
 ```
-
-**Important**: Ensure all environment variables are set in `.env.local` before building.
-
-### Alternative: Vercel
-
-1. Push your code to GitHub
-2. Import project in Vercel dashboard
-3. Add all `VITE_*` environment variables
-4. Deploy automatically on push to main
 
 ## 🤝 Contributing
 
