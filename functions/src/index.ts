@@ -504,8 +504,8 @@ export const saveSecurityQuestions = onCall(async (request) => {
     throw new Error('Invalid input: userId and questions array required');
   }
 
-  if (questions.length !== 3) {
-    throw new Error('Exactly 3 security questions required');
+  if (questions.length !== 2) {
+    throw new Error('Exactly 2 security questions required');
   }
 
   try {

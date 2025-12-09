@@ -356,7 +356,7 @@ const UserProfile = ({
                     ))}
                   </select>
                   <p className="mt-1 text-xs text-[#90C090]">
-                    This helps buyers know your general location
+                    This helps others know your general location
                   </p>
                 </div>
               </div>

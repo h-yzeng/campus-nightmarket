@@ -179,14 +179,14 @@ export const RATE_LIMITS = {
   /**
    * LOGIN_FAILED rate limiting configuration
    *
-   * DEVELOPMENT (localhost): 10 attempts before blocking
-   * PRODUCTION: 3 attempts before blocking
+   * DEVELOPMENT (localhost): 15 attempts before blocking
+   * PRODUCTION: 5 attempts before blocking
    *
    * How to adjust:
    * - maxAttempts: Number of failed login attempts before blocking starts
    * - windowMs: Time window to track attempts (in milliseconds)
    * - progressiveBlocking: Escalating block durations based on attempt count
-   *   - Key: attempt number (4th, 5th, 6th, 7th+)
+   *   - Key: attempt number (6th, 7th, 8th, 9th+)
    *   - Value: block duration in milliseconds
    *
    * Examples:
@@ -196,13 +196,13 @@ export const RATE_LIMITS = {
    */
   LOGIN_FAILED: {
     // Allow more attempts in development for easier testing
-    maxAttempts: typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 10 : 3,
+    maxAttempts: typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 15 : 5,
     windowMs: 60 * 60 * 1000, // 1 hour window
     progressiveBlocking: {
-      4: 5 * 60 * 1000, // Block for 5 minutes after 4th failed attempt
-      5: 10 * 60 * 1000, // Block for 10 minutes after 5th failed attempt
-      6: 15 * 60 * 1000, // Block for 15 minutes after 6th failed attempt
-      7: 30 * 60 * 1000, // Block for 30 minutes after 7th+ failed attempts
+      6: 5 * 60 * 1000, // Block for 5 minutes after 6th failed attempt
+      7: 10 * 60 * 1000, // Block for 10 minutes after 7th failed attempt
+      8: 15 * 60 * 1000, // Block for 15 minutes after 8th failed attempt
+      9: 30 * 60 * 1000, // Block for 30 minutes after 9th+ failed attempts
     },
   },
 } as const;
