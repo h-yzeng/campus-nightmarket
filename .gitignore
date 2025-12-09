@@ -52,14 +52,18 @@ functions/.runtimeconfig.json
 *.njsproj
 *.sln
 *.sw?
+
+# Copilot AI
 .claude/
-*.json
-.vercel
-public/*
-public
-.hintrc
+
+# Vercel
+.vercel/
+.vercel.env
+
+# Git hooks (should be installed via npm)
 .husky/
 .simple-git-hooks.js
-.simple-git-hooks.config.js
 simple-git-hooks.config.js
-.vercel.env
+
+# Hint configuration
+.hintrc
