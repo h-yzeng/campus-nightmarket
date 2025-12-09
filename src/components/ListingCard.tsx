@@ -13,8 +13,39 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
   const isPopular = item.purchaseCount !== undefined && item.purchaseCount > 10;
   const hasCategory = Boolean(item.category);
 
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Allow Enter/Space to focus first interactive element (view profile button)
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      const viewProfileButton = e.currentTarget.querySelector(
+        'button[aria-label*="View"]'
+      ) as HTMLButtonElement;
+      viewProfileButton?.focus();
+    }
+  };
+
+  const handleAddToCartKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onAddToCart(item);
+    }
+  };
+
+  const handleViewProfileKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onViewProfile(item.sellerId);
+    }
+  };
+
   return (
-    <div className="transform overflow-hidden rounded-2xl border-2 border-[#2F2F2F] bg-[#151515] shadow-md transition-all hover:-translate-y-1 hover:shadow-xl active:scale-[0.99]">
+    <div
+      className="transform overflow-hidden rounded-2xl border-2 border-[#2F2F2F] bg-[#151515] shadow-md transition-all focus-within:ring-2 focus-within:ring-[#E23E57] focus-within:ring-offset-2 focus-within:ring-offset-[#0A0A0A] hover:-translate-y-1 hover:shadow-xl active:scale-[0.99]"
+      role="article"
+      aria-label={`${item.name} listing by ${item.seller}`}
+      tabIndex={0}
+      onKeyDown={handleCardKeyDown}
+    >
       <div className="relative bg-linear-to-br from-[#1F1F1F] via-[#1A1A1A] to-[#111111] p-5 pb-4">
         {item.image.startsWith('http') ? (
           <div className="flex h-44 w-full items-center justify-center overflow-hidden rounded-xl border border-[#2F2F2F] bg-[#0F0F0F]">
@@ -67,7 +98,8 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
         <button
           type="button"
           onClick={() => onViewProfile(item.sellerId)}
-          className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-[#FF5555] transition-colors hover:text-[#FF7777] hover:underline"
+          onKeyDown={handleViewProfileKeyDown}
+          className="mb-3 inline-flex items-center gap-1 text-sm font-semibold text-[#FF5555] transition-colors hover:text-[#FF7777] hover:underline focus:ring-2 focus:ring-[#FF5555] focus:ring-offset-2 focus:ring-offset-[#151515] focus:outline-none"
           aria-label={`View ${item.seller}'s profile`}
         >
           by {item.seller.split(' ')[0]}
@@ -96,7 +128,8 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
           <button
             type="button"
             onClick={() => onAddToCart(item)}
-            className="transform rounded-lg bg-linear-to-r from-[#CC0000] to-[#E23E57] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-[#CC0000]/30 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-[#E23E57] active:scale-95"
+            onKeyDown={handleAddToCartKeyDown}
+            className="transform rounded-lg bg-linear-to-r from-[#CC0000] to-[#E23E57] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-[#CC0000]/30 focus:ring-2 focus:ring-[#E23E57] focus:ring-offset-2 focus:ring-offset-[#151515] focus:outline-none active:scale-95"
             aria-label={`Add ${item.name} to cart - $${item.price.toFixed(2)}`}
           >
             Add +

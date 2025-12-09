@@ -1,9 +1,10 @@
-import * as Sentry from '@sentry/react';
-
-export function initializeSentry() {
+export async function initializeSentry() {
   // Initialize Sentry if DSN is provided (works in both dev and prod)
   // Set VITE_SENTRY_DSN to empty string to disable
   if (import.meta.env.VITE_SENTRY_DSN) {
+    // Dynamically import Sentry to reduce initial bundle size
+    const Sentry = await import('@sentry/react');
+
     Sentry.init({
       dsn: import.meta.env.VITE_SENTRY_DSN,
       environment: import.meta.env.MODE,

@@ -212,23 +212,30 @@ async function checkLoginRateLimitInternal(identifier: string): Promise<{
 const APP_URL = process.env.APP_URL || 'https://campus-night-market.web.app';
 
 // Callable endpoint for login/signup attempts rate limiting
-export const checkLoginRateLimit = onCall(async (request) => {
-  const identifier =
-    (request.data?.identifier as string | undefined) ||
-    request.auth?.uid ||
-    request.rawRequest.ip ||
-    'anonymous';
+export const checkLoginRateLimit = onCall(
+  {
+    minInstances: 1, // Keep warm to reduce login latency
+    memory: '256MiB',
+    timeoutSeconds: 10,
+  },
+  async (request) => {
+    const identifier =
+      (request.data?.identifier as string | undefined) ||
+      request.auth?.uid ||
+      request.rawRequest.ip ||
+      'anonymous';
 
-  const result = await checkLoginRateLimitInternal(identifier);
+    const result = await checkLoginRateLimitInternal(identifier);
 
-  if (!result.allowed) {
-    throw new HttpsError('resource-exhausted', result.message ?? 'Too many attempts', {
-      retryAfterMs: result.retryAfterMs,
-    });
+    if (!result.allowed) {
+      throw new HttpsError('resource-exhausted', result.message ?? 'Too many attempts', {
+        retryAfterMs: result.retryAfterMs,
+      });
+    }
+
+    return { allowed: true };
   }
-
-  return { allowed: true };
-});
+);
 
 // Type for order items
 interface OrderItem {
@@ -240,137 +247,158 @@ interface OrderItem {
 /**
  * Send notification to buyer when order status changes
  */
-export const sendOrderStatusNotification = onDocumentUpdated('orders/{orderId}', async (event) => {
-  const before = event.data?.before.data();
-  const after = event.data?.after.data();
-  const orderId = event.params.orderId;
+export const sendOrderStatusNotification = onDocumentUpdated(
+  {
+    document: 'orders/{orderId}',
+    minInstances: 1, // Keep warm for fast order status updates
+    memory: '256MiB',
+    timeoutSeconds: 60,
+  },
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    const orderId = event.params.orderId;
 
-  if (!before || !after) {
-    return null;
-  }
-
-  // Only send notification if status changed
-  if (before.status === after.status) {
-    return null;
-  }
-
-  // Get buyer's FCM token
-  try {
-    const buyerDoc = await admin.firestore().doc(`users/${after.buyerId}`).get();
-    const buyerData = buyerDoc.data();
-
-    if (!buyerData?.fcmToken) {
+    if (!before || !after) {
       return null;
     }
 
-    // Create notification message based on status
-    let title = 'Order Update';
-    let body = '';
-
-    switch (after.status) {
-      case 'confirmed':
-        title = 'Order Confirmed!';
-        body = `Your order from ${after.sellerName} has been confirmed`;
-        break;
-      case 'ready':
-        title = 'Order Ready!';
-        body = `Your order from ${after.sellerName} is ready for pickup`;
-        break;
-      case 'completed':
-        title = 'Order Completed';
-        body = `Thank you for your order from ${after.sellerName}!`;
-        break;
-      case 'cancelled':
-        title = 'Order Cancelled';
-        body = `Your order from ${after.sellerName} has been cancelled`;
-        break;
-      default:
-        body = `Your order status is now ${after.status}`;
+    // Only send notification if status changed
+    if (before.status === after.status) {
+      return null;
     }
 
-    // Send notification
-    await admin.messaging().send({
-      token: buyerData.fcmToken,
-      notification: {
-        title,
-        body,
-      },
-      data: {
-        orderId,
-        type: 'order_update',
-        status: after.status,
-        sellerId: after.sellerId,
-      },
-      webpush: {
-        fcmOptions: {
-          link: `${APP_URL}/orders/${orderId}`,
-        },
-      },
-    });
+    // Get buyer's FCM token
+    try {
+      const buyerDoc = await admin.firestore().doc(`users/${after.buyerId}`).get();
+      const buyerData = buyerDoc.data();
 
-    return null;
-  } catch (error) {
-    logger.error('Error sending order status notification:', error);
-    return null;
+      if (!buyerData?.fcmToken) {
+        return null;
+      }
+
+      // Create notification message based on status
+      let title = 'Order Update';
+      let body = '';
+
+      switch (after.status) {
+        case 'confirmed':
+          title = 'Order Confirmed!';
+          body = `Your order from ${after.sellerName} has been confirmed`;
+          break;
+        case 'ready':
+          title = 'Order Ready!';
+          body = `Your order from ${after.sellerName} is ready for pickup`;
+          break;
+        case 'completed':
+          title = 'Order Completed';
+          body = `Thank you for your order from ${after.sellerName}!`;
+          break;
+        case 'cancelled':
+          title = 'Order Cancelled';
+          body = `Your order from ${after.sellerName} has been cancelled`;
+          break;
+        default:
+          body = `Your order status is now ${after.status}`;
+      }
+
+      // Send notification
+      await admin.messaging().send({
+        token: buyerData.fcmToken,
+        notification: {
+          title,
+          body,
+        },
+        data: {
+          orderId,
+          type: 'order_update',
+          status: after.status,
+          sellerId: after.sellerId,
+        },
+        webpush: {
+          fcmOptions: {
+            link: `${APP_URL}/orders/${orderId}`,
+          },
+        },
+      });
+
+      return null;
+    } catch (error) {
+      logger.error('Error sending order status notification:', error);
+      return null;
+    }
   }
-});
+);
 
 /**
- * Send notification to seller when new order is placed
+ * Send notification to seller when new order is created
  */
-export const sendNewOrderNotification = onDocumentCreated('orders/{orderId}', async (event) => {
-  const order = event.data?.data();
-  const orderId = event.params.orderId;
+export const sendNewOrderNotification = onDocumentCreated(
+  {
+    document: 'orders/{orderId}',
+    minInstances: 1, // Keep warm for immediate order notifications
+    memory: '256MiB',
+    timeoutSeconds: 60,
+  },
+  async (event) => {
+    const order = event.data?.data();
+    const orderId = event.params.orderId;
 
-  if (!order) {
-    return null;
-  }
-
-  try {
-    // Get seller's FCM token
-    const sellerDoc = await admin.firestore().doc(`users/${order.sellerId}`).get();
-    const sellerData = sellerDoc.data();
-
-    if (!sellerData?.fcmToken) {
+    if (!order) {
       return null;
     }
 
-    // Calculate total items
-    const totalItems =
-      order.items?.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) || 0;
+    try {
+      // Get seller's FCM token
+      const sellerDoc = await admin.firestore().doc(`users/${order.sellerId}`).get();
+      const sellerData = sellerDoc.data();
 
-    // Send notification
-    await admin.messaging().send({
-      token: sellerData.fcmToken,
-      notification: {
-        title: 'New Order!',
-        body: `${order.buyerName} ordered ${totalItems} item(s) for $${order.total.toFixed(2)}`,
-      },
-      data: {
-        orderId,
-        type: 'new_order',
-        buyerId: order.buyerId,
-        total: order.total.toString(),
-      },
-      webpush: {
-        fcmOptions: {
-          link: `${APP_URL}/seller/orders`,
+      if (!sellerData?.fcmToken) {
+        return null;
+      }
+
+      // Calculate total items
+      const totalItems =
+        order.items?.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) || 0;
+
+      // Send notification
+      await admin.messaging().send({
+        token: sellerData.fcmToken,
+        notification: {
+          title: 'New Order!',
+          body: `${order.buyerName} ordered ${totalItems} item(s) for $${order.total.toFixed(2)}`,
         },
-      },
-    });
+        data: {
+          orderId,
+          type: 'new_order',
+          buyerId: order.buyerId,
+          total: order.total.toString(),
+        },
+        webpush: {
+          fcmOptions: {
+            link: `${APP_URL}/seller/orders`,
+          },
+        },
+      });
 
-    return null;
-  } catch (error) {
-    logger.error('Error sending new order notification:', error);
-    return null;
+      return null;
+    } catch (error) {
+      logger.error('Error sending new order notification:', error);
+      return null;
+    }
   }
-});
+);
 
 /**
  * Send notification to seller when buyer cancels order
  */
 export const sendOrderCancelledNotification = onDocumentUpdated(
-  'orders/{orderId}',
+  {
+    document: 'orders/{orderId}',
+    minInstances: 1, // Keep warm for immediate cancellation notifications
+    memory: '256MiB',
+    timeoutSeconds: 60,
+  },
   async (event) => {
     const before = event.data?.before.data();
     const after = event.data?.after.data();

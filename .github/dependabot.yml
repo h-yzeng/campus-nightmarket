@@ -1,0 +1,46 @@
+version: 2
+updates:
+  # Enable version updates for npm (root project)
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    reviewers:
+      - 'h-yzeng'
+    labels:
+      - 'dependencies'
+      - 'automated'
+
+  # Enable version updates for npm (functions)
+  - package-ecosystem: 'npm'
+    directory: '/functions'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    reviewers:
+      - 'h-yzeng'
+    labels:
+      - 'dependencies'
+      - 'functions'
+      - 'automated'
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    commit-message:
+      prefix: 'ci'
+    reviewers:
+      - 'h-yzeng'
+    labels:
+      - 'dependencies'
+      - 'ci'
+      - 'automated'

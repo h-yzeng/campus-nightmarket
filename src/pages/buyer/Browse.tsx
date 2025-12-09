@@ -225,7 +225,7 @@ const Browse = ({
         showCart={true}
       />
 
-      <main className="flex-1 pb-24 md:pb-0">
+      <main id="main-content" tabIndex={-1} className="flex-1 pb-24 focus:outline-none md:pb-0">
         {error && (
           <div className="mx-auto max-w-7xl px-6 py-4">
             <ErrorAlert

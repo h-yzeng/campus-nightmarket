@@ -75,11 +75,15 @@ export default defineConfig({
           // UI helpers
           if (/node_modules[/](lucide-react|zustand|sonner)[/]/.test(id)) return 'vendor-ui';
 
-          // Firebase split: messaging separate from core
+          // Firebase split: messaging separate from core, split auth and firestore
           if (id.includes('firebase/messaging')) return 'vendor-firebase-messaging';
+          if (id.includes('firebase/auth')) return 'vendor-firebase-auth';
+          if (id.includes('firebase/firestore')) return 'vendor-firebase-firestore';
+          if (id.includes('firebase/storage')) return 'vendor-firebase-storage';
           if (/node_modules[/]firebase[/]/.test(id)) return 'vendor-firebase-core';
 
-          // Sentry
+          // Sentry (dynamically imported) - split replay from core
+          if (id.includes('@sentry-internal/replay')) return 'vendor-sentry-replay';
           if (id.includes('@sentry')) return 'vendor-sentry';
 
           return undefined;

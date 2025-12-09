@@ -52,13 +52,18 @@ const Cart = ({
         userMode={userMode}
       />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-8">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-7xl flex-1 px-6 py-8 focus:outline-none"
+      >
         <div className="mb-6">
           <button
             onClick={onContinueShopping}
-            className="flex items-center gap-2 font-semibold text-[#CC0000] hover:underline"
+            className="flex items-center gap-2 font-semibold text-[#CC0000] hover:underline focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-[#040707] focus:outline-none"
+            aria-label="Continue shopping for more items"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={20} aria-hidden="true" />
             Continue Shopping
           </button>
         </div>
@@ -80,11 +85,12 @@ const Cart = ({
         ) : (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Cart Items */}
-            <div className="space-y-4 lg:col-span-2">
+            <div className="space-y-4 lg:col-span-2" role="list" aria-label="Cart items">
               {cart.map((item) => (
                 <div
                   key={item.id}
                   className="rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md transition-shadow hover:shadow-lg"
+                  role="listitem"
                 >
                   <div className="flex gap-4">
                     {/* Item Image */}
@@ -109,28 +115,35 @@ const Cart = ({
 
                       <div className="flex items-center justify-between">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-3">
+                        <div
+                          className="flex items-center gap-3"
+                          role="group"
+                          aria-label={`Quantity controls for ${item.name}`}
+                        >
                           <button
                             onClick={() =>
                               onUpdateQuantity(item.id, Math.max(1, item.quantity - 1))
                             }
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#4A4A4A] transition-colors hover:border-[#CC0000] hover:bg-[#2A0A0A] disabled:opacity-50"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#4A4A4A] transition-colors hover:border-[#CC0000] hover:bg-[#2A0A0A] focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-neutral-800 focus:outline-none disabled:opacity-50"
                             disabled={item.quantity <= 1}
-                            title="Decrease quantity"
+                            aria-label={`Decrease quantity of ${item.name}`}
                           >
-                            <Minus size={16} className="text-[#E0E0E0]" />
+                            <Minus size={16} className="text-[#E0E0E0]" aria-hidden="true" />
                           </button>
 
-                          <span className="w-12 text-center font-bold text-[#E0E0E0]">
+                          <span
+                            className="w-12 text-center font-bold text-[#E0E0E0]"
+                            aria-label={`Quantity: ${item.quantity}`}
+                          >
                             {item.quantity}
                           </span>
 
                           <button
                             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#4A4A4A] transition-colors hover:border-[#CC0000] hover:bg-[#2A0A0A]"
-                            title="Increase quantity"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-[#4A4A4A] transition-colors hover:border-[#CC0000] hover:bg-[#2A0A0A] focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-neutral-800 focus:outline-none"
+                            aria-label={`Increase quantity of ${item.name}`}
                           >
-                            <Plus size={16} className="text-[#E0E0E0]" />
+                            <Plus size={16} className="text-[#E0E0E0]" aria-hidden="true" />
                           </button>
                         </div>
 
@@ -147,10 +160,14 @@ const Cart = ({
                     {/* Remove Button */}
                     <button
                       onClick={() => onRemoveItem(item.id)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-[#2A0A0A]"
-                      title="Remove item"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-[#2A0A0A] focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-neutral-800 focus:outline-none"
+                      aria-label={`Remove ${item.name} from cart`}
                     >
-                      <Trash2 size={20} className="text-[#888888] hover:text-[#CC0000]" />
+                      <Trash2
+                        size={20}
+                        className="text-[#888888] hover:text-[#CC0000]"
+                        aria-hidden="true"
+                      />
                     </button>
                   </div>
                 </div>
@@ -159,9 +176,13 @@ const Cart = ({
 
             {/* Order Summary */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24 rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md">
+              <div
+                className="sticky top-24 rounded-2xl border-2 border-neutral-700 bg-neutral-800 p-6 shadow-md"
+                role="region"
+                aria-label="Order summary"
+              >
                 <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-[#E0E0E0]">
-                  <ShoppingBag size={20} />
+                  <ShoppingBag size={20} aria-hidden="true" />
                   Order Summary
                 </h2>
 
@@ -181,14 +202,16 @@ const Cart = ({
 
                 <button
                   onClick={onCheckout}
-                  className="mb-3 w-full transform rounded-xl bg-[#CC0000] py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl active:scale-98"
+                  className="mb-3 w-full transform rounded-xl bg-[#CC0000] py-4 text-lg font-bold text-white shadow-lg transition-all hover:scale-102 hover:shadow-xl focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-neutral-800 focus:outline-none active:scale-98"
+                  aria-label={`Proceed to checkout - Total $${total.toFixed(2)}`}
                 >
                   Proceed to Checkout →
                 </button>
 
                 <button
                   onClick={onContinueShopping}
-                  className="w-full rounded-xl border-2 border-[#CC0000] py-3 text-base font-semibold text-[#CC0000] transition-colors hover:bg-[#2A0A0A]"
+                  className="w-full rounded-xl border-2 border-[#CC0000] py-3 text-base font-semibold text-[#CC0000] transition-colors hover:bg-[#2A0A0A] focus:ring-2 focus:ring-[#CC0000] focus:ring-offset-2 focus:ring-offset-neutral-800 focus:outline-none"
+                  aria-label="Continue shopping for more items"
                 >
                   Continue Shopping
                 </button>

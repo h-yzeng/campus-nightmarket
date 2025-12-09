@@ -15,6 +15,7 @@ import { createReview } from './services/reviews/reviewService';
 import { updateOrder } from './services/orders/orderService';
 import { AppRoutes } from './routes';
 import EmailVerificationBanner from './components/common/EmailVerificationBanner';
+import { SkipNavigation } from './components/common/SkipNavigation';
 import { shouldBypassVerification } from './config/emailWhitelist';
 import type { Order, CartItem } from './types';
 import { logger } from './utils/logger';
@@ -211,6 +212,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <SkipNavigation />
       <Toaster position="top-right" theme="dark" richColors closeButton />
       <div className="app">
         {/* Show email verification banner if user is logged in but email is not verified and not whitelisted */}
