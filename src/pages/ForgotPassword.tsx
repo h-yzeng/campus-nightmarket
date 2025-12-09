@@ -45,7 +45,7 @@ const ForgotPassword = ({ onBack }: ForgotPasswordProps) => {
 
       if (questions.length === 0) {
         setError(
-          'No security questions found for this email. Please contact support or use the email reset link option.'
+          'No security questions found for this account. This may be because you signed up before security questions were properly implemented. Please contact support at nightmarket@hawk.illinoistech.edu to reset your password, or create a new account.'
         );
         setLoading(false);
         return;

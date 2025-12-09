@@ -20,6 +20,7 @@ import { uploadProfilePhoto } from '../services/storage/imageService';
 import { useAuth } from '../hooks/useAuth';
 import { logger } from '../utils/logger';
 import { LOCATIONS } from '../constants';
+import { SECURITY_QUESTIONS, saveSecurityQuestions } from '../services/auth/securityService';
 
 interface UserProfileProps {
   profileData: ProfileData;
@@ -57,6 +58,14 @@ const UserProfile = ({
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showSecuritySection, setShowSecuritySection] = useState(false);
+  const [securityQuestion1, setSecurityQuestion1] = useState('');
+  const [securityAnswer1, setSecurityAnswer1] = useState('');
+  const [securityQuestion2, setSecurityQuestion2] = useState('');
+  const [securityAnswer2, setSecurityAnswer2] = useState('');
+  const [securityError, setSecurityError] = useState('');
+  const [securitySuccess, setSecuritySuccess] = useState('');
+  const [savingSecurityQuestions, setSavingSecurityQuestions] = useState(false);
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -135,6 +144,50 @@ const UserProfile = ({
       /\d/.test(password) &&
       /[!@#$%^&*(),.?":{}|<>]/.test(password)
     );
+  };
+
+  const handleSecurityQuestionsSubmit = async () => {
+    setSecurityError('');
+    setSecuritySuccess('');
+
+    // Validation
+    if (!securityQuestion1 || !securityAnswer1 || !securityQuestion2 || !securityAnswer2) {
+      setSecurityError('Please fill in all security questions and answers');
+      return;
+    }
+
+    if (securityQuestion1 === securityQuestion2) {
+      setSecurityError('Please select two different security questions');
+      return;
+    }
+
+    if (!user?.uid) {
+      setSecurityError('User not authenticated');
+      return;
+    }
+
+    setSavingSecurityQuestions(true);
+
+    try {
+      const questions = [
+        { question: securityQuestion1, answer: securityAnswer1 },
+        { question: securityQuestion2, answer: securityAnswer2 },
+      ];
+
+      await saveSecurityQuestions(user.uid, questions);
+
+      setSecuritySuccess('Security questions saved successfully!');
+      setSecurityQuestion1('');
+      setSecurityAnswer1('');
+      setSecurityQuestion2('');
+      setSecurityAnswer2('');
+      setShowSecuritySection(false);
+    } catch (err) {
+      logger.error('Error saving security questions:', err);
+      setSecurityError(err instanceof Error ? err.message : 'Failed to save security questions');
+    } finally {
+      setSavingSecurityQuestions(false);
+    }
   };
 
   const handlePasswordChange = async () => {
@@ -461,6 +514,126 @@ const UserProfile = ({
                       <p className="text-xs text-[#B08080]">
                         Password must be 12+ characters with uppercase, lowercase, number, and
                         special character
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Security Questions Section */}
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <label className="block items-center gap-2 text-sm font-semibold text-[#E0E0E0]">
+                      <Lock size={16} />
+                      Security Questions
+                    </label>
+                    <button
+                      onClick={() => setShowSecuritySection(!showSecuritySection)}
+                      className="text-sm font-semibold text-[#FF4444] transition-colors hover:text-[#CC0000] hover:underline"
+                    >
+                      {showSecuritySection ? 'Cancel' : 'Set/Update Questions'}
+                    </button>
+                  </div>
+
+                  {!showSecuritySection ? (
+                    <div className="rounded-xl border-2 border-[#4A2A2A] bg-[#3A1A1A] p-4">
+                      <p className="text-sm text-[#C0A0A0]">
+                        Security questions are used to recover your account if you forget your
+                        password.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 rounded-xl border-2 border-[#5A2A2A] bg-[#3A1A1A] p-4">
+                      {securitySuccess && (
+                        <div className="rounded-lg border border-green-600 bg-green-900 p-3">
+                          <p className="text-sm text-green-200">{securitySuccess}</p>
+                        </div>
+                      )}
+
+                      {securityError && (
+                        <div className="rounded-lg border border-[#CC0000] bg-[#2A0A0A] p-3">
+                          <p className="text-sm text-[#FF8888]">{securityError}</p>
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-[#D0B0B0]">
+                          Security Question 1 <span className="text-[#FF4444]">*</span>
+                        </label>
+                        <select
+                          value={securityQuestion1}
+                          onChange={(e) => setSecurityQuestion1(e.target.value)}
+                          className="w-full rounded-lg border-2 border-[#5A2A2A] bg-[#2A0A0A] px-3 py-2 text-sm text-[#E0E0E0] transition-all focus:border-[#FF4444] focus:ring-2 focus:ring-[#FF4444] focus:outline-none"
+                          title="Select security question 1"
+                        >
+                          <option value="">Select a question...</option>
+                          {SECURITY_QUESTIONS.map((q, index) => (
+                            <option key={index} value={q} disabled={q === securityQuestion2}>
+                              {q}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-[#D0B0B0]">
+                          Answer 1 <span className="text-[#FF4444]">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={securityAnswer1}
+                          onChange={(e) => setSecurityAnswer1(e.target.value)}
+                          className="w-full rounded-lg border-2 border-[#5A2A2A] bg-[#2A0A0A] px-3 py-2 text-sm text-[#E0E0E0] placeholder-[#8A5A5A] transition-all focus:border-[#FF4444] focus:ring-2 focus:ring-[#FF4444] focus:outline-none"
+                          placeholder="Your answer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-[#D0B0B0]">
+                          Security Question 2 <span className="text-[#FF4444]">*</span>
+                        </label>
+                        <select
+                          value={securityQuestion2}
+                          onChange={(e) => setSecurityQuestion2(e.target.value)}
+                          className="w-full rounded-lg border-2 border-[#5A2A2A] bg-[#2A0A0A] px-3 py-2 text-sm text-[#E0E0E0] transition-all focus:border-[#FF4444] focus:ring-2 focus:ring-[#FF4444] focus:outline-none"
+                          title="Select security question 2"
+                        >
+                          <option value="">Select a question...</option>
+                          {SECURITY_QUESTIONS.map((q, index) => (
+                            <option key={index} value={q} disabled={q === securityQuestion1}>
+                              {q}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold text-[#D0B0B0]">
+                          Answer 2 <span className="text-[#FF4444]">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={securityAnswer2}
+                          onChange={(e) => setSecurityAnswer2(e.target.value)}
+                          className="w-full rounded-lg border-2 border-[#5A2A2A] bg-[#2A0A0A] px-3 py-2 text-sm text-[#E0E0E0] placeholder-[#8A5A5A] transition-all focus:border-[#FF4444] focus:ring-2 focus:ring-[#FF4444] focus:outline-none"
+                          placeholder="Your answer"
+                        />
+                      </div>
+
+                      <button
+                        onClick={handleSecurityQuestionsSubmit}
+                        disabled={savingSecurityQuestions}
+                        className={`w-full rounded-lg py-2 text-sm font-bold text-white transition-all hover:shadow-lg ${
+                          savingSecurityQuestions
+                            ? 'cursor-not-allowed bg-gray-400'
+                            : 'bg-[#CC0000] hover:bg-[#AA0000]'
+                        }`}
+                      >
+                        {savingSecurityQuestions ? 'Saving...' : 'Save Security Questions'}
+                      </button>
+
+                      <p className="text-xs text-[#B08080]">
+                        Choose questions you'll remember the answers to. These will be used to
+                        recover your account.
                       </p>
                     </div>
                   )}
