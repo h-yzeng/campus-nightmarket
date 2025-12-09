@@ -1,5 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { getBuyerOrders, getSellerOrders } from '../../services/orders/orderService';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import type { QueryDocumentSnapshot } from 'firebase/firestore';
+import {
+  getBuyerOrders,
+  getSellerOrders,
+  getPaginatedBuyerOrders,
+} from '../../services/orders/orderService';
 import type { FirebaseOrder } from '../../types/firebase';
 import type { Order, CartItem } from '../../types';
 
@@ -89,6 +94,29 @@ export const useSellerOrdersQuery = (userId: string | undefined, refetchInterval
     refetchInterval: refetchInterval !== undefined ? refetchInterval : 6_000,
     refetchOnWindowFocus: 'always',
     refetchIntervalInBackground: false,
+    retry: 2,
+  });
+};
+
+/**
+ * Infinite query hook for buyer orders with pagination
+ */
+export const useInfiniteBuyerOrdersQuery = (userId: string | undefined, pageSize: number = 10) => {
+  return useInfiniteQuery({
+    queryKey: ['orders', 'buyer', 'infinite', userId],
+    queryFn: async ({ pageParam }: { pageParam?: QueryDocumentSnapshot }) => {
+      if (!userId) return { orders: [], lastDoc: null };
+      const result = await getPaginatedBuyerOrders(userId, pageSize, pageParam);
+      return {
+        orders: result.orders.map(convertFirebaseOrderToApp),
+        lastDoc: result.lastDoc,
+      };
+    },
+    enabled: !!userId,
+    staleTime: 15_000,
+    gcTime: 5 * 60 * 1000,
+    getNextPageParam: (lastPage) => lastPage.lastDoc ?? undefined,
+    initialPageParam: undefined as QueryDocumentSnapshot | undefined,
     retry: 2,
   });
 };

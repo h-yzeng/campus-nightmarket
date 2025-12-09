@@ -10,6 +10,9 @@ import {
   orderBy,
   serverTimestamp,
   increment,
+  limit,
+  startAfter,
+  type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { getFirestoreDb, db as legacyDb } from '../../config/firebase';
 import {
@@ -307,6 +310,59 @@ export const completeOrder = async (orderId: string): Promise<void> => {
       ErrorCode.ORDER_UPDATE_FAILED,
       ErrorCategory.ORDER,
       'Failed to update order'
+    );
+  }
+};
+
+/**
+ * Get paginated buyer orders for infinite scroll
+ */
+export const getPaginatedBuyerOrders = async (
+  buyerId: string,
+  pageSize: number = 10,
+  lastDoc?: QueryDocumentSnapshot
+): Promise<{ orders: FirebaseOrder[]; lastDoc: QueryDocumentSnapshot | null }> => {
+  try {
+    const db = resolveDb();
+    const ordersRef = collection(db, COLLECTIONS.ORDERS);
+
+    let q = query(
+      ordersRef,
+      where('buyerId', '==', buyerId),
+      orderBy('createdAt', 'desc'),
+      limit(pageSize)
+    );
+
+    if (lastDoc) {
+      q = query(
+        ordersRef,
+        where('buyerId', '==', buyerId),
+        orderBy('createdAt', 'desc'),
+        startAfter(lastDoc),
+        limit(pageSize)
+      );
+    }
+
+    const querySnapshot = await getDocs(q);
+    const orders: FirebaseOrder[] = [];
+
+    querySnapshot.forEach((doc) => {
+      orders.push({
+        id: doc.id,
+        ...doc.data(),
+      } as FirebaseOrder);
+    });
+
+    const newLastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+    return { orders, lastDoc: newLastDoc };
+  } catch (error) {
+    logger.error('Error getting paginated buyer orders:', error);
+    throw toAppError(
+      error,
+      ErrorCode.ORDER_NOT_FOUND,
+      ErrorCategory.ORDER,
+      'Failed to get buyer orders'
     );
   }
 };

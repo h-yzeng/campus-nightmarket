@@ -3,13 +3,18 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import NotFound from '../../src/pages/NotFound';
 
 // Mock window.history.back
 const mockHistoryBack = jest.fn();
 
 const renderWithRouter = (component: React.ReactNode) => {
-  return render(<MemoryRouter>{component}</MemoryRouter>);
+  return render(
+    <HelmetProvider>
+      <MemoryRouter>{component}</MemoryRouter>
+    </HelmetProvider>
+  );
 };
 
 describe('NotFound Page', () => {

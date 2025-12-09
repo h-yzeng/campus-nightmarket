@@ -3,6 +3,7 @@ import { deleteField, doc, updateDoc } from 'firebase/firestore';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getFirebaseApp, getFirestoreDb } from '../../config/firebase';
 import { logger } from '../../utils/logger';
+import { playNotificationSound } from '../../utils/notificationSounds';
 
 let messaging: Messaging | null = null;
 let messagingPromise: Promise<Messaging | null> | null = null;
@@ -85,6 +86,25 @@ export const onForegroundMessage = (callback: (payload: unknown) => void) => {
 
       unsubscribe = onMessage(messaging, (payload) => {
         logger.debug('Foreground message received:', payload);
+
+        // Play notification sound based on notification type
+        if (payload.data && typeof payload.data === 'object') {
+          const data = payload.data as Record<string, string>;
+          const notificationType = data.type || data.notificationType;
+
+          if (notificationType === 'order_placed') {
+            void playNotificationSound('order-placed');
+          } else if (notificationType === 'order_confirmed') {
+            void playNotificationSound('order-confirmed');
+          } else if (notificationType === 'order_ready') {
+            void playNotificationSound('order-ready');
+          } else if (notificationType === 'order_completed') {
+            void playNotificationSound('order-completed');
+          } else {
+            void playNotificationSound('message');
+          }
+        }
+
         callback(payload);
       });
     })

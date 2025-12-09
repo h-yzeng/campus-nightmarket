@@ -1,11 +1,13 @@
 import { Search, MapPin, Filter, DollarSign, SlidersHorizontal, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   LOCATIONS,
   ALL_LOCATIONS_OPTION,
   CATEGORIES,
   ALL_CATEGORIES_OPTION,
 } from '../../constants';
+import { useSearchHistory } from '../../hooks/useSearchHistory';
+import SearchSuggestions from './SearchSuggestions';
 
 interface FiltersPanelProps {
   searchQuery: string;
@@ -43,6 +45,39 @@ const FiltersPanel = ({
   isRefreshing,
 }: FiltersPanelProps) => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { history, addToHistory, clearHistory, removeFromHistory } = useSearchHistory();
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchInputRef.current && !searchInputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchChange = (value: string) => {
+    onSearchChange(value);
+    setShowSuggestions(true);
+  };
+
+  const handleSelectSuggestion = (query: string) => {
+    onSearchChange(query);
+    addToHistory(query);
+    setShowSuggestions(false);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      addToHistory(searchQuery.trim());
+      setShowSuggestions(false);
+    }
+  };
 
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
@@ -56,8 +91,8 @@ const FiltersPanel = ({
       <div className="mx-auto max-w-7xl space-y-4 px-6 py-6">
         {/* Primary Filters: search + location in one row */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-          {/* Search */}
-          <div className="relative min-w-[220px] flex-1">
+          {/* Search with Suggestions */}
+          <div className="relative min-w-[220px] flex-1" ref={searchInputRef}>
             <Search
               className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 transform text-[#76777B]"
               size={20}
@@ -66,10 +101,20 @@ const FiltersPanel = ({
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              onKeyDown={handleSearchKeyDown}
               placeholder="Search for food or sellers..."
               className="w-full rounded-xl border-2 border-[#3A3A3A] bg-[#252525] py-3 pr-4 pl-12 text-base text-[#E0E0E0] placeholder-gray-500 transition-all focus:border-[#CC0000] focus:ring-2 focus:ring-[#CC0000] focus:outline-none"
               aria-label="Search for food or sellers"
+            />
+            <SearchSuggestions
+              searchQuery={searchQuery}
+              searchHistory={history}
+              onSelectSuggestion={handleSelectSuggestion}
+              onRemoveHistoryItem={removeFromHistory}
+              onClearHistory={clearHistory}
+              show={showSuggestions}
             />
           </div>
 

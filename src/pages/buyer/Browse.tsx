@@ -10,6 +10,7 @@ import MobileActionBar from '../../components/common/MobileActionBar';
 import FirstTimeUserGuide from '../../components/onboarding/FirstTimeUserGuide';
 import { useFilteredListings } from '../../hooks/useFilteredListings';
 import { ALL_LOCATIONS_OPTION, ALL_CATEGORIES_OPTION } from '../../constants';
+import PageHead from '../../components/common/PageHead';
 
 // Debounce hook for search optimization
 const useDebounce = <T,>(value: T, delay: number): T => {
@@ -208,198 +209,204 @@ const Browse = ({
   };
 
   return (
-    <div
-      className="flex min-h-screen flex-col bg-[#0A0A0B]"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* First-time user guide */}
-      {showGuide && <FirstTimeUserGuide onClose={handleCloseGuide} />}
-
-      <Header
-        cartItems={cart}
-        profileData={profileData}
-        userMode={userMode}
-        onCartClick={onCartClick}
-        onSignOut={onSignOut}
-        onProfileClick={onProfileClick}
-        onOrdersClick={onOrdersClick}
-        onModeChange={onModeChange}
-        onShowSellerOnboarding={onShowSellerOnboarding}
-        onSellerDashboardClick={onSellerDashboardClick}
-        onLogoClick={onLogoClick}
-        showCart={true}
+    <>
+      <PageHead
+        title="Browse Food"
+        description="Discover delicious late-night meals from student sellers at IIT. Fresh, homemade food delivered on campus."
       />
+      <div
+        className="flex min-h-screen flex-col bg-[#0A0A0B]"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* First-time user guide */}
+        {showGuide && <FirstTimeUserGuide onClose={handleCloseGuide} />}
 
-      <main id="main-content" tabIndex={-1} className="flex-1 pb-24 focus:outline-none md:pb-0">
-        {error && (
-          <div className="mx-auto max-w-7xl px-6 py-4">
-            <ErrorAlert
-              title="Error Loading Listings"
-              message={error}
-              variant="error"
-              dismissible
-            />
-          </div>
-        )}
-
-        <FiltersPanel
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedLocation={selectedLocation}
-          onLocationChange={setSelectedLocation}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          priceRange={priceRange}
-          onPriceRangeChange={setPriceRange}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          showAvailableOnly={showAvailableOnly}
-          onAvailableOnlyChange={setShowAvailableOnly}
-          resultCount={filteredAndSortedItems.length}
-          onRefresh={onRefresh ? () => void triggerRefresh() : undefined}
-          isRefreshing={refreshing}
+        <Header
+          cartItems={cart}
+          profileData={profileData}
+          userMode={userMode}
+          onCartClick={onCartClick}
+          onSignOut={onSignOut}
+          onProfileClick={onProfileClick}
+          onOrdersClick={onOrdersClick}
+          onModeChange={onModeChange}
+          onShowSellerOnboarding={onShowSellerOnboarding}
+          onSellerDashboardClick={onSellerDashboardClick}
+          onLogoClick={onLogoClick}
+          showCart={true}
         />
 
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          {loading ? (
-            <div className="space-y-6" role="status" aria-live="polite">
-              <div className="flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-[#B0B0B0]">
-                <Loader2 size={20} className="animate-spin text-[#CC0000]" />
-                <p className="text-sm">Fetching fresh listings…</p>
-              </div>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, idx) => (
-                  <ListingSkeletonCard key={idx} />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredAndSortedItems.map((item) => (
-                <ListingCard
-                  key={item.id}
-                  item={item}
-                  sellerRating={sellerRatings[item.sellerId]}
-                  onAddToCart={handleAddToCart}
-                  onViewProfile={handleViewProfile}
-                />
-              ))}
-
-              {/* Load More Button */}
-              {filteredAndSortedItems.length > 0 && hasMore && onLoadMore && (
-                <div className="col-span-full flex justify-center py-8">
-                  <button
-                    type="button"
-                    onClick={onLoadMore}
-                    disabled={isLoadingMore}
-                    className="flex items-center gap-2 rounded-xl bg-[#1E1E1E] px-8 py-3 font-semibold text-white transition-all hover:bg-[#2A2A2A] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {isLoadingMore ? (
-                      <>
-                        <Loader2 size={18} className="animate-spin" />
-                        Loading more...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw size={18} />
-                        Load More Listings
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {filteredAndSortedItems.length === 0 && !loading && (
-                <div className="col-span-full rounded-2xl border-2 border-[#3A3A3A] bg-[#1A1A1B] py-16 text-center shadow-md">
-                  <div className="mb-4 text-7xl">🔍</div>
-                  <h2 className="mb-2 text-2xl font-bold text-white">No items found</h2>
-                  <p className="mb-6 text-[#A0A0A0]">
-                    {foodItems.length === 0
-                      ? 'No food items are currently available. Be the first to sell!'
-                      : 'Try adjusting your search query or filters to find more listings'}
-                  </p>
-                  <div className="mx-auto flex max-w-2xl flex-col items-center gap-4">
-                    {foodItems.length > 0 ? (
-                      <>
-                        <div className="flex flex-wrap justify-center gap-3">
-                          <button
-                            type="button"
-                            onClick={handleResetFilters}
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
-                          >
-                            <RefreshCw size={14} />
-                            Reset filters
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setSortBy('rating')}
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
-                          >
-                            ⭐ Sort by rating
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setShowAvailableOnly(false)}
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
-                          >
-                            👀 Show all items
-                          </button>
-                        </div>
-                        <div className="text-left text-sm text-[#8D8D8D]">
-                          <p className="mb-2 font-semibold text-[#B0B0B0]">Quick tips</p>
-                          <ul className="space-y-1">
-                            <li>• Try broader search terms</li>
-                            <li>• Loosen price slider above</li>
-                            <li>• Toggle off "In-stock only"</li>
-                            <li>• Switch category to "All"</li>
-                          </ul>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center">
-                        <p className="mb-4 text-sm text-[#B0B0B0]">
-                          Want to sell your homemade food?
-                        </p>
-                        {onModeChange && (
-                          <button
-                            onClick={() => onModeChange('seller')}
-                            className="rounded-lg bg-[#CC0000] px-6 py-2.5 font-semibold text-white transition-colors hover:bg-[#B00000]"
-                            type="button"
-                          >
-                            Switch to Seller Mode
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+        <main id="main-content" tabIndex={-1} className="flex-1 pb-24 focus:outline-none md:pb-0">
+          {error && (
+            <div className="mx-auto max-w-7xl px-6 py-4">
+              <ErrorAlert
+                title="Error Loading Listings"
+                message={error}
+                variant="error"
+                dismissible
+              />
             </div>
           )}
-        </div>
-      </main>
 
-      <Footer />
-      <MobileActionBar
-        active="browse"
-        onBrowse={onLogoClick || (() => {})}
-        onCart={onCartClick}
-        onOrders={onOrdersClick}
-        onProfile={onProfileClick}
-      />
-      {/* Floating Help Button */}
-      <button
-        onClick={handleShowGuide}
-        className="help-fab fixed right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl active:scale-95"
-        type="button"
-        title="Show tutorial guide"
-        aria-label="Open help guide"
-      >
-        <HelpCircle size={24} />
-      </button>
-    </div>
+          <FiltersPanel
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedLocation={selectedLocation}
+            onLocationChange={setSelectedLocation}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            priceRange={priceRange}
+            onPriceRangeChange={setPriceRange}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            showAvailableOnly={showAvailableOnly}
+            onAvailableOnlyChange={setShowAvailableOnly}
+            resultCount={filteredAndSortedItems.length}
+            onRefresh={onRefresh ? () => void triggerRefresh() : undefined}
+            isRefreshing={refreshing}
+          />
+
+          <div className="mx-auto max-w-7xl px-6 py-8">
+            {loading ? (
+              <div className="space-y-6" role="status" aria-live="polite">
+                <div className="flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-[#B0B0B0]">
+                  <Loader2 size={20} className="animate-spin text-[#CC0000]" />
+                  <p className="text-sm">Fetching fresh listings…</p>
+                </div>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <ListingSkeletonCard key={idx} />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredAndSortedItems.map((item) => (
+                  <ListingCard
+                    key={item.id}
+                    item={item}
+                    sellerRating={sellerRatings[item.sellerId]}
+                    onAddToCart={handleAddToCart}
+                    onViewProfile={handleViewProfile}
+                  />
+                ))}
+
+                {/* Load More Button */}
+                {filteredAndSortedItems.length > 0 && hasMore && onLoadMore && (
+                  <div className="col-span-full flex justify-center py-8">
+                    <button
+                      type="button"
+                      onClick={onLoadMore}
+                      disabled={isLoadingMore}
+                      className="flex items-center gap-2 rounded-xl bg-[#1E1E1E] px-8 py-3 font-semibold text-white transition-all hover:bg-[#2A2A2A] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin" />
+                          Loading more...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw size={18} />
+                          Load More Listings
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {filteredAndSortedItems.length === 0 && !loading && (
+                  <div className="col-span-full rounded-2xl border-2 border-[#3A3A3A] bg-[#1A1A1B] py-16 text-center shadow-md">
+                    <div className="mb-4 text-7xl">🔍</div>
+                    <h2 className="mb-2 text-2xl font-bold text-white">No items found</h2>
+                    <p className="mb-6 text-[#A0A0A0]">
+                      {foodItems.length === 0
+                        ? 'No food items are currently available. Be the first to sell!'
+                        : 'Try adjusting your search query or filters to find more listings'}
+                    </p>
+                    <div className="mx-auto flex max-w-2xl flex-col items-center gap-4">
+                      {foodItems.length > 0 ? (
+                        <>
+                          <div className="flex flex-wrap justify-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleResetFilters}
+                              className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
+                            >
+                              <RefreshCw size={14} />
+                              Reset filters
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setSortBy('rating')}
+                              className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
+                            >
+                              ⭐ Sort by rating
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setShowAvailableOnly(false)}
+                              className="inline-flex items-center gap-2 rounded-lg border border-[#2F2F2F] px-4 py-2 text-sm font-semibold text-[#E0E0E0] transition-colors hover:bg-[#222]"
+                            >
+                              👀 Show all items
+                            </button>
+                          </div>
+                          <div className="text-left text-sm text-[#8D8D8D]">
+                            <p className="mb-2 font-semibold text-[#B0B0B0]">Quick tips</p>
+                            <ul className="space-y-1">
+                              <li>• Try broader search terms</li>
+                              <li>• Loosen price slider above</li>
+                              <li>• Toggle off "In-stock only"</li>
+                              <li>• Switch category to "All"</li>
+                            </ul>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center">
+                          <p className="mb-4 text-sm text-[#B0B0B0]">
+                            Want to sell your homemade food?
+                          </p>
+                          {onModeChange && (
+                            <button
+                              onClick={() => onModeChange('seller')}
+                              className="rounded-lg bg-[#CC0000] px-6 py-2.5 font-semibold text-white transition-colors hover:bg-[#B00000]"
+                              type="button"
+                            >
+                              Switch to Seller Mode
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+
+        <Footer />
+        <MobileActionBar
+          active="browse"
+          onBrowse={onLogoClick || (() => {})}
+          onCart={onCartClick}
+          onOrders={onOrdersClick}
+          onProfile={onProfileClick}
+        />
+        {/* Floating Help Button */}
+        <button
+          onClick={handleShowGuide}
+          className="help-fab fixed right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 hover:bg-[#B00000] hover:shadow-xl active:scale-95"
+          type="button"
+          title="Show tutorial guide"
+          aria-label="Open help guide"
+        >
+          <HelpCircle size={24} />
+        </button>
+      </div>
+    </>
   );
 };
 

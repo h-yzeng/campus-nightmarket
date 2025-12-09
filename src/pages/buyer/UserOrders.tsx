@@ -35,6 +35,9 @@ interface UserOrdersProps {
   pendingOrdersCount?: number;
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 type OrderTab = 'pending' | 'completed';
@@ -73,6 +76,9 @@ const UserOrders = ({
   pendingOrdersCount = 0,
   onRefresh,
   isRefreshing = false,
+  onLoadMore,
+  hasMore = false,
+  isLoadingMore = false,
 }: UserOrdersProps) => {
   const [activeTab, setActiveTab] = useState<OrderTab>('pending');
 
@@ -361,6 +367,29 @@ const UserOrders = ({
                 )}
               </div>
             ))}
+
+            {/* Load More Button */}
+            {hasMore && !loading && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={onLoadMore}
+                  disabled={isLoadingMore}
+                  className="flex items-center gap-2 rounded-xl border-2 border-[#3A3A3A] bg-[#1E1E1E] px-8 py-3 font-bold text-white transition-all hover:border-[#CC0000] hover:bg-[#252525] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin text-[#CC0000]" />
+                      Loading more orders...
+                    </>
+                  ) : (
+                    <>
+                      <Package size={20} />
+                      Load More Orders
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
