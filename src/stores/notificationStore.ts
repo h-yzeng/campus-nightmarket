@@ -54,6 +54,18 @@ export const useNotificationStore = create<NotificationState>()(
         permissionState: state.permissionState,
         isRequestingPermission: state.isRequestingPermission,
       }),
+      // Rehydrate Date objects from serialized strings
+      onRehydrateStorage: () => (state) => {
+        if (state?.notifications) {
+          state.notifications = state.notifications.map((notification) => ({
+            ...notification,
+            timestamp:
+              typeof notification.timestamp === 'string'
+                ? new Date(notification.timestamp)
+                : notification.timestamp,
+          }));
+        }
+      },
     }
   )
 );

@@ -33,7 +33,18 @@ export const useNotifications = (userId: string | undefined) => {
   const persistedNotifications = useNotificationStore((state) => state.notifications);
   const setNotificationStore = useNotificationStore((state) => state.setNotifications);
 
-  const [notifications, setNotifications] = useState<Notification[]>(persistedNotifications);
+  // Ensure timestamps are Date objects (migration for corrupted data)
+  const safeNotifications = useMemo(() => {
+    return persistedNotifications.map((notification) => ({
+      ...notification,
+      timestamp:
+        notification.timestamp instanceof Date
+          ? notification.timestamp
+          : new Date(notification.timestamp),
+    }));
+  }, [persistedNotifications]);
+
+  const [notifications, setNotifications] = useState<Notification[]>(safeNotifications);
   const [hasPermission, setHasPermission] = useState(false);
   const [permissionState, setPermissionState] = useState<NotificationPermission | 'unsupported'>(
     typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
