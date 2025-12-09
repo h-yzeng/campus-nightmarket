@@ -168,6 +168,29 @@ service cloud.firestore {
     }
 
     // ====================
+    // FAVORITES COLLECTION
+    // ====================
+    match /favorites/{favoriteId} {
+      // Users can read their own favorites
+      allow read: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+
+      // Users can create favorites for themselves
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.listingId.size() > 0;
+
+      // Users can update their own favorites (though typically not needed)
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId;
+
+      // Users can delete their own favorites
+      allow delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ====================
     // DENY ALL OTHER COLLECTIONS
     // ====================
     // Explicitly deny access to any other collections not defined above

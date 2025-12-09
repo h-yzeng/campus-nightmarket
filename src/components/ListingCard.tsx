@@ -3,6 +3,9 @@ import { memo } from 'react';
 import { toast } from 'sonner';
 import type { FoodItem } from '../types';
 import LazyImage from './common/LazyImage';
+import FavoriteButton from './common/FavoriteButton';
+import { useFavorites } from '../hooks/useFavorites';
+import { useAuth } from '../hooks/useAuth';
 
 interface ListingCardProps {
   item: FoodItem;
@@ -12,8 +15,11 @@ interface ListingCardProps {
 }
 
 const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: ListingCardProps) => {
+  const { user } = useAuth();
+  const { favoriteIds, toggleFavorite, isToggling } = useFavorites(user?.uid);
   const isPopular = item.purchaseCount !== undefined && item.purchaseCount > 10;
   const hasCategory = Boolean(item.category);
+  const isFavorited = favoriteIds.includes(item.id.toString());
 
   const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     // Allow Enter/Space to focus first interactive element (view profile button)
@@ -67,6 +73,14 @@ const ListingCard = ({ item, sellerRating, onAddToCart, onViewProfile }: Listing
         ) : (
           <div className="mb-2 text-center text-7xl">{item.image}</div>
         )}
+        <div className="absolute top-3 left-3">
+          <FavoriteButton
+            isFavorited={isFavorited}
+            onToggle={() => toggleFavorite(item.id.toString())}
+            isLoading={isToggling}
+            size="md"
+          />
+        </div>
         <div className="absolute top-3 right-3 flex flex-col gap-2 text-xs font-semibold">
           {isPopular && (
             <span className="flex items-center gap-1 rounded-full bg-[#FF9900] px-3 py-1 text-white shadow-md">

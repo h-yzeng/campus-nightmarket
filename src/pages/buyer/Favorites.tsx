@@ -19,6 +19,7 @@ interface FavoritesPageProps {
   onSignOut: () => void;
   onProfileClick: () => void;
   onOrdersClick: () => void;
+  onFavoritesClick?: () => void;
   onModeChange: (mode: UserMode) => void;
   onSellerDashboardClick?: () => void;
   onLogoClick?: () => void;
@@ -36,12 +37,13 @@ export default function FavoritesPage({
   onSignOut,
   onProfileClick,
   onOrdersClick,
+  onFavoritesClick,
   onModeChange,
   onSellerDashboardClick,
   onLogoClick,
 }: FavoritesPageProps) {
   const { user } = useAuth();
-  const { favoriteIds, isLoading, toggleFavorite } = useFavorites(user?.uid);
+  const { favoriteIds, isLoading } = useFavorites(user?.uid);
 
   // Filter listings to show only favorites
   const favoriteListings = allListings.filter((listing) =>
@@ -63,6 +65,7 @@ export default function FavoritesPage({
           onSignOut={onSignOut}
           onProfileClick={onProfileClick}
           onOrdersClick={onOrdersClick}
+          onFavoritesClick={onFavoritesClick}
           onModeChange={onModeChange}
           onSellerDashboardClick={onSellerDashboardClick}
           onLogoClick={onLogoClick}
@@ -116,25 +119,13 @@ export default function FavoritesPage({
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {favoriteListings.map((listing) => (
-                <div key={listing.id} className="relative">
-                  <ListingCard
-                    item={listing}
-                    sellerRating={listing.rating}
-                    onAddToCart={onAddToCart}
-                    onViewProfile={onViewProfile}
-                  />
-                  {/* Favorite button overlay - positioned at top-right */}
-                  <div className="absolute top-3 right-3 z-10">
-                    <button
-                      onClick={() => toggleFavorite(listing.id.toString())}
-                      className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CC0000] text-white shadow-lg transition-all hover:scale-110 active:scale-95"
-                      aria-label="Remove from favorites"
-                      type="button"
-                    >
-                      <Heart size={20} className="fill-current" />
-                    </button>
-                  </div>
-                </div>
+                <ListingCard
+                  key={listing.id}
+                  item={listing}
+                  sellerRating={listing.rating}
+                  onAddToCart={onAddToCart}
+                  onViewProfile={onViewProfile}
+                />
               ))}
             </div>
           )}

@@ -3,6 +3,27 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ListingCard from '../../src/components/ListingCard';
 import type { FoodItem } from '../../src/types';
 
+// Mock the useFavorites hook
+jest.mock('../../src/hooks/useFavorites', () => ({
+  useFavorites: () => ({
+    favoriteIds: [],
+    isLoading: false,
+    isFavorited: jest.fn(() => false),
+    toggleFavorite: jest.fn(),
+    addToFavorites: jest.fn(),
+    removeFromFavorites: jest.fn(),
+    isToggling: false,
+  }),
+}));
+
+// Mock the useAuth hook
+jest.mock('../../src/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { uid: 'test-user-id' },
+    loading: false,
+  }),
+}));
+
 describe('ListingCard', () => {
   const mockItem: FoodItem = {
     id: 1,

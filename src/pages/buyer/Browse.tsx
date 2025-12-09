@@ -44,6 +44,7 @@ interface BrowseProps {
   onSignOut: () => void;
   onProfileClick: () => void;
   onOrdersClick: () => void;
+  onFavoritesClick?: () => void;
   onViewProfile: (sellerId: string) => void;
   onModeChange?: (mode: 'buyer' | 'seller') => void;
   onShowSellerOnboarding?: () => void;
@@ -86,6 +87,7 @@ const Browse = ({
   onSignOut,
   onProfileClick,
   onOrdersClick,
+  onFavoritesClick,
   onViewProfile,
   onModeChange,
   onShowSellerOnboarding,
@@ -231,6 +233,7 @@ const Browse = ({
           onSignOut={onSignOut}
           onProfileClick={onProfileClick}
           onOrdersClick={onOrdersClick}
+          onFavoritesClick={onFavoritesClick}
           onModeChange={onModeChange}
           onShowSellerOnboarding={onShowSellerOnboarding}
           onSellerDashboardClick={onSellerDashboardClick}

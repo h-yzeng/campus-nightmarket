@@ -21,6 +21,7 @@ const Cart = lazy(() => import('../pages/buyer/Cart'));
 const Checkout = lazy(() => import('../pages/buyer/Checkout'));
 const UserOrders = lazy(() => import('../pages/buyer/UserOrders'));
 const OrderDetails = lazy(() => import('../pages/buyer/OrderDetails'));
+const Favorites = lazy(() => import('../pages/buyer/Favorites'));
 
 // eslint-disable-next-line react-refresh/only-export-components
 const BrowseWrapper = (
@@ -116,6 +117,7 @@ const BrowseWrapper = (
         }}
         onProfileClick={() => navigate('/profile')}
         onOrdersClick={() => navigate('/orders')}
+        onFavoritesClick={() => navigate('/favorites')}
         onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
         onModeChange={(mode) => {
           setUserMode(mode);
@@ -167,6 +169,52 @@ const UserProfileWrapper = (
           navigate('/seller/dashboard');
         }
       }}
+      onLogoClick={() => {
+        logoToBrowse();
+      }}
+    />
+  );
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+const FavoritesWrapper = (props: Pick<AppRoutesProps, 'addToCart' | 'handleSignOut'>) => {
+  const { navigate, signOutToHome, logoToBrowse } = useNavBasics(props.handleSignOut);
+
+  const profileData = useAuthStore((state) => state.profileData);
+  const cart = useCartStore((state) => state.cart);
+  const userMode = useNavigationStore((state) => state.userMode);
+  const setUserMode = useNavigationStore((state) => state.setUserMode);
+
+  // Get all listings for favorites
+  const { data: listingsData } = useInfiniteListingsQuery(1000); // Get a large number to include all listings
+
+  const allListings = listingsData?.pages.flatMap((page) => page.listings) ?? [];
+
+  useRouteProtection(userMode, setUserMode);
+
+  return (
+    <Favorites
+      profileData={profileData}
+      cart={cart}
+      userMode={userMode}
+      allListings={allListings}
+      onBackToBrowse={() => navigate('/browse')}
+      onAddToCart={props.addToCart}
+      onViewProfile={(sellerId) => navigate(`/seller/${sellerId}`)}
+      onCartClick={() => navigate('/cart')}
+      onSignOut={() => {
+        signOutToHome();
+      }}
+      onProfileClick={() => navigate('/profile')}
+      onOrdersClick={() => navigate('/orders')}
+      onFavoritesClick={() => navigate('/favorites')}
+      onModeChange={(mode) => {
+        setUserMode(mode);
+        if (mode === 'seller') {
+          navigate('/seller/dashboard');
+        }
+      }}
+      onSellerDashboardClick={() => navigate('/seller/dashboard')}
       onLogoClick={() => {
         logoToBrowse();
       }}
@@ -442,6 +490,14 @@ export const renderBuyerRoutes = (props: AppRoutesProps, user: User | null) => (
             handleSaveProfile={props.handleSaveProfile}
             handleSignOut={props.handleSignOut}
           />
+        </RequireAuth>
+      }
+    />
+    <Route
+      path="/favorites"
+      element={
+        <RequireAuth user={user} loading={props.authLoading}>
+          <FavoritesWrapper addToCart={props.addToCart} handleSignOut={props.handleSignOut} />
         </RequireAuth>
       }
     />

@@ -1,4 +1,13 @@
-import { ShoppingCart, User, ChevronDown, LogOut, Package, Store, LayoutGrid } from 'lucide-react';
+import {
+  ShoppingCart,
+  User,
+  ChevronDown,
+  LogOut,
+  Package,
+  Store,
+  LayoutGrid,
+  Heart,
+} from 'lucide-react';
 import { useState, useRef, useEffect, memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
@@ -15,6 +24,7 @@ interface HeaderProps {
   onSignOut: () => void;
   onProfileClick?: () => void;
   onOrdersClick?: () => void;
+  onFavoritesClick?: () => void;
   onModeChange?: (mode: UserMode) => void;
   onShowSellerOnboarding?: () => void;
   onSellerDashboardClick?: () => void;
@@ -31,6 +41,7 @@ const Header = ({
   onSignOut,
   onProfileClick,
   onOrdersClick,
+  onFavoritesClick,
   onModeChange,
   onShowSellerOnboarding,
   onSellerDashboardClick,
@@ -324,6 +335,20 @@ const Header = ({
                     >
                       <User size={18} />
                       <span>View Profile</span>
+                    </button>
+                  )}
+
+                  {onFavoritesClick && userMode === 'buyer' && (
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        onFavoritesClick();
+                      }}
+                      className="flex w-full items-center gap-3 border-b border-[#3A3A3A] px-4 py-3 text-left font-medium text-[#E0E0E0] transition-colors hover:bg-[#3A3A3A]"
+                      type="button"
+                    >
+                      <Heart size={18} />
+                      <span>My Favorites</span>
                     </button>
                   )}
 
