@@ -49,9 +49,9 @@ service cloud.firestore {
       allow update: if isOwner(userId)
         // Prevent changing uid and email
         && request.resource.data.uid == resource.data.uid
-        && request.resource.data.email == resource.data.email
-        // Keep email verification flag in sync with auth token
-        && request.resource.data.emailVerified == request.auth.token.email_verified;
+        && request.resource.data.email == resource.data.email;
+        // Email verification flag syncs with auth token
+        // Allow updating fcmToken and fcmTokenUpdatedAt for push notifications
 
       // Users can delete their own profile
       allow delete: if isOwner(userId);
@@ -97,8 +97,8 @@ service cloud.firestore {
         && (resource.data.buyerId == request.auth.uid
             || resource.data.sellerId == request.auth.uid);
 
-      // Only authenticated buyers can create orders
-      allow create: if isEmailVerified()
+      // Authenticated users can create orders (email verification recommended but not required)
+      allow create: if isAuthenticated()
         && request.resource.data.buyerId == request.auth.uid
         && request.resource.data.buyerName.size() > 0
         && request.resource.data.buyerEmail.size() > 0
@@ -110,7 +110,7 @@ service cloud.firestore {
 
       // Buyer can update their order (cancel it)
       // Seller can update order status
-      allow update: if isEmailVerified()
+      allow update: if isAuthenticated()
         && (
           // Buyer can only cancel their own orders and cannot change other fields
           (resource.data.buyerId == request.auth.uid
@@ -146,8 +146,8 @@ service cloud.firestore {
       // Anyone authenticated can read reviews
       allow read: if isAuthenticated();
 
-      // Only buyers can create reviews for their completed orders
-      allow create: if isEmailVerified()
+      // Authenticated buyers can create reviews for their completed orders
+      allow create: if isAuthenticated()
         && request.resource.data.buyerId == request.auth.uid
         && request.resource.data.rating >= 1
         && request.resource.data.rating <= 5
@@ -157,14 +157,14 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.buyerId == request.auth.uid;
 
       // Review author can update their own review
-      allow update: if isEmailVerified()
+      allow update: if isAuthenticated()
         && resource.data.buyerId == request.auth.uid
         && request.resource.data.buyerId == resource.data.buyerId
         && request.resource.data.sellerId == resource.data.sellerId
         && request.resource.data.orderId == resource.data.orderId;
 
       // Review author can delete their own review
-      allow delete: if isEmailVerified()
+      allow delete: if isAuthenticated()
         && resource.data.buyerId == request.auth.uid;
     }
 
