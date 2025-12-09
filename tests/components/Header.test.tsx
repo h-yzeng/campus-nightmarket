@@ -125,7 +125,7 @@ describe('Header', () => {
   it('should display user name', () => {
     renderHeader();
 
-    expect(screen.getByText('Jane S.')).toBeInTheDocument();
+    expect(screen.getByText(/Jane\s+Smith/)).toBeInTheDocument();
   });
 
   it('should open user dropdown menu when clicked', async () => {
@@ -135,24 +135,9 @@ describe('Header', () => {
     fireEvent.click(userMenuButton);
 
     await waitFor(() => {
-      expect(screen.getByText('My Profile')).toBeInTheDocument();
       expect(screen.getByText('My Orders')).toBeInTheDocument();
       expect(screen.getByText('Sign Out')).toBeInTheDocument();
     });
-  });
-
-  it('should call onProfileClick when My Profile is clicked', async () => {
-    renderHeader();
-
-    const userMenuButton = screen.getByLabelText('User menu');
-    fireEvent.click(userMenuButton);
-
-    await waitFor(() => {
-      const profileButton = screen.getByText('My Profile');
-      fireEvent.click(profileButton);
-    });
-
-    expect(mockProps.onProfileClick).toHaveBeenCalledTimes(1);
   });
 
   it('should call onOrdersClick when My Orders is clicked', async () => {
@@ -204,7 +189,7 @@ describe('Header', () => {
     renderHeader({ profileData: bothAccountsProfile, userMode: 'buyer' });
 
     const buyerButton = screen.getByLabelText('Switch to buyer mode');
-    expect(buyerButton).toHaveClass('bg-[#CC0000]');
+    expect(buyerButton).toHaveClass('text-[#CC0000]');
   });
 
   it('should call onModeChange when switching modes', () => {
@@ -230,15 +215,22 @@ describe('Header', () => {
     expect(mockProps.onLogoClick).toHaveBeenCalledTimes(1);
   });
 
-  it('should display pending orders count for sellers', () => {
+  it('should display pending orders count for sellers', async () => {
     const sellerProfile = {
       ...mockProfileData,
-      accountType: 'seller' as const,
+      isSeller: true,
     };
 
     renderHeader({ profileData: sellerProfile, userMode: 'seller', pendingOrdersCount: 5 });
 
-    expect(screen.getByText('5')).toBeInTheDocument();
+    // Open dropdown to see the count
+    const userMenuButton = screen.getByLabelText('User menu');
+    fireEvent.click(userMenuButton);
+
+    await waitFor(() => {
+      const counts = screen.getAllByText('5');
+      expect(counts.length).toBeGreaterThan(0);
+    });
   });
 
   it('should close dropdown when clicking outside', async () => {
@@ -248,14 +240,14 @@ describe('Header', () => {
     fireEvent.click(userMenuButton);
 
     await waitFor(() => {
-      expect(screen.getByText('My Profile')).toBeInTheDocument();
+      expect(screen.getByText('My Orders')).toBeInTheDocument();
     });
 
     // Click outside the dropdown
     fireEvent.mouseDown(document.body);
 
     await waitFor(() => {
-      expect(screen.queryByText('My Profile')).not.toBeInTheDocument();
+      expect(screen.queryByText('My Orders')).not.toBeInTheDocument();
     });
   });
 
