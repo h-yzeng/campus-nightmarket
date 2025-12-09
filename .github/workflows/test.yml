@@ -27,9 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Seller guard check
-        run: npm test -- --runTestsByPath tests/security/sellerRoutes.guard.test.tsx
-
       - name: Run tests
         run: npm test
 
