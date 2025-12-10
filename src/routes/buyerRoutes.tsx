@@ -1,3 +1,41 @@
+/**
+ * Buyer Routes
+ *
+ * Defines all routes accessible to buyers (shopping features).
+ *
+ * Routes:
+ * - /browse: Browse all food listings with filters
+ * - /cart: Shopping cart with item management
+ * - /checkout: Checkout flow with payment/pickup selection
+ * - /orders: View buyer's order history
+ * - /orders/:orderId: View order details and submit reviews
+ * - /profile: User profile (shared with seller mode)
+ * - /seller/:sellerId: View seller's profile and reviews
+ * - /favorites: View favorited listings
+ *
+ * Route Protection:
+ * - All buyer routes require authentication (RequireAuth)
+ * - Email verification required (except whitelisted emails)
+ * - Auto-switches to buyer mode if accessed in seller mode
+ *
+ * Data Loading:
+ * - Uses TanStack Query for data fetching
+ * - Infinite scroll for listings (useInfiniteListingsQuery)
+ * - Prefetches seller ratings for performance
+ * - Optimistic updates for cart operations
+ *
+ * Key Patterns:
+ * 1. Wrapper Components: BrowseWrapper, CartWrapper, etc.
+ *    - Fetch data using hooks
+ *    - Pass data to page component via props
+ *    - Handle loading/error states
+ *
+ * 2. Lazy Loading: All page components lazy loaded
+ *    - Reduces initial bundle size
+ *    - Improves page load performance
+ *    - Suspense fallback shows loading spinner
+ */
+
 import { lazy, useState } from 'react';
 import { Route, useParams, Navigate } from 'react-router-dom';
 import type { User } from 'firebase/auth';

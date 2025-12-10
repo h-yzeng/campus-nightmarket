@@ -1,3 +1,38 @@
+/**
+ * useAuth Hook
+ *
+ * Main authentication hook that provides auth state and actions to components.
+ * This is the primary interface for authentication throughout the app.
+ *
+ * Architecture:
+ * Firebase Auth → useFirebaseAuth → useAuth → Components
+ *                                  ↓
+ *                            Zustand authStore
+ *
+ * What it provides:
+ * 1. Auth State:
+ *    - user: Firebase User object
+ *    - profileData: User profile (name, email, bio, seller info, photo)
+ *    - loading: Boolean indicating auth state is loading
+ *    - error: Auth error messages
+ *
+ * 2. Auth Actions:
+ *    - handleSignup: Create new account
+ *    - handleLogin: Sign in existing user
+ *    - handleSignOut: Log out
+ *    - handleSaveProfile: Update profile
+ *    - handleBecomeSeller: Enable seller mode
+ *    - handleResetPassword: Send password reset email
+ *    - handleResendVerification: Resend email verification
+ *
+ * Data Flow:
+ * 1. Firebase Auth detects auth state changes
+ * 2. useFirebaseAuth fetches user profile from Firestore
+ * 3. useAuth converts Firebase profile to app profile format
+ * 4. State is synced to Zustand store for global access
+ * 5. Components read from store and call actions
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 import type { ProfileData } from '../../types';
 import { useFirebaseAuth } from './useFirebaseAuth';

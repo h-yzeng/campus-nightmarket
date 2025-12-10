@@ -1,3 +1,49 @@
+/**
+ * useNotifications Hook
+ *
+ * Manages push notifications via Firebase Cloud Messaging (FCM).
+ *
+ * Features:
+ * 1. Permission Management:
+ *    - Request browser notification permission
+ *    - Track permission state (granted, denied, default, unsupported)
+ *    - Handle permission UI/UX flow
+ *
+ * 2. Notification Reception:
+ *    - Foreground messages (app is open)
+ *    - Background messages (handled by service worker)
+ *    - Play sound on new notification
+ *    - Store notifications in Zustand + localStorage
+ *
+ * 3. Notification Actions:
+ *    - Mark as read/unread
+ *    - Clear individual notification
+ *    - Clear all notifications
+ *    - Refresh from server
+ *
+ * 4. FCM Token Management:
+ *    - Generate FCM token on permission grant
+ *    - Save token to Firestore for server-side push
+ *    - Remove token on signout
+ *
+ * Notification Flow:
+ * 1. User grants permission
+ * 2. FCM token generated and saved to Firestore
+ * 3. Server sends notification to FCM
+ * 4. FCM delivers to user's browser/device
+ * 5. Foreground handler adds to notifications array
+ * 6. UI updates with new notification + sound
+ *
+ * Why FCM?
+ * - Cross-platform (web, iOS, Android)
+ * - Reliable delivery
+ * - Works in background
+ * - Free tier is generous
+ *
+ * Usage:
+ * const { notifications, requestPermission, markAsRead } = useNotifications(userId);
+ */
+
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   requestNotificationPermission,

@@ -1,3 +1,42 @@
+/**
+ * Shared Routing Utilities
+ *
+ * Common components and helpers used across all route files.
+ *
+ * Components:
+ * 1. RequireAuth:
+ *    - Route guard for protected routes
+ *    - Redirects to /login if not authenticated
+ *    - Redirects to /verify-required if email not verified
+ *    - Wraps children in error boundary and suspense
+ *
+ * 2. PageLoadingFallback:
+ *    - Loading spinner for lazy-loaded routes
+ *    - Full-screen centered spinner
+ *    - Consistent UX across all page transitions
+ *
+ * Helpers:
+ * 1. makeLogoToBrowse:
+ *    - Creates handler for logo click → navigate to /browse
+ *    - Scrolls to top on navigation
+ *    - Used in headers across app
+ *
+ * 2. makeSignOutToHome:
+ *    - Creates handler for signout → navigate to /
+ *    - Calls handleSignOut then redirects
+ *    - Used in headers and profile pages
+ *
+ * 3. useNavBasics:
+ *    - Combines common navigation needs
+ *    - Returns navigate, logoToBrowse, signOutToHome
+ *    - Reduces boilerplate in route files
+ *
+ * Email Verification:
+ * - Most routes require verified email
+ * - Whitelisted emails bypass verification (for testing/development)
+ * - Verification status checked in RequireAuth guard
+ */
+
 /* eslint-disable react-refresh/only-export-components */
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Suspense, type ReactElement } from 'react';

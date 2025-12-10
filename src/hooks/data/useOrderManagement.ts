@@ -1,3 +1,42 @@
+/**
+ * useOrderManagement Hook
+ *
+ * Manages all order-related operations using TanStack Query mutations.
+ *
+ * Key Features:
+ * 1. Place Order:
+ *    - Groups cart items by seller
+ *    - Creates separate orders for each seller
+ *    - Records purchase count for trending items
+ *    - Clears cart on success
+ *    - Rate limited to prevent spam (max 5 orders per minute)
+ *
+ * 2. Cancel Order:
+ *    - Buyer or seller can cancel
+ *    - Updates order status to 'cancelled'
+ *    - Invalidates order queries to refresh UI
+ *
+ * 3. Update Order Status:
+ *    - Seller-only operation
+ *    - Updates status: pending → confirmed → ready → completed
+ *    - Triggers notification to buyer on status change
+ *
+ * Order Data Structure:
+ * {
+ *   buyerId, buyerName, buyerEmail,
+ *   sellerId, sellerName,
+ *   items: [{listingId, name, price, quantity, imageURL}],
+ *   total, status, paymentMethod, pickupTime,
+ *   createdAt, updatedAt
+ * }
+ *
+ * Error Handling:
+ * - Rate limiting prevents abuse
+ * - User-friendly error messages via toast
+ * - Errors reported to Sentry for monitoring
+ * - Partial failures handled gracefully (some orders succeed, some fail)
+ */
+
 import { useQueryClient } from '@tanstack/react-query';
 import {
   useCreateOrderMutation,

@@ -1,6 +1,30 @@
 /**
- * Route configuration utility
- * Defines which routes are buyer-only, seller-only, or shared
+ * Route Configuration Utility
+ *
+ * Defines which routes are buyer-only, seller-only, or shared.
+ * Used for navigation guards and mode switching.
+ *
+ * Route Types:
+ * 1. buyer-only: Shopping features (browse, cart, checkout, orders)
+ * 2. seller-only: Selling features (dashboard, create listing, manage orders)
+ * 3. shared: Available in both modes (home, login, profile)
+ *
+ * Mode Switching Logic:
+ * - Users can switch between buyer and seller modes
+ * - Accessing buyer-only route in seller mode auto-switches to buyer mode
+ * - Accessing seller-only route in buyer mode auto-switches to seller mode
+ * - Shared routes don't trigger mode switching
+ *
+ * Why This Architecture?
+ * - Prevents confusion (clear separation of buyer/seller features)
+ * - Improves UX (automatic mode switching based on navigation)
+ * - Simplifies navigation guards (centralized route config)
+ *
+ * Usage:
+ * const routeConfig = getRouteConfig(pathname);
+ * if (routeConfig.type === 'seller-only' && userMode === 'buyer') {
+ *   switchToSellerMode();
+ * }
  */
 
 export type RouteType = 'buyer-only' | 'seller-only' | 'shared';

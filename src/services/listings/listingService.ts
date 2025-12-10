@@ -1,3 +1,48 @@
+/**
+ * Listing Service
+ *
+ * Handles all Firestore operations for food listings.
+ *
+ * Key Functions:
+ * 1. CRUD Operations:
+ *    - createListing: Add new food listing
+ *    - updateListing: Edit existing listing
+ *    - deleteListing: Remove listing
+ *    - getListing: Get single listing by ID
+ *    - getAllListings: Get all listings with pagination
+ *    - getSellerListings: Get listings for specific seller
+ *
+ * 2. Availability Management:
+ *    - toggleListingAvailability: Mark item available/unavailable
+ *    - Used when seller runs out of stock
+ *
+ * 3. Purchase Tracking:
+ *    - recordPurchase: Increment purchase count
+ *    - Used for trending items feature
+ *    - getTopListingByPurchaseCount: Get most purchased item
+ *
+ * Data Validation:
+ * - Price validation (positive number)
+ * - Category validation (from predefined list)
+ * - Text sanitization (prevent XSS, trim, length limits)
+ * - Image URL validation
+ *
+ * Error Handling:
+ * - Converts Firebase errors to user-friendly messages
+ * - Logs errors for monitoring
+ * - Throws AppError with category and code
+ *
+ * Pagination:
+ * - Supports cursor-based pagination (startAfter)
+ * - Returns { listings, lastDoc, hasMore }
+ * - Used with TanStack Query infinite queries
+ *
+ * Security:
+ * - Validates seller ownership before update/delete
+ * - Sanitizes all user input
+ * - Uses Firestore security rules for additional protection
+ */
+
 import {
   collection,
   doc,

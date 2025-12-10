@@ -1,3 +1,24 @@
+/**
+ * App.tsx - Main Application Component
+ *
+ * This is the root component of the Campus Nightmarket application.
+ * It orchestrates the entire application's state management, authentication,
+ * and business logic.
+ *
+ * Key Responsibilities:
+ * 1. Initialize and manage authentication state (user, profile)
+ * 2. Coordinate cart operations and sync across devices
+ * 3. Handle notifications (push notifications via Firebase Cloud Messaging)
+ * 4. Manage order placement, updates, and cancellations
+ * 5. Provide global state to child components via context/props
+ *
+ * Architecture Overview:
+ * - Authentication: Firebase Auth → useAuth hook → Zustand authStore
+ * - Server Data: Firebase Firestore → TanStack Query (caching & mutations)
+ * - Local State: Zustand stores (cart, notifications, navigation)
+ * - Cart Sync: localStorage + Firebase (cross-device support)
+ */
+
 import { useEffect, useCallback } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -27,7 +48,13 @@ import { useAppStateSync } from './hooks/features/useAppStateSync';
 function App() {
   const queryClient = useQueryClient();
 
-  // Clear rate limits on page refresh in development mode
+  /**
+   * Development Helper: Clear Rate Limits
+   *
+   * In development mode (localhost), clear all rate limits on mount.
+   * This prevents rate limiting from blocking rapid testing/development.
+   * In production, rate limits persist to prevent abuse.
+   */
   useEffect(() => {
     if (window.location.hostname === 'localhost') {
       rateLimiter.clearAll();
@@ -35,7 +62,18 @@ function App() {
     }
   }, []);
 
-  // Auth and cart still use hooks
+  /**
+   * Authentication Hook (useAuth)
+   *
+   * Provides:
+   * - user: Firebase User object (null if signed out)
+   * - profileData: User profile from Firestore (name, email, bio, etc.)
+   * - Auth actions: login, signup, signout, update profile, etc.
+   * - loading: Boolean indicating auth state is being determined
+   *
+   * Data Flow:
+   * Firebase Auth → useFirebaseAuth → useAuth → Zustand authStore → UI
+   */
   const {
     profileData,
     setProfileData,
@@ -49,22 +87,77 @@ function App() {
     loading,
   } = useAuth();
 
+  /**
+   * Shopping Cart Hook (useCart)
+   *
+   * Manages shopping cart state via Zustand store.
+   * Cart is automatically persisted to localStorage.
+   *
+   * Actions:
+   * - addToCart: Add item or increment quantity if exists
+   * - updateCartQuantity: Change item quantity (removes if <= 0)
+   * - removeFromCart: Remove item from cart
+   * - clearCart: Empty entire cart
+   */
   const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
 
-  // Cart cloud sync - syncs cart to Firestore for cross-device access
+  /**
+   * Cart Cloud Sync (useCartSync)
+   *
+   * Syncs cart to Firestore for cross-device access.
+   * When user logs in on a different device, their cart is restored.
+   * Uses debouncing to avoid excessive writes to Firestore.
+   */
   const { clearCloudCart } = useCartSync(user?.uid);
 
-  // Listing mutations
+  /**
+   * Listing Mutations (TanStack Query)
+   *
+   * These mutations handle seller actions on their food listings:
+   * - deleteListingMutation: Permanently remove a listing
+   * - toggleAvailabilityMutation: Mark listing as available/unavailable
+   *
+   * Mutations automatically:
+   * 1. Update Firestore
+   * 2. Invalidate affected queries (listings, seller dashboard)
+   * 3. Show success/error toasts
+   */
   const deleteListingMutation = useDeleteListingMutation();
   const toggleAvailabilityMutation = useToggleListingAvailabilityMutation();
 
-  // Order management now uses React Query mutations
+  /**
+   * Order Management Hook (useOrderManagement)
+   *
+   * Handles all order-related operations using TanStack Query mutations.
+   *
+   * Key Features:
+   * - handlePlaceOrder: Create order(s) from cart, supports multi-seller checkout
+   * - handleCancelOrder: Buyer/seller can cancel orders
+   * - handleUpdateOrderStatus: Seller updates order status (confirmed, ready, completed)
+   *
+   * Order Lifecycle:
+   * pending → confirmed → ready → completed
+   * (can be cancelled at any point)
+   */
   const { handlePlaceOrder, handleCancelOrder, handleUpdateOrderStatus } = useOrderManagement({
     user,
     profileData,
   });
 
-  // Notifications
+  /**
+   * Notifications Hook (useNotifications)
+   *
+   * Manages push notifications via Firebase Cloud Messaging (FCM).
+   *
+   * Features:
+   * - Real-time notifications for order updates
+   * - Foreground & background notification support
+   * - Permission management (request, check status)
+   * - Notification actions (mark read, clear, etc.)
+   * - Sound effects for new notifications
+   *
+   * Notifications are stored in Zustand and persisted to localStorage.
+   */
   const {
     notifications,
     unreadCount,

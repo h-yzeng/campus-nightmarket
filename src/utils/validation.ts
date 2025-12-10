@@ -1,6 +1,33 @@
 /**
- * Input validation utilities
- * Provides type-safe validation for user inputs and data
+ * Input Validation Utilities
+ *
+ * Provides type-safe validation for user inputs and business data.
+ * All user input should be validated before storage or processing.
+ *
+ * Categories:
+ * 1. Payment Methods: Validate payment method strings
+ * 2. Order Status: Validate order lifecycle states
+ * 3. Categories: Validate food categories
+ * 4. Text Fields: Sanitize and validate text inputs (XSS prevention)
+ * 5. Numbers: Validate prices, quantities, etc.
+ * 6. Dates: Validate pickup times and timestamps
+ *
+ * Security Features:
+ * - XSS prevention via HTML entity encoding
+ * - Input length limits (prevent DoS)
+ * - Type checking (prevent type confusion)
+ * - Whitelist validation (only allow known values)
+ *
+ * Why Validation Matters:
+ * - Security: Prevent XSS, SQL injection, etc.
+ * - Data Integrity: Ensure consistent data format
+ * - UX: Provide clear error messages
+ * - Debugging: Catch errors early in development
+ *
+ * Usage:
+ * const sanitizedName = sanitizeString(userInput, 100);
+ * validatePrice(price); // throws if invalid
+ * const isValid = isValidPaymentMethod(method); // returns boolean
  */
 
 import type { PaymentMethod, OrderStatus } from '../types';

@@ -11,7 +11,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Ready-purple)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**A modern marketplace for late-night food exchange on campus**
+## A modern marketplace for late-night food exchange on campus
 
 Buy, sell, and trade food with verified IIT students • Never go hungry during late-night study sessions
 
@@ -536,6 +536,4 @@ For issues and questions:
 | 💬 Discussions | [GitHub Discussions](https://github.com/h-yzeng/campus-nightmarket/discussions) |
 | 📧 Contact     | <hzeng9@illinoistech.edu>                                                       |
 
-**Made with ❤️ for IIT students**
-
-</div>
+#### Made with ❤️ for IIT students

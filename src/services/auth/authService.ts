@@ -39,6 +39,18 @@ const getEnvVar = (key: 'VITE_VERIFICATION_REDIRECT_URL' | 'VITE_FIREBASE_AUTH_D
   return undefined;
 };
 
+/**
+ * Build Action Code Settings for Email Verification
+ *
+ * Configures where users are redirected after clicking verification email link.
+ *
+ * Behavior:
+ * - In development (localhost): Redirects to local verify-email page
+ * - In production: Redirects to production verify-email page
+ *
+ * The handleCodeInApp flag ensures verification happens in-app
+ * for a seamless user experience.
+ */
 const buildVerificationActionCodeSettings = () => {
   // Prefer an explicitly configured redirect; in dev stick to the local origin
   const configured = getEnvVar('VITE_VERIFICATION_REDIRECT_URL');
@@ -56,6 +68,23 @@ const buildVerificationActionCodeSettings = () => {
   } as const;
 };
 
+/**
+ * Sign Up - Create New User Account
+ *
+ * Creates a new Firebase Authentication user and sends verification email.
+ *
+ * Steps:
+ * 1. Create user with email/password in Firebase Auth
+ * 2. Send verification email to user's inbox
+ * 3. Return User object for profile creation
+ *
+ * Note: User profile (name, studentId, etc.) is created separately
+ * in Firestore after successful signup.
+ *
+ * @param data - User signup information (email, password, name, etc.)
+ * @returns Firebase User object
+ * @throws Error if signup fails or email already exists
+ */
 export const signUp = async (data: SignupData): Promise<User> => {
   try {
     const auth = resolveAuth();

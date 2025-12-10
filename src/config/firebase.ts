@@ -1,3 +1,37 @@
+/**
+ * Firebase Configuration
+ *
+ * Initializes and exports Firebase services for the application.
+ *
+ * Services:
+ * - Auth: User authentication (email/password, email verification)
+ * - Firestore: NoSQL database (users, listings, orders, reviews)
+ * - Storage: File storage (profile photos, listing images)
+ * - App Check: Bot/spam protection (reCAPTCHA v3)
+ * - Cloud Messaging: Push notifications (configured elsewhere)
+ *
+ * Environment Variables Required:
+ * - VITE_FIREBASE_API_KEY
+ * - VITE_FIREBASE_AUTH_DOMAIN
+ * - VITE_FIREBASE_PROJECT_ID
+ * - VITE_FIREBASE_STORAGE_BUCKET
+ * - VITE_FIREBASE_MESSAGING_SENDER_ID
+ * - VITE_FIREBASE_APP_ID
+ * - VITE_FIREBASE_MEASUREMENT_ID (optional)
+ * - VITE_FIREBASE_RECAPTCHA_SITE_KEY (for App Check)
+ *
+ * Initialization:
+ * - Lazy initialization (only when first accessed)
+ * - Validates all required config keys
+ * - Gracefully handles missing config in test environment
+ * - App Check enabled in production for security
+ *
+ * Usage:
+ * import { getFirebaseAuth, getFirestore, getFirebaseStorage } from '@/config/firebase';
+ * const auth = getFirebaseAuth();
+ * const db = getFirestore();
+ */
+
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';

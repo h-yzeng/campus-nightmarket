@@ -1,3 +1,27 @@
+/**
+ * Notification Store (Zustand)
+ *
+ * Manages push notification state via Firebase Cloud Messaging (FCM).
+ *
+ * State:
+ * - notifications: Array of notification objects (id, title, body, timestamp, read status)
+ * - unreadCount: Number of unread notifications
+ * - handlers: Functions to mark as read, clear, etc.
+ * - permissionState: Browser notification permission ('granted', 'denied', 'default')
+ * - isRequestingPermission: Loading state while requesting permission
+ * - requestPermission: Function to request notification permission
+ * - refreshNotifications: Function to reload notifications from server
+ *
+ * Persistence Strategy:
+ * - Notifications array is persisted to localStorage
+ * - Handler functions are NOT persisted (they're recreated on mount)
+ * - Date objects are serialized as strings and rehydrated on load
+ *
+ * Usage in Components:
+ * const notifications = useNotificationStore((state) => state.notifications);
+ * const markAsRead = useNotificationStore((state) => state.handlers?.markAsRead);
+ */
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Notification } from '../hooks/features/useNotifications';

@@ -1,3 +1,28 @@
+/**
+ * Auth Store (Zustand)
+ *
+ * Manages authentication state across the application.
+ *
+ * State:
+ * - user: Firebase User object (contains uid, email, emailVerified, etc.)
+ * - profileData: User profile from Firestore (name, bio, seller info, etc.)
+ *
+ * Why Zustand?
+ * - Lightweight state management (no boilerplate like Redux)
+ * - Easy to use with hooks
+ * - Built-in persistence via middleware
+ * - Good TypeScript support
+ *
+ * Persistence Strategy:
+ * - Only profileData is persisted to localStorage
+ * - Firebase User object is NOT persisted (non-serializable, comes from Firebase Auth)
+ * - On app load, Firebase Auth automatically restores user session
+ *
+ * Usage:
+ * const user = useAuthStore((state) => state.user);
+ * const setUser = useAuthStore((state) => state.setUser);
+ */
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ProfileData } from '../types';

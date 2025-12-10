@@ -27,6 +27,6 @@ All sounds should be:
 
 You can generate notification sounds using:
 
-- https://notificationsounds.com/
-- https://mixkit.co/free-sound-effects/notification/
+- <https://notificationsounds.com/>
+- <https://mixkit.co/free-sound-effects/notification/>
 - Or create custom sounds with audio editing software

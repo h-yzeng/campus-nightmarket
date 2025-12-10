@@ -1,3 +1,37 @@
+/**
+ * useFavorites Hook
+ *
+ * Manages user's favorite food listings with optimistic updates.
+ *
+ * Features:
+ * - Query favorite listing IDs from Firestore
+ * - Toggle favorite status (add/remove)
+ * - Optimistic UI updates (instant feedback)
+ * - Automatic rollback on error
+ * - Toast notifications for user feedback
+ *
+ * Data Structure:
+ * Firestore: users/{userId}/favorites/{listingId}
+ * Each favorite is a document with: { createdAt: timestamp }
+ *
+ * Optimistic Updates:
+ * 1. User clicks favorite button
+ * 2. UI updates immediately (toggle heart icon)
+ * 3. Mutation sent to Firestore in background
+ * 4. If error occurs, UI reverts to previous state
+ * 5. Success: Show toast confirmation
+ *
+ * Why Optimistic Updates?
+ * - Better UX (instant feedback, feels fast)
+ * - Works well for non-critical actions
+ * - Graceful error handling (rollback)
+ *
+ * Usage:
+ * const { favoriteIds, toggleFavorite, isFavorited } = useFavorites(userId);
+ * const isFav = isFavorited(listingId);
+ * toggleFavorite(listingId, isFav);
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
